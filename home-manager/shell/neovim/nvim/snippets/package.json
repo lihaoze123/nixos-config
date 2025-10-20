@@ -1,0 +1,8 @@
+{
+    "name": "personal-snippets",
+    "contributors": {
+        "snippets": [
+            { "language": "cpp", "path": "./cpp.json" }
+        ]
+    }
+}
