@@ -5,7 +5,7 @@
     ./shell
     inputs.ragenix.homeManagerModules.default
   ];
-
+  home.enableNixpkgsReleaseCheck = false;
   age.identityPaths = [ "/home/chumeng/.ssh/id_rsa" ];
 
   home.username = "chumeng";
