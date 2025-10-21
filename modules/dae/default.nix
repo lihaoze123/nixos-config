@@ -4,8 +4,9 @@
         inputs.daeuniverse.nixosModules.dae
     ];
 
-    age.secrets.dae-subscription = {
-        file = ../../secrets/dae-subscription.age;
+    age.secrets.dae-config = {
+        name = "config.dae";
+        file = ../../secrets/dae-config.age;
     };
 
     services.dae = {
@@ -16,6 +17,6 @@
             port = 12345;
         };
 
-        config = builtins.replaceStrings ["NIX_REPLACE_SUBSCRIPTION_HERE"] [(lib.strings.removeSuffix "\n" (builtins.readFile config.age.secrets.dae-subscription.path))] (builtins.readFile ./config.dae);
+        configFile = config.age.secrets.dae-config.path;
     };
 }
