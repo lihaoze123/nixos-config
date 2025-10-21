@@ -1,88 +1,91 @@
-{ config, lib, pkgs, inputs, ...}:
+{ config, lib, pkgs, inputs, ... }:
 {
-    imports = [ ./hardware-configuration.nix ];
-    boot.loader = {
-        grub = {
-            enable = true;
-            device = "nodev";
-            efiSupport = true;
-            useOSProber = true;
-        };
-        efi = {
-            canTouchEfiVariables = true;
-            efiSysMountPoint = "/boot";
-        };
-    };
-    networking = {
-        hostName = "nixos";
-        networkmanager.enable = true;
-    };
-    hardware.bluetooth = {
+  imports = [ ./hardware-configuration.nix ];
+  boot.loader = {
+    grub = {
       enable = true;
-      powerOnBoot = true;
-      settings = {
-        General = {
-          Experimental = true;
-          FastConnectable = true;
-        };
-        Policy = {
-          AutoEnable = true;
-        };
+      device = "nodev";
+      efiSupport = true;
+      useOSProber = true;
+    };
+    efi = {
+      canTouchEfiVariables = true;
+      efiSysMountPoint = "/boot";
+    };
+  };
+  networking = {
+    hostName = "nixos";
+    networkmanager.enable = true;
+  };
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+    settings = {
+      General = {
+        Experimental = true;
+        FastConnectable = true;
+      };
+      Policy = {
+        AutoEnable = true;
       };
     };
-    time.timeZone = "Asia/Shanghai";
-    i18n.defaultLocale = "zh_CN.UTF-8";
+  };
+  time.timeZone = "Asia/Shanghai";
+  i18n.defaultLocale = "zh_CN.UTF-8";
 
-    services = {
-        xserver.enable = true;
-        displayManager.sddm.enable = true;
-        desktopManager.plasma6.enable = true;
-    };
+  services = {
+    xserver.enable = true;
+    displayManager.sddm.enable = true;
+    desktopManager.plasma6.enable = true;
+  };
 
-    services.pipewire = {
-        enable = true;
-        alsa.enable = true;
-        alsa.support32Bit = true;
-        pulse.enable = true;
-    };
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+  };
 
-    nix.settings.experimental-features = [ "nix-command" "flakes" ];
-    environment.systemPackages = with pkgs; [
-        vim git wget wl-clipboard-rs
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  environment.systemPackages = with pkgs; [
+    vim
+    git
+    wget
+    wl-clipboard-rs
+  ];
+
+  users.users.chumeng = {
+    isNormalUser = true;
+    description = "chumeng";
+    extraGroups = [ "networkmanager" "wheel" ];
+  };
+
+  age.identityPaths = [ "/home/chumeng/.ssh/id_rsa" ];
+
+  fonts = {
+    packages = with pkgs; [
+      material-design-icons
+
+      noto-fonts-cjk-sans
+      noto-fonts-cjk-serif
+      noto-fonts-emoji
+
+      nerd-fonts.fira-code
     ];
 
-    users.users.chumeng = {
-        isNormalUser = true;
-        description = "chumeng";
-        extraGroups = [ "networkmanager" "wheel" ];
+    enableDefaultPackages = false;
+
+    fontconfig.defaultFonts = {
+      serif = [ "Noto Serif CJK SC" ];
+      sansSerif = [ "Noto Sans CJK SC" ];
+      monospace = [ "FiraCode Nerd Font" ];
+      emoji = [ "Noto Color Emoji" ];
     };
+  };
 
-    age.identityPaths = [ "/home/chumeng/.ssh/id_rsa" ];
+  programs.nix-ld.enable = true;
 
-    fonts = {
-      packages = with pkgs; [
-        material-design-icons
-
-        noto-fonts-cjk-sans
-        noto-fonts-cjk-serif
-        noto-fonts-emoji
-
-        nerd-fonts.fira-code
-      ];
-
-      enableDefaultPackages = false;
-
-      fontconfig.defaultFonts = {
-        serif = ["Noto Serif CJK SC"];
-        sansSerif = ["Noto Sans CJK SC"];
-        monospace = ["FiraCode Nerd Font"];
-        emoji = ["Noto Color Emoji"];
-      };
-    };
-
-    programs.nix-ld.enable = true;
-
-    nixpkgs.config.allowUnfree = true;
-    nix.settings.substituters = [ "https://mirror.tuna.tsinghua.edu.cn/nix-channels/store" ];
-    system.stateVersion = "25.05";
+  nixpkgs.config.allowUnfree = true;
+  nix.settings.substituters = [ "https://mirror.tuna.tsinghua.edu.cn/nix-channels/store" ];
+  system.stateVersion = "25.05";
 }

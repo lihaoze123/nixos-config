@@ -1,8 +1,8 @@
-{ pkgs ? import <nixpkgs> {} }:
+{ pkgs ? import <nixpkgs> { } }:
 
 pkgs.stdenv.mkDerivation {
   name = "gcc14-stdcpp-precompiled";
-  buildInputs = [ pkgs.gcc14 ];  # 引入 gcc14 编译器[web:9]
+  buildInputs = [ pkgs.gcc14 ]; # 引入 gcc14 编译器[web:9]
 
   # 仅执行自定义阶段，跳过默认的 unpack/patch/configure
   phases = [ "buildPhase" "installPhase" ];

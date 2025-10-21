@@ -14,7 +14,7 @@
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       specialArgs = { inherit inputs; };
       modules = [
-        ./nixos/configuration.nix 
+        ./nixos/configuration.nix
         ragenix.nixosModules.default
         home-manager.nixosModules.home-manager
         {

@@ -1,14 +1,14 @@
 { pkgs, ... }:
 {
   home.packages = with pkgs; [
-     fastfetch
-     yazi
-     lazygit
-     fzf
-     ripgrep
-     eza
-     bat
-     gcc14
+    fastfetch
+    yazi
+    lazygit
+    fzf
+    ripgrep
+    eza
+    bat
+    gcc14
   ];
 
   programs.starship = {

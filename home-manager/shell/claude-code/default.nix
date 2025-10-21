@@ -1,9 +1,9 @@
-{
-  pkgs,
-  lib,
-  config,
-  ...
-}@inputs: let
+{ pkgs
+, lib
+, config
+, ...
+}@inputs:
+let
   claude_alt = { name, url, token_path }: (
     pkgs.writeShellScriptBin name ''
       export ANTHROPIC_AUTH_TOKEN=$(cat ${token_path})
@@ -11,12 +11,13 @@
       exec claude "$@"
     ''
   );
-in {
+in
+{
   age.secrets.glm-token = {
-      file = ../../secrets/glm-token.age;
+    file = ../../secrets/glm-token.age;
   };
   age.secrets.kimi-token = {
-      file = ../../secrets/kimi-token.age;
+    file = ../../secrets/kimi-token.age;
   };
 
   home.packages = with pkgs; [
