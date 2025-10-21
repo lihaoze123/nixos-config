@@ -10,13 +10,12 @@
     ragenix.url = "github:yaxitech/ragenix";
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }@inputs: {
+  outputs = { self, nixpkgs, home-manager, ragenix, ... }@inputs: {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       specialArgs = { inherit inputs; };
       modules = [
         ./nixos/configuration.nix 
-        inputs.daeuniverse.nixosModules.dae
-        inputs.daeuniverse.nixosModules.daed
+        ragenix.nixosModules.default
         home-manager.nixosModules.home-manager
         {
           home-manager.useGlobalPkgs = true;
@@ -24,6 +23,7 @@
           home-manager.users.chumeng = import ./home-manager/home.nix;
           home-manager.extraSpecialArgs = inputs;
         }
+        (import ./modules)
         (import ./overlays)
       ];
     };

@@ -13,7 +13,8 @@ return {
             fallbackFlags = {
               '--std=c++23'
             }
-          }
+          },
+          mason = false;
         },
       }
     }

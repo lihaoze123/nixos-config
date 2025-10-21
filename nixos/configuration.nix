@@ -57,14 +57,7 @@
         extraGroups = [ "networkmanager" "wheel" ];
     };
 
-    services.daed = {
-      enable = true;
-
-      openFirewall = {
-        enable = true;
-        port = 12345;
-      };
-    };
+    age.identityPaths = [ "/home/chumeng/.ssh/id_rsa" ];
 
     fonts = {
       packages = with pkgs; [
