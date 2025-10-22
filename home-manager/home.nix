@@ -3,6 +3,8 @@
   imports = [
     ./fcitx5
     ./shell
+    ./niri
+    ./applications
     inputs.ragenix.homeManagerModules.default
   ];
   home.enableNixpkgsReleaseCheck = false;
@@ -11,15 +13,7 @@
   home.username = "chumeng";
   home.homeDirectory = "/home/chumeng";
 
-  xresources.properties = {
-    "Xcursor.size" = 16;
-    "Xft.dpi" = 172;
-  };
-
   home.packages = with pkgs;[
-    # browser
-    microsoft-edge
-
     # archives
     zip
     xz

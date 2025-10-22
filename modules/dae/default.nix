@@ -5,8 +5,9 @@
   ];
 
   age.secrets.dae-config = {
-    name = "config.dae";
     file = ../../secrets/dae-config.age;
+    path = "/etc/dae/config.dae";
+    symlink = false;
   };
 
   services.dae = {

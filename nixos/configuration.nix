@@ -33,12 +33,6 @@
   time.timeZone = "Asia/Shanghai";
   i18n.defaultLocale = "zh_CN.UTF-8";
 
-  services = {
-    xserver.enable = true;
-    displayManager.sddm.enable = true;
-    desktopManager.plasma6.enable = true;
-  };
-
   services.pipewire = {
     enable = true;
     alsa.enable = true;
@@ -51,7 +45,7 @@
     vim
     git
     wget
-    wl-clipboard-rs
+    wl-clipboard
   ];
 
   users.users.chumeng = {
