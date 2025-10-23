@@ -1,10 +1,10 @@
 { config, pkgs, lib, ... }@inputs:
 let
-  niriConfigPath = "${config.home.homeDirectory}/nixos-config/home-manager/niri/config-class.kdl";
+  niriConfigPath = "${config.home.homeDirectory}/nixos-config/hosts/class/config-class.kdl";
 in
 {
   imports = [
-    ./home.nix
+    ../../home-manager/home.nix
   ];
 
   home.packages = with pkgs; [

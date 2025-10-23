@@ -67,43 +67,68 @@ ragenix -l
 ```
 nixos-config/
 ├── flake.nix                    # 主 flake 定义
-├── nixos/                       # 系统 NixOS 配置
-│   └── configuration.nix        # 主要系统配置
-├── hardware-configurations/     # 设备特定硬件配置
-│   ├── laptop.nix               # 笔记本电脑硬件配置
-│   └── class.nix                # 实验室设备硬件配置
+├── flake.lock                   # flake 锁定文件
+├── hosts/                       # 设备配置（新架构）
+│   ├── laptop/                  # 笔记本电脑配置
+│   │   ├── default.nix          # 主机配置入口
+│   │   ├── hardware-configuration.nix  # 硬件配置
+│   │   └── laptop.nix           # 设备特定配置
+│   ├── class/                   # 实验室设备配置
+│   │   ├── default.nix          # 主机配置入口
+│   │   ├── hardware-configuration.nix  # 硬件配置
+│   │   ├── class.nix            # 设备特定配置
+│   │   └── config-class.kdl     # Niri 窗口管理器配置
+│   └── base.nix                 # 基础系统配置
 ├── home-manager/                # 用户家目录配置
-│   ├── home.nix                 # 主要共享家目录配置
-│   ├── laptop.nix               # 笔记本电脑特定配置
-│   ├── class.nix                # 实验室设备特定配置
+│   ├── home.nix                 # 基础用户配置（包、Git、Age、模块化Shell导入）
 │   ├── shell/                   # Shell 环境配置
-│   ├── fcitx5/                  # 输入法配置
+│   │   ├── default.nix          # Shell 模块入口
+│   │   ├── fish/                # Fish Shell + Starship 配置
+│   │   ├── kitty/               # Kitty 终端模拟器
+│   │   ├── neovim/              # Neovim/LazyVim 配置
+│   │   ├── claude-code/         # Claude Code AI 助手
+│   │   ├── gcc/                 # GCC14 工具链
+│   │   └── common.nix           # 通用 Shell 工具
+│   ├── fcitx5/                  # Fcitx5 + Rime 小鹤音形输入法
+│   ├── niri/                    # Niri 窗口管理器配置
+│   │   └── config.kdl           # 默认电脑配置（高分辨率）
 │   ├── secrets/                 # 用户秘密文件
-│   ├── applications/            # 用户应用程序
-│   └── niri/                    # Niri 窗口管理器配置
+│   └── applications/            # 用户应用程序
 ├── modules/                     # 自定义 NixOS 模块
 │   ├── dae/                     # DAE 代理服务模块
-│   └── niri/                    # Niri 窗口管理器模块
+│   │   ├── default.nix          # DAE 服务配置
+│   │   ├── subscriber.nix       # 自动订阅管理
+│   │   └── config.dae           # 内联 DAE 配置
+│   ├── niri/                    # Niri 窗口管理器模块
+│   │   ├── default.nix          # Niri 系统集成
+│   │   └── sddm.nix             # SDDM 显示管理器配置
+│   └── default.nix              # 模块入口点
 ├── overlays/                    # Nixpkgs 覆盖层
+│   ├── default.nix              # 覆盖层入口
 │   └── fcitx5/                  # Fcitx5 自定义配置
 └── secrets/                     # 系统级加密秘密文件
 ```
 
 ## ⚙️ 核心组件
 
-### 1. 系统配置 (`nixos/configuration.nix`)
-- Niri 窗口管理器
-- SDDM 显示管理器与 SilentSDDM 主题
-- PipeWire 音频系统
-- 实验性功能的蓝牙支持
-- 中文本地化（zh_CN.UTF-8）和时区（Asia/Shanghai）
-- DAE 代理服务
-- 自定义字体配置，支持 CJK 和 Nerd Fonts
+### 1. 主机配置系统 (`hosts/`)
+采用分层主机配置架构，支持多设备管理：
+- **共享模块**: 通过模块化系统实现配置复用
+- **设备特定**: 每个设备在独立目录中管理其配置
+- **硬件抽象**: `hardware-configuration.nix` 自动生成并维护
 
-### 2. 用户环境配置
+#### 主机配置文件结构
+- `hosts/hostname/default.nix` - 主机配置入口点，导入必要模块
+- `hosts/hostname/hardware-configuration.nix` - 硬件特定配置（自动生成）
+- `hosts/hostname/hostname.nix` - 设备特定的额外配置
+
+### 2. 用户环境配置 (`home-manager/`)
+模块化用户环境管理系统：
 - **基础配置** (`home-manager/home.nix`): 共享用户包、Git 配置、Age 加密、模块化 Shell 导入
-- **笔记本电脑配置** (`home-manager/laptop.nix`): 扩展基础配置，添加笔记本电脑特定包
-- **实验室配置** (`home-manager/class.nix`): 扩展基础配置，添加实验室特定包，自定义 Niri 配置
+- **Shell 环境** (`home-manager/shell/`): Fish Shell + Starship、开发工具、终端配置
+- **输入法** (`home-manager/fcitx5/`): Fcitx5 + Rime 小鹤音形输入法
+- **窗口管理器** (`home-manager/niri/`): 设备特定的 Niri 配置文件
+- **应用配置** (`home-manager/applications/`): 用户应用程序配置
 
 ### 3. DAE 代理服务 (`modules/dae/`)
 - 高级代理系统，智能路由
@@ -116,30 +141,45 @@ nixos-config/
   - 区域特定代理规则
 
 ### 4. Shell 环境 (`home-manager/shell/`)
-- **Fish Shell**: 配合 Starship 提示符
-- **Kitty**: 终端模拟器
-- **Neovim**: LazyVim 配置
-- **开发工具**: gcc14、fzf、ripgrep、eza、bat、lazygit
-- **Claude Code**: AI 编程助手集成
+模块化 Shell 环境配置系统：
+- **Fish Shell** (`shell/fish/`): 配合 Starship 提示符，交互式 Shell
+- **Kitty** (`shell/kitty/`): 功能强大的终端模拟器
+- **Neovim** (`shell/neovim/`): LazyVim 配置，LSP 和插件
+- **GCC 工具链** (`shell/gcc/`): GCC14 配置，带有标准库预编译头文件
+- **开发工具**: fzf、ripgrep、eza、bat、lazygit 等
+- **Claude Code** (`shell/claude-code/`): AI 编程助手集成
+- **通用工具** (`shell/common.nix`): 跨平台通用开发工具
+
+#### Shell 模块结构
+- `shell/default.nix` - Shell 模块入口点，导入所有子模块
+- 各子模块独立配置，便于维护和选择性启用
 
 ### 5. 自定义覆盖层 (`overlays/`)
 - **Fcitx5**: 带有自定义 Rime 小鹤音形数据的输入法
 
 ## 🏗️ 配置管理模式
 
-### 设备配置模式
-仓库采用分层设备配置方法：
+### 主机配置模式
+仓库采用分层主机配置架构：
 
-1. **基础层**: `home-manager/home.nix` 和 `nixos/configuration.nix` 中的共享配置
-2. **设备层**: `home-manager/laptop.nix` 和 `home-manager/class.nix` 中的设备特定扩展
-3. **硬件层**: `hardware-configurations/` 中的硬件特定设置
+1. **基础层**: `home-manager/home.nix` 和 `modules/` 中的共享配置
+2. **主机层**: `hosts/hostname/` 中的主机特定配置
+3. **硬件层**: `hosts/hostname/hardware-configuration.nix` 中的硬件特定设置
 4. **服务层**: 应用于所有设备的 `modules/` 中的自定义模块
+5. **用户层**: `home-manager/` 中的模块化用户环境配置
+
+### 主机配置结构
+每个主机配置遵循统一的结构模式：
+- `hosts/hostname/default.nix` - 主配置文件，导入所有必要的模块
+- `hosts/hostname/hardware-configuration.nix` - 硬件配置（由 `nixos-generate-config` 生成）
+- `hosts/hostname/hostname.nix` - 主机特定的额外配置
 
 这种模式允许：
-- **共享配置**: 通用设置只需在基础文件中定义一次
-- **设备特化**: 每个设备只定义其差异
-- **可维护性**: 通过创建设备特定文件轻松添加新设备
-- **一致性**: 所有设备都从相同的基础配置继承
+- **共享配置**: 通用设置在模块和基础配置中定义一次
+- **主机特化**: 每个主机在独立目录中管理其特定配置
+- **可维护性**: 通过创建新主机目录轻松添加新设备
+- **一致性**: 所有主机都从相同的模块系统继承
+- **硬件隔离**: 硬件配置与逻辑配置分离
 
 ### 模块系统
 配置使用自定义模块系统：
@@ -185,16 +225,18 @@ nixos-config/
 ## 📋 配置管理最佳实践
 
 ### 添加新设备
-1. 创建硬件配置：`hardware-configurations/new-device.nix`
-2. 创建家目录配置：`home-manager/new-device.nix`（扩展基础 home.nix）
-3. 将设备配置添加到 `flake.nix`
-4. 根据需要创建设备特定服务配置（如 Niri 配置）
+1. **创建主机目录**: `mkdir hosts/new-host`
+2. **复制并适配配置**: 从现有主机复制 `default.nix` 并根据需要调整
+3. **生成硬件配置**: `sudo nixos-generate-config` 并将 `hardware-configuration.nix` 复制到新主机目录
+4. **更新 flake.nix**: 在 `nixosConfigurations` 中添加新主机配置
+5. **创建家目录配置**: 根据需要创建对应的 home-manager 配置
 
 ### 修改配置
-- **系统级更改**: 编辑 `nixos/configuration.nix` 或模块
-- **用户环境更改**: 编辑 `home-manager/home.nix`（影响所有设备）
-- **设备特定更改**: 编辑设备特定文件（`laptop.nix`、`class.nix`）
+- **系统级更改**: 编辑 `modules/` 中的相应模块
+- **用户环境更改**: 编辑 `home-manager/home.nix`（影响所有设备）或 `home-manager/shell/` 中的模块
+- **主机特定更改**: 编辑 `hosts/hostname/` 中的配置文件
 - **服务更改**: 编辑 `modules/` 中的适当模块
+- **硬件更改**: 编辑 `hosts/hostname/hardware-configuration.nix`（通常自动生成）
 
 ### 测试更改
 ```bash
@@ -220,4 +262,4 @@ nix flake show
 
 ### 设备特定配置
 - **笔记本电脑**: 使用 `home-manager/niri/config.kdl`，支持高分辨率显示（3120x2080@120，2.0 缩放）
-- **实验室设备**: 使用 `home-manager/niri/config-class.kdl`，标准显示设置（1980x1080@60，1.2 缩放）
+- **实验室设备**: 使用 `hosts/class/config-class.kdl`，标准显示设置（1980x1080@60，1.2 缩放）

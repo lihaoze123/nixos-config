@@ -1,7 +1,7 @@
 { config, pkgs, ... }@inputs:
 {
   imports = [
-    ./home.nix
+    ../../home-manager/home.nix
   ];
 
   home.packages = with pkgs; [
