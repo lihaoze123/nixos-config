@@ -4,5 +4,5 @@ let
   users = [ laptop home ];
 in
 {
-  "dae-config.age".publicKeys = users;
+  "dae-sub.age".publicKeys = users;
 }

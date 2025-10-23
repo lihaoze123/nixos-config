@@ -2,13 +2,8 @@
 {
   imports = [
     inputs.daeuniverse.nixosModules.dae
+    ./subscriber.nix
   ];
-
-  age.secrets.dae-config = {
-    file = ../../secrets/dae-config.age;
-    path = "/etc/dae/config.dae";
-    symlink = false;
-  };
 
   services.dae = {
     enable = true;
@@ -18,6 +13,6 @@
       port = 12345;
     };
 
-    configFile = config.age.secrets.dae-config.path;
+    config = builtins.readFile ./config.dae;
   };
 }
