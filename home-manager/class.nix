@@ -1,4 +1,4 @@
-{ config, pkgs, ... }@inputs:
+{ config, pkgs, lib, ... }@inputs:
 let
   niriConfigPath = "${config.home.homeDirectory}/nixos-config/home-manager/niri/config-class.kdl";
 in
@@ -10,5 +10,5 @@ in
   home.packages = with pkgs; [
   ];
 
-  xdg.configFile."niri/config.kdl".source = config.lib.file.mkOutOfStoreSymlink niriConfigPath;
+  xdg.configFile."niri/config.kdl".source = lib.mkForce (config.lib.file.mkOutOfStoreSymlink niriConfigPath);
 }
