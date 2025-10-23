@@ -15,16 +15,38 @@
   };
 
   outputs = { self, nixpkgs, home-manager, ragenix, ... }@inputs: {
-    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+    nixosConfigurations.laptop = nixpkgs.lib.nixosSystem {
       specialArgs = { inherit inputs; };
       modules = [
         ./nixos/configuration.nix
+        ./hardware-configurations/laptop.nix
         ragenix.nixosModules.default
         home-manager.nixosModules.home-manager
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
-          home-manager.users.chumeng = import ./home-manager/home.nix;
+          home-manager.users.chumeng = import ./home-manager/laptop.nix;
+          home-manager.extraSpecialArgs = inputs;
+        }
+        (import ./modules)
+        (import ./overlays)
+      ];
+    };
+
+    # Default configuration (alias to laptop)
+    nixosConfigurations.nixos = self.nixosConfigurations.laptop;
+
+    nixosConfigurations.class = nixpkgs.lib.nixosSystem {
+      specialArgs = { inherit inputs; };
+      modules = [
+        ./nixos/configuration.nix
+        ./hardware-configurations/class.nix
+        ragenix.nixosModules.default
+        home-manager.nixosModules.home-manager
+        {
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+          home-manager.users.chumeng = import ./home-manager/class.nix;
           home-manager.extraSpecialArgs = inputs;
         }
         (import ./modules)
