@@ -72,5 +72,6 @@ in
     swaybg
     cliphist
     xwayland-satellite
+    nautilus
   ];
 }

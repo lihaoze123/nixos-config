@@ -4,6 +4,7 @@
     ./kitty
     ./fish
     ./neovim
+    ./gcc
     ./claude-code
     ./common.nix
   ];

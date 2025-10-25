@@ -5,6 +5,7 @@ return {
       inlay_hints = { enabled = false },
       servers = {
         clangd = {
+          mason = false;
           cmd = {
             "clangd",
             "-header-insertion=never"
@@ -14,7 +15,6 @@ return {
               '--std=c++23'
             }
           },
-          mason = false;
         },
       }
     }

@@ -1,26 +1,14 @@
 global {
-    log_level: warn
-    tproxy_port: 12345
-    allow_insecure: false
-    check_interval: 30s
-    check_tolerance: 50ms
-    lan_interface: eth0
-    wan_interface: auto
-    udp_check_dns:'dns.google.com:53,8.8.8.8,2001:4860:4860::8888'
-    tcp_check_url: 'http://cp.cloudflare.com,1.1.1.1,2606:4700:4700::1111'
-    dial_mode: domain
-    tcp_check_http_method: HEAD
-    disable_waiting_network: true
-    auto_config_kernel_parameter: true
-    sniffing_timeout: 100ms
-    tls_implementation: tls
-    utls_imitate: chrome_auto
-    tproxy_port_protect: true
-    so_mark_from_dae: 0
+  #lan_interface: docker0
+  wan_interface: auto
+
+  log_level: info
+  allow_insecure: false
+  auto_config_kernel_parameter: true
 }
 
 subscription {
-    my_sub: 'file://my_sub.sub'
+  my_sub: 'file://my_sub.sub'
 }
 
 dns {
@@ -29,13 +17,14 @@ dns {
     alidns: 'udp://dns.alidns.com:53'
   }
   routing {
-    # 根据 DNS 查询，决定使用哪个 DNS 上游。
-    # 按由上到下的顺序匹配。
     request {
-      # 对于中国大陆域名使用 alidns，其他使用 googledns 查询。
-      qname(geosite:cn) -> alidns
-      # fallback 意为 default。
-      fallback: googledns
+      qtype(https) -> reject
+      fallback: alidns
+    }
+    response {
+      upstream(googledns) -> accept
+      ip(geoip:private) && !qname(geosite:cn) -> googledns
+      fallback: accept
     }
   }
 }
@@ -51,42 +40,14 @@ group {
         filter: subtag(my_sub) && name(keyword: 'Singapore')
     }
 }
-
 routing {
-    pname(NetworkManager) -> direct
-    dip(224.0.0.0/3, 'ff00::/8') -> direct
-    dscp(4) -> direct
+  pname(NetworkManager) -> direct
+  dip(224.0.0.0/3, 'ff00::/8') -> direct
 
-    dip(geoip:private) -> direct
+  l4proto(udp) && dport(443) -> block
+  dip(geoip:private) -> direct
+  dip(geoip:cn) -> direct
+  domain(geosite:cn) -> direct
 
-    dip(geoip:cn) -> direct
-    domain(geosite:cn) -> direct
-
-    domain(
-        suffix: copilot.microsoft.com,
-        suffix: gateway-copilot.bingviz.microsoftapp.net,
-        suffix: mobile.events.data.microsoft.com,
-        suffix: graph.microsoft.com,
-        suffix: analytics.adjust.com,
-        suffix: analytics.adjust.net.in,
-        suffix: api.revenuecat.com,
-        suffix: t-msedge.net,
-        suffix: cloudapp.azure.com,
-        suffix: browser-intake-datadoghq.com,
-        suffix: in.appcenter.ms,
-        suffix: guzzoni.apple.com,
-        suffix: smoot.apple.com,
-        suffix: apple-relay.cloudflare.com,
-        suffix: apple-relay.fastly-edge.com,
-        suffix: cp4.cloudflare.com,
-        suffix: apple-relay.apple.com,
-        suffix: anthropic.com,
-        suffix: claude.ai,
-        suffix: cdn.usefathom.com,
-        suffix: claudeusercontent.com
-    ) -> ai
-
-    l4proto(udp) && dport(443) -> block
-
-    fallback: proxy
+  fallback: proxy
 }

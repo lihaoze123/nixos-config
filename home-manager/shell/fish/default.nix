@@ -7,14 +7,14 @@
     '';
     functions = {
       yy = ''
-                function yy
-        	  set tmp (mktemp -t "yazi-cwd.XXXXXX")
-        	  yazi $argv --cwd-file="$tmp"
-        	  if read -z cwd < "$tmp"; and [ -n "$cwd" ]; and [ "$cwd" != "$PWD" ]
-        	  	builtin cd -- "$cwd"
-        	  end
-        	  rm -f -- "$tmp"
-                end
+        function yy
+          set tmp (mktemp -t "yazi-cwd.XXXXXX")
+          yazi $argv --cwd-file="$tmp"
+          if read -z cwd < "$tmp"; and [ -n "$cwd" ]; and [ "$cwd" != "$PWD" ]
+            builtin cd -- "$cwd"
+          end
+          rm -f -- "$tmp"
+        end
       '';
     };
   };
@@ -28,5 +28,19 @@
         exec ${pkgs.fish}/bin/fish $LOGIN_OPTION
       fi
     '';
+  };
+
+  programs.starship = {
+    enable = true;
+    enableFishIntegration = true;
+    settings = {
+      add_newline = true;
+      character.success_symbol = "[~](bold green)";
+    };
+  };
+
+  programs.zoxide = {
+    enable = true;
+    enableFishIntegration = true;
   };
 }
