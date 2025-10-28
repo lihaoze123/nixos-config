@@ -63,6 +63,11 @@
       noto-fonts-cjk-serif
       noto-fonts-emoji
 
+      source-han-sans
+      source-han-serif
+
+      wqy_zenhei
+
       nerd-fonts.fira-code
     ];
 

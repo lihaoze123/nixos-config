@@ -8,8 +8,15 @@
     # browser
     microsoft-edge
 
-    # massaging app
+    # massage
     qq
     wechat
+
+    # typeset
+    texlive.combined.scheme-full
+    pandoc
+
+    # develop
+    dbeaver-bin
   ];
 }

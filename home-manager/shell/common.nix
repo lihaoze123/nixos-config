@@ -8,5 +8,8 @@
     ripgrep
     eza
     bat
+    jujutsu
+    python3
+    jdk
   ];
 }
