@@ -7,6 +7,7 @@
             vscodevim.vim
             myriad-dreamin.tinymist
             ms-ceintl.vscode-language-pack-zh-hans
+            adpyke.codesnap
         ];
     };
 }
