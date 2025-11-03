@@ -19,6 +19,9 @@ in
   age.secrets.kimi-token = {
     file = ../../secrets/kimi-token.age;
   };
+  age.secrets.minimax-token = {
+    file = ../../secrets/minimax-token.age;
+  };
 
   home.packages = with pkgs; [
     claude-code
@@ -32,6 +35,11 @@ in
       name = "kimi";
       url = "https://api.moonshot.cn/anthropic";
       token_path = config.age.secrets.kimi-token.path;
+    })
+    (claude_alt {
+      name = "minimax";
+      url = "https://api.minimax.io/anthropic";
+      token_path = config.age.secrets.minimax-token.path;
     })
   ];
 }
