@@ -1,4 +1,9 @@
 { config, pkgs, ... }:
+let
+    tex = (pkgs.texlive.combine {
+        inherit (pkgs.texlive) scheme-full fandol;
+    });
+in
 {
   imports = [
     ./vscode.nix
@@ -13,8 +18,8 @@
     wechat
 
     # typeset
-    texlive.combined.scheme-full
     pandoc
+    tex
 
     # develop
     dbeaver-bin
