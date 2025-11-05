@@ -69,6 +69,8 @@
       wqy_zenhei
 
       nerd-fonts.fira-code
+
+      corefonts
     ];
 
     enableDefaultPackages = false;

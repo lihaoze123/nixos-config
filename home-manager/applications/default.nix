@@ -20,8 +20,13 @@ in
     # typeset
     pandoc
     tex
+    typora
+
+    # image
+    inkscape
 
     # develop
     dbeaver-bin
+    wineWowPackages.stable
   ];
 }
