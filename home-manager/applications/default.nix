@@ -16,6 +16,7 @@ in
     # massage
     qq
     wechat
+    feishu
 
     # typeset
     pandoc

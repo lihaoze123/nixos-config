@@ -11,6 +11,22 @@ let
       exec claude "$@"
     ''
   );
+  claude_alt_models_modified = {
+    name,
+    url,
+    token_path,
+    reasoner,
+    chat,
+  }: (
+    pkgs.writeShellScriptBin name ''
+      export ANTHROPIC_AUTH_TOKEN=$(cat ${token_path})
+      export ANTHROPIC_BASE_URL=${url}
+      export ANTHROPIC_MODEL=${reasoner}
+      export ANTHROPIC_SMALL_FAST_MODEL=${chat}
+
+      exec claude "$@"
+    ''
+  );
 in
 {
   age.secrets.glm-token = {
@@ -31,10 +47,12 @@ in
       url = "https://open.bigmodel.cn/api/anthropic";
       token_path = config.age.secrets.glm-token.path;
     })
-    (claude_alt {
+    (claude_alt_models_modified {
       name = "kimi";
-      url = "https://api.moonshot.cn/anthropic";
+      url = "https://api.kimi.com/coding/";
       token_path = config.age.secrets.kimi-token.path;
+      reasoner = "kimi-k2-thinking";
+      chat = "kimi-k2-thinking";
     })
     (claude_alt {
       name = "minimax";
