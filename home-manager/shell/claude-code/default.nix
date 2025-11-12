@@ -11,22 +11,23 @@ let
       exec claude "$@"
     ''
   );
-  claude_alt_models_modified = {
-    name,
-    url,
-    token_path,
-    reasoner,
-    chat,
-  }: (
-    pkgs.writeShellScriptBin name ''
-      export ANTHROPIC_AUTH_TOKEN=$(cat ${token_path})
-      export ANTHROPIC_BASE_URL=${url}
-      export ANTHROPIC_MODEL=${reasoner}
-      export ANTHROPIC_SMALL_FAST_MODEL=${chat}
+  claude_alt_models_modified =
+    { name
+    , url
+    , token_path
+    , reasoner
+    , chat
+    ,
+    }: (
+      pkgs.writeShellScriptBin name ''
+        export ANTHROPIC_AUTH_TOKEN=$(cat ${token_path})
+        export ANTHROPIC_BASE_URL=${url}
+        export ANTHROPIC_MODEL=${reasoner}
+        export ANTHROPIC_SMALL_FAST_MODEL=${chat}
 
-      exec claude "$@"
-    ''
-  );
+        exec claude "$@"
+      ''
+    );
 in
 {
   age.secrets.glm-token = {

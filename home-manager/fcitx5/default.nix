@@ -12,7 +12,11 @@
     type = "fcitx5";
     fcitx5.waylandFrontend = true;
     fcitx5.addons = with pkgs; [
-      fcitx5-rime
+      (fcitx5-rime.override {
+        rimeDataPkgs = [
+          pkgs.rime-ice
+        ];
+      })
       fcitx5-configtool
       fcitx5-gtk
     ];

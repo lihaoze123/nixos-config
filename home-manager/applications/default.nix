@@ -1,8 +1,8 @@
 { config, pkgs, ... }:
 let
-    tex = (pkgs.texlive.combine {
-        inherit (pkgs.texlive) scheme-full fandol;
-    });
+  tex = (pkgs.texlive.combine {
+    inherit (pkgs.texlive) scheme-full fandol;
+  });
 in
 {
   imports = [

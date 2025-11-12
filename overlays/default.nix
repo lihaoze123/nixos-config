@@ -2,6 +2,5 @@
 
 {
   nixpkgs.overlays = [
-    (import ./fcitx5)
   ];
 }
