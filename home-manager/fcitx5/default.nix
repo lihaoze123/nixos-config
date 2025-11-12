@@ -17,7 +17,7 @@
           pkgs.rime-ice
         ];
       })
-      fcitx5-configtool
+      qt6Packages.fcitx5-configtool
       fcitx5-gtk
     ];
   };
