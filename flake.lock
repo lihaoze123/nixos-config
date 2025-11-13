@@ -29,15 +29,15 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1735891296,
-        "narHash": "sha256-xmyzX5JXC1JQNVNhI8AnbivcID2AJoCQXlSKxRxsMt0=",
-        "owner": "brsvh",
+        "lastModified": 1763009355,
+        "narHash": "sha256-I71+uQOV9pz8Twf+sGuKvy9K3ldpmYY6wRFGrRMizlg=",
+        "owner": "lihaoze123",
         "repo": "chinese-fonts-overlay",
-        "rev": "748d91262ab205d069d5a40275f079ed70b71994",
+        "rev": "b2ca34916a3325346a29f56a7ed23ebee3636c80",
         "type": "github"
       },
       "original": {
-        "owner": "brsvh",
+        "owner": "lihaoze123",
         "ref": "main",
         "repo": "chinese-fonts-overlay",
         "type": "github"

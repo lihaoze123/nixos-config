@@ -70,6 +70,7 @@
 
       nerd-fonts.fira-code
 
+      foundertype-fonts
       windows-fonts
     ];
 
