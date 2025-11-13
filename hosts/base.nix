@@ -70,7 +70,8 @@
 
       nerd-fonts.fira-code
 
-      corefonts
+      foundertype-fonts
+      windows-fonts
     ];
 
     enableDefaultPackages = false;

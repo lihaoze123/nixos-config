@@ -8,6 +8,7 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     daeuniverse.url = "github:daeuniverse/flake.nix";
     ragenix.url = "github:yaxitech/ragenix";
+    chinese-fonts-overlay.url = "github:lihaoze123/chinese-fonts-overlay/main";
     silentSDDM = {
       url = "github:uiriansan/SilentSDDM";
       inputs.nixpkgs.follows = "nixpkgs";
