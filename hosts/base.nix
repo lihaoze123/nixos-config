@@ -79,7 +79,7 @@
     fontconfig.defaultFonts = {
       serif = [ "Noto Serif CJK SC" ];
       sansSerif = [ "Noto Sans CJK SC" ];
-      monospace = [ "FiraCode Nerd Font" ];
+      monospace = [ "FiraCode Nerd Font" "Noto Sans CJK SC" ];
       emoji = [ "Noto Color Emoji" ];
     };
   };
