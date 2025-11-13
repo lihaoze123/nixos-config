@@ -1,4 +1,4 @@
-{ config, lib, pkgs, inputs, ... }:
+{ config, lib, pkgs, inputs, stdenv, ... }:
 {
   boot.loader = {
     grub = {
@@ -61,7 +61,7 @@
 
       noto-fonts-cjk-sans
       noto-fonts-cjk-serif
-      noto-fonts-emoji
+      noto-fonts-color-emoji
 
       source-han-sans
       source-han-serif
