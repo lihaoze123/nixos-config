@@ -6,6 +6,7 @@
       force = true;
     };
   };
+  home.file.".local/share/fcitx5/rime/default.custom.yaml".source = ./default.custom.yaml;
 
   i18n.inputMethod = {
     enable = true;
