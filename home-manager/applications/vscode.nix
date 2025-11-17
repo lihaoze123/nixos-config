@@ -8,6 +8,7 @@
       myriad-dreamin.tinymist
       ms-ceintl.vscode-language-pack-zh-hans
       adpyke.codesnap
+      james-yu.latex-workshop
     ];
   };
 }

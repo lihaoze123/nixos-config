@@ -20,8 +20,10 @@ in
 
     # typeset
     pandoc
-    tex
+    # tex
+    tectonic
     typora
+    wpsoffice
 
     # image
     inkscape

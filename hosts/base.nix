@@ -72,6 +72,8 @@
 
       foundertype-fonts
       windows-fonts
+
+      lxgw-wenkai
     ];
 
     enableDefaultPackages = false;
