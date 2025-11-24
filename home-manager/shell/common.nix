@@ -9,7 +9,9 @@
     eza
     bat
     jujutsu
-    python3
+    (python313.withPackages (py-pkgs: with py-pkgs; [
+      pygments
+    ]))
     jdk
   ];
 }

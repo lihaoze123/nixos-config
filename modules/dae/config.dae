@@ -37,7 +37,7 @@ group {
 
     ai {
         policy: min_moving_avg
-        filter: subtag(my_sub) && name(keyword: 'Singapore')
+        filter: subtag(my_sub) && name(keyword: 'USA')
     }
 }
 routing {
@@ -48,6 +48,31 @@ routing {
   dip(geoip:private) -> direct
   dip(geoip:cn) -> direct
   domain(geosite:cn) -> direct
+
+  domain(
+    suffix: copilot.microsoft.com,
+    suffix: gateway-copilot.bingviz.microsoftapp.net,
+    suffix: mobile.events.data.microsoft.com,
+    suffix: graph.microsoft.com,
+    suffix: analytics.adjust.com,
+    suffix: analytics.adjust.net.in,
+    suffix: api.revenuecat.com,
+    suffix: t-msedge.net,
+    suffix: cloudapp.azure.com,
+    suffix: browser-intake-datadoghq.com,
+    suffix: in.appcenter.ms,
+    suffix: guzzoni.apple.com,
+    suffix: smoot.apple.com,
+    suffix: apple-relay.cloudflare.com,
+    suffix: apple-relay.fastly-edge.com,
+    suffix: cp4.cloudflare.com,
+    suffix: apple-relay.apple.com,
+    suffix: anthropic.com,
+    suffix: claude.ai,
+    suffix: cdn.usefathom.com,
+    suffix: claudeusercontent.com,
+    keyword: 'google'
+  ) -> ai
 
   fallback: proxy
 }
