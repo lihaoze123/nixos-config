@@ -39,6 +39,9 @@ in
   age.secrets.minimax-token = {
     file = ../../secrets/minimax-token.age;
   };
+  age.secrets._2233ai-token = {
+    file = ../../secrets/2233ai-token.age;
+  };
 
   home.packages = with pkgs; [
     claude-code
@@ -59,6 +62,11 @@ in
       name = "minimax";
       url = "https://api.minimax.io/anthropic";
       token_path = config.age.secrets.minimax-token.path;
+    })
+    (claude_alt {
+      name = "2233ai";
+      url = "https://aicoding.2233.ai";
+      token_path = config.age.secrets._2233ai-token.path;
     })
   ];
 }

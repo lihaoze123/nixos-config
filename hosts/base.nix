@@ -74,6 +74,8 @@
       windows-fonts
 
       lxgw-wenkai
+
+      cm_unicode
     ];
 
     enableDefaultPackages = false;
