@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }@inputs:
+{ config, pkgs, pkgs-stable, lib, ... }@inputs:
 let
   niriConfigPath = "${config.home.homeDirectory}/nixos-config/hosts/class/config-class.kdl";
 in

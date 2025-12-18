@@ -1,4 +1,4 @@
-{ inputs, ... }:
+{ inputs, pkgs-stable, ... }:
 
 {
   imports = [
@@ -10,7 +10,7 @@
       home-manager.useGlobalPkgs = true;
       home-manager.useUserPackages = true;
       home-manager.users.chumeng = import ./class.nix;
-      home-manager.extraSpecialArgs = inputs;
+      home-manager.extraSpecialArgs = inputs // { inherit pkgs-stable; };
     }
     (import ../../modules)
     (import ../../overlays)

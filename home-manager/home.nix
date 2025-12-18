@@ -1,4 +1,4 @@
-{ config, pkgs, ... }@inputs:
+{ config, pkgs, pkgs-stable, ... }@inputs:
 {
   imports = [
     ./fcitx5

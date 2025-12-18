@@ -17,14 +17,34 @@
 
   outputs = { self, nixpkgs, home-manager, ragenix, ... }@inputs: {
     nixosConfigurations.laptop = nixpkgs.lib.nixosSystem {
-      specialArgs = { inherit inputs; };
+      specialArgs =
+        let
+          system = "x86_64-linux";
+        in
+        {
+          inherit inputs;
+          pkgs-stable = import inputs.nixpkgs-stable {
+            inherit system;
+            config.allowUnfree = true;
+          };
+        };
       modules = [
         ./hosts/laptop
       ];
     };
 
     nixosConfigurations.class = nixpkgs.lib.nixosSystem {
-      specialArgs = { inherit inputs; };
+      specialArgs =
+        let
+          system = "x86_64-linux";
+        in
+        {
+          inherit inputs;
+          pkgs-stable = import inputs.nixpkgs-stable {
+            inherit system;
+            config.allowUnfree = true;
+          };
+        };
       modules = [
         ./hosts/class
       ];
