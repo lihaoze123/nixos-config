@@ -7,6 +7,7 @@ in
 {
   imports = [
     ./vscode.nix
+    ./antigravity-tools.nix
   ];
 
   home.packages = with pkgs;[
@@ -17,6 +18,9 @@ in
     qq
     wechat
     feishu
+
+    # learn
+    anki
 
     # typeset
     pandoc
@@ -31,5 +35,8 @@ in
     # develop
     dbeaver-bin
     wineWowPackages.stable
+    antigravity
+    jetbrains.idea
+    gh
   ];
 }

@@ -71,6 +71,7 @@ routing {
     suffix: claude.ai,
     suffix: cdn.usefathom.com,
     suffix: claudeusercontent.com,
+    suffix: gstatic.com,
     keyword: 'google'
   ) -> ai
 

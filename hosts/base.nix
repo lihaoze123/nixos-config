@@ -90,6 +90,14 @@
 
   programs.nix-ld.enable = true;
 
+  virtualisation.docker = {
+    enable = true;
+    rootless = {
+      enable = true;
+      setSocketVariable = true;
+    };
+  };
+
   nixpkgs.config.allowUnfree = true;
   nix.settings.substituters = [ "https://mirror.tuna.tsinghua.edu.cn/nix-channels/store" ];
   system.stateVersion = "25.05";
