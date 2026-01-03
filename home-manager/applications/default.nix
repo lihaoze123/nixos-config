@@ -37,6 +37,5 @@ in
     wineWowPackages.stable
     antigravity
     jetbrains.idea
-    gh
   ];
 }

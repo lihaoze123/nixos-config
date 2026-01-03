@@ -8,11 +8,13 @@
     ripgrep
     eza
     bat
-    jujutsu
     (python313.withPackages (py-pkgs: with py-pkgs; [
       pygments
     ]))
     nodejs
+    bun
     jdk
+    gh
+    codex
   ];
 }
