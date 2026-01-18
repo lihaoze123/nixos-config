@@ -21,6 +21,7 @@ in
 
     # learn
     anki
+    obsidian
 
     # typeset
     pandoc

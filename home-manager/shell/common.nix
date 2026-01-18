@@ -16,5 +16,8 @@
     jdk
     gh
     codex
+    zellij
+    opencode
+    jq
   ];
 }

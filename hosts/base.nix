@@ -50,7 +50,7 @@
   users.users.chumeng = {
     isNormalUser = true;
     description = "chumeng";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "wireshark" ];
   };
 
   age.identityPaths = [ "/home/chumeng/.ssh/id_rsa" ];
@@ -96,6 +96,17 @@
       enable = true;
       setSocketVariable = true;
     };
+  };
+
+  services.openssh.enable = true;
+  programs.mosh.enable = true;
+  networking.firewall.allowedUDPPortRanges = [
+    { from = 60000; to = 65535; }
+  ];
+
+  programs.wireshark = {
+    enable = true;
+    package = pkgs.wireshark;
   };
 
   nixpkgs.config.allowUnfree = true;
