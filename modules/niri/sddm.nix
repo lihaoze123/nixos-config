@@ -30,6 +30,8 @@ in
     wantedBy = [ "multi-user.target" ];
     before = [ "sddm.service" ];
     script = ''
+      mkdir -p /var/lib/AccountsService/icons
+
       for user in /home/*; do
 
         username=$(basename "$user")

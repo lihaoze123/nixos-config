@@ -50,6 +50,23 @@
       ];
     };
 
+    nixosConfigurations.home = nixpkgs.lib.nixosSystem {
+      specialArgs =
+        let
+          system = "x86_64-linux";
+        in
+        {
+          inherit inputs;
+          pkgs-stable = import inputs.nixpkgs-stable {
+            inherit system;
+            config.allowUnfree = true;
+          };
+        };
+      modules = [
+        ./hosts/home
+      ];
+    };
+
     nixosConfigurations.nixos = self.nixosConfigurations.laptop;
 
     formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixpkgs-fmt;
