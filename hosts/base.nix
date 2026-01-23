@@ -29,6 +29,7 @@
       };
     };
   };
+  services.blueman.enable = true;
   time.timeZone = "Asia/Shanghai";
   i18n.defaultLocale = "zh_CN.UTF-8";
 
@@ -50,7 +51,7 @@
   users.users.chumeng = {
     isNormalUser = true;
     description = "chumeng";
-    extraGroups = [ "networkmanager" "wheel" "wireshark" ];
+    extraGroups = [ "networkmanager" "wheel" "wireshark" "bluetooth" "render" ];
   };
 
   age.identityPaths = [ "/home/chumeng/.ssh/id_rsa" ];

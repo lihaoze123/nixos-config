@@ -13,6 +13,11 @@
       url = "github:uiriansan/SilentSDDM";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    browser-previews = {
+      url = "github:nix-community/browser-previews";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    claude-code.url = "github:sadjow/claude-code-nix";
   };
 
   outputs = { self, nixpkgs, home-manager, ragenix, ... }@inputs: {
@@ -56,7 +61,7 @@
           system = "x86_64-linux";
         in
         {
-          inherit inputs;
+          inherit inputs system;
           pkgs-stable = import inputs.nixpkgs-stable {
             inherit system;
             config.allowUnfree = true;

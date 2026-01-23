@@ -1,4 +1,4 @@
-{ inputs, pkgs-stable, ... }:
+{ inputs, pkgs-stable, system, ... }:
 
 {
   imports = [
@@ -10,7 +10,8 @@
       home-manager.useGlobalPkgs = true;
       home-manager.useUserPackages = true;
       home-manager.users.chumeng = import ./home.nix;
-      home-manager.extraSpecialArgs = inputs // { inherit pkgs-stable; };
+      home-manager.extraSpecialArgs = { inherit inputs pkgs-stable system; };
+      nixpkgs.overlays = [ inputs.claude-code.overlays.default ];
     }
     (import ../../modules)
     (import ../../overlays)
