@@ -12,30 +12,9 @@ in
 
   home.packages = with pkgs;[
     # browser
-    (pkgs.symlinkJoin {
-      name = "google-chrome-dev";
-      paths = [ inputs.browser-previews.packages.${pkgs.system}.google-chrome-dev ];
-      buildInputs = [ pkgs.makeWrapper ];
-      postBuild = ''
-        wrapProgram $out/bin/google-chrome-unstable \
-          --add-flags "--disable-gpu" \
-          --add-flags "--disable-gpu-compositing" \
-          --add-flags "--disable-features=UseChromeOSDirectVideoDecoder" \
-          --add-flags "--ignore-gpu-blocklist"
-      '';
-    })
-    (pkgs.symlinkJoin {
-      name = "microsoft-edge";
-      paths = [ microsoft-edge ];
-      buildInputs = [ pkgs.makeWrapper ];
-      postBuild = ''
-        wrapProgram $out/bin/microsoft-edge \
-          --add-flags "--disable-gpu" \
-          --add-flags "--disable-gpu-compositing" \
-          --add-flags "--disable-features=UseChromeOSDirectVideoDecoder" \
-          --add-flags "--ignore-gpu-blocklist"
-      '';
-    })
+    inputs.browser-previews.packages.${pkgs.system}.google-chrome-dev
+    inputs.browser-previews.packages.${pkgs.system}.google-chrome
+    microsoft-edge
 
     # massage
     qq
@@ -53,8 +32,7 @@ in
           --add-flags "--no-sandbox" \
           --add-flags "--ozone-platform=wayland" \
           --add-flags "--ozone-platform-hint=auto" \
-          --add-flags "--enable-features=UseOzonePlatform,WaylandWindowDecorations" \
-          --add-flags "--disable-gpu"
+          --add-flags "--enable-features=UseOzonePlatform,WaylandWindowDecorations"
       '';
     })
 

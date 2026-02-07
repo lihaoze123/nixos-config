@@ -199,6 +199,39 @@ If script fails with "command not found":
 - Follow the modular structure for maintainability
 - Test with `build` before `switch` to catch errors early
 
+## Critical Behavioral Lessons
+
+### Skill Usage Priority
+
+**LESSON LEARNED**: When a skill has just been loaded, ALWAYS check if it applies to the current task BEFORE trying other tools.
+
+**Real Example**:
+```bash
+# User: "使用 /agent-browser"
+# [Skill loaded: agent-browser]
+
+# User: "读取这个网页 https://github.com/..."
+
+# ❌ WRONG - What I did:
+# 1. Try webReader MCP tool (fails)
+# 2. Try WebSearch tool (fails)
+# 3. Finally use agent-browser (works!)
+
+# ✅ CORRECT - What I should have done:
+# 1. Immediately use agent-browser (it was just loaded!)
+# 2. Skip webReader and WebSearch entirely
+```
+
+**Root Cause**: I failed to connect the recently-loaded skill with the immediate task.
+
+**Rule**: When a skill is invoked via `/skill-name` or `Skill` tool, that skill becomes the PRIMARY tool for related tasks in the current session. Do NOT fallback to generic tools when a specialized skill is available and loaded.
+
+**Checklist before using tools**:
+1. What skills have been loaded recently?
+2. Does any loaded skill match this task?
+3. If yes → use the skill FIRST
+4. Only use generic tools if no relevant skill exists
+
 ## Related Documentation
 
 - NixOS Manual: https://nixos.org/manual/nixos/stable/

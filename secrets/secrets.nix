@@ -5,4 +5,5 @@ let
 in
 {
   "dae-sub.age".publicKeys = users;
+  "dae-config.age".publicKeys = users;
 }

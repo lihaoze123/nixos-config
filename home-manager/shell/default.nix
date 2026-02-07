@@ -6,6 +6,7 @@
     ./neovim
     ./gcc
     ./claude-code
+    ./agent-browser.nix
     ./common.nix
   ];
 }

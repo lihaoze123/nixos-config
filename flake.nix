@@ -7,6 +7,10 @@
     home-manager.url = "github:nix-community/home-manager/release-25.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     daeuniverse.url = "github:daeuniverse/flake.nix";
+    geodb = {
+      url = "github:Loyalsoldier/v2ray-rules-dat/release";
+      flake = false;
+    };
     ragenix.url = "github:yaxitech/ragenix";
     chinese-fonts-overlay.url = "github:lihaoze123/chinese-fonts-overlay/main";
     silentSDDM = {
@@ -20,7 +24,7 @@
     claude-code.url = "github:sadjow/claude-code-nix";
   };
 
-  outputs = { self, nixpkgs, home-manager, ragenix, ... }@inputs: {
+  outputs = { self, nixpkgs, home-manager, ragenix, geodb, ... }@inputs: {
     nixosConfigurations.laptop = nixpkgs.lib.nixosSystem {
       specialArgs =
         let

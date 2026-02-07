@@ -5,6 +5,12 @@
     ./subscriber.nix
   ];
 
+  age.secrets.dae-config = {
+    file = ../../secrets/dae-config.age;
+    path = "/etc/dae/config.dae";
+    symlink = false;
+  };
+
   services.dae = {
     enable = true;
 
@@ -13,6 +19,11 @@
       port = 12345;
     };
 
-    config = builtins.readFile ./config.dae;
+    assetsPath = toString (pkgs.symlinkJoin {
+      name = "dae-assets";
+      paths = [ "${inputs.geodb}" ];
+    });
+
+    configFile = "/etc/dae/config.dae";
   };
 }

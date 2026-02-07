@@ -11,6 +11,7 @@
     (python313.withPackages (py-pkgs: with py-pkgs; [
       pygments
     ]))
+    uv
     nodejs
     bun
     jdk
@@ -19,5 +20,6 @@
     zellij
     opencode
     jq
+    just
   ];
 }
