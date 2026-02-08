@@ -13,7 +13,6 @@
     };
   };
   networking = {
-    hostName = "nixos";
     networkmanager.enable = true;
   };
   hardware.bluetooth = {

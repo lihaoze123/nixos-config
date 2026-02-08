@@ -1,4 +1,4 @@
-{ inputs, pkgs-stable, ... }:
+{ inputs, pkgs-stable, system, ... }:
 
 {
   imports = [
@@ -10,9 +10,11 @@
       home-manager.useGlobalPkgs = true;
       home-manager.useUserPackages = true;
       home-manager.users.chumeng = import ./laptop.nix;
-      home-manager.extraSpecialArgs = inputs // { inherit pkgs-stable; };
+      home-manager.extraSpecialArgs = { inherit inputs pkgs-stable system; };
     }
     (import ../../modules)
     (import ../../overlays)
   ];
+
+  networking.hostName = "laptop";
 }

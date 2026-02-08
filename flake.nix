@@ -24,60 +24,26 @@
     claude-code.url = "github:sadjow/claude-code-nix";
   };
 
-  outputs = { self, nixpkgs, home-manager, ragenix, geodb, ... }@inputs: {
-    nixosConfigurations.laptop = nixpkgs.lib.nixosSystem {
-      specialArgs =
-        let
-          system = "x86_64-linux";
-        in
-        {
-          inherit inputs;
-          pkgs-stable = import inputs.nixpkgs-stable {
-            inherit system;
-            config.allowUnfree = true;
-          };
-        };
-      modules = [
-        ./hosts/laptop
-      ];
-    };
-
-    nixosConfigurations.class = nixpkgs.lib.nixosSystem {
-      specialArgs =
-        let
-          system = "x86_64-linux";
-        in
-        {
-          inherit inputs;
-          pkgs-stable = import inputs.nixpkgs-stable {
-            inherit system;
-            config.allowUnfree = true;
-          };
-        };
-      modules = [
-        ./hosts/class
-      ];
-    };
-
-    nixosConfigurations.home = nixpkgs.lib.nixosSystem {
-      specialArgs =
-        let
-          system = "x86_64-linux";
-        in
-        {
+  outputs = { self, nixpkgs, home-manager, ragenix, geodb, ... }@inputs:
+    let
+      system = "x86_64-linux";
+      mkHost = hostModule: nixpkgs.lib.nixosSystem {
+        specialArgs = {
           inherit inputs system;
           pkgs-stable = import inputs.nixpkgs-stable {
             inherit system;
             config.allowUnfree = true;
           };
         };
-      modules = [
-        ./hosts/home
-      ];
+        modules = [ hostModule ];
+      };
+    in
+    {
+      nixosConfigurations.laptop = mkHost ./hosts/laptop;
+      nixosConfigurations.class = mkHost ./hosts/class;
+      nixosConfigurations.home = mkHost ./hosts/home;
+      nixosConfigurations.nixos = self.nixosConfigurations.laptop;
+
+      formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixpkgs-fmt;
     };
-
-    nixosConfigurations.nixos = self.nixosConfigurations.laptop;
-
-    formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixpkgs-fmt;
-  };
 }

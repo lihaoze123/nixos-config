@@ -11,11 +11,12 @@
       home-manager.useUserPackages = true;
       home-manager.users.chumeng = import ./home.nix;
       home-manager.extraSpecialArgs = { inherit inputs pkgs-stable system; };
-      nixpkgs.overlays = [ inputs.claude-code.overlays.default ];
     }
     (import ../../modules)
     (import ../../overlays)
   ];
+
+  networking.hostName = "home";
 
   # Hardware configuration for home host
   hardware.graphics = {
