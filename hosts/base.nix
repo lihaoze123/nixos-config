@@ -50,7 +50,7 @@
   users.users.chumeng = {
     isNormalUser = true;
     description = "chumeng";
-    extraGroups = [ "networkmanager" "wheel" "wireshark" "bluetooth" "render" ];
+    extraGroups = [ "networkmanager" "wheel" "wireshark" "bluetooth" "render" "audio" ];
   };
 
   age.identityPaths = [ "/home/chumeng/.ssh/id_rsa" ];

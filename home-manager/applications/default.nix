@@ -15,6 +15,10 @@ in
     inputs.browser-previews.packages.${pkgs.system}.google-chrome-dev
     inputs.browser-previews.packages.${pkgs.system}.google-chrome
     microsoft-edge
+    inputs.browser-previews.packages.${pkgs.system}.google-chrome-beta
+
+    # tools
+    pavucontrol
 
     # massage
     qq
