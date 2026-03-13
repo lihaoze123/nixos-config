@@ -58,10 +58,12 @@ in
       reasoner = "kimi-k2-thinking";
       chat = "kimi-k2-thinking";
     })
-    (claude_alt {
+    (claude_alt_models_modified {
       name = "minimax";
-      url = "https://api.minimax.io/anthropic";
+      url = "https://api.minimaxi.com/anthropic";
       token_path = config.age.secrets.minimax-token.path;
+      reasoner = "MiniMax-M2.5-highspeed";
+      chat = "MiniMax-M2.5-highspeed";
     })
     (claude_alt {
       name = "2233ai";

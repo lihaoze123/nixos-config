@@ -52,7 +52,6 @@ in
 
     # develop
     dbeaver-bin
-    wineWowPackages.stable
     antigravity
     jetbrains.idea
   ];

@@ -109,6 +109,19 @@
     package = pkgs.wireshark;
   };
 
+  services.tailscale = {
+    enable = true;
+    useRoutingFeatures = "both";
+  };
+
+  networking.nftables.enable = true;
+  networking.firewall = {
+    enable = true;
+    trustedInterfaces = [ "tailscale0" ];
+    allowedUDPPorts = [ config.services.tailscale.port ];
+  };
+
+
   nixpkgs.config.allowUnfree = true;
   nix.settings.substituters = [ "https://mirror.tuna.tsinghua.edu.cn/nix-channels/store" ];
 
