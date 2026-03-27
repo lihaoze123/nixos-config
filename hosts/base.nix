@@ -45,6 +45,7 @@
     git
     wget
     wl-clipboard
+    wireguard-tools
   ];
 
   users.users.chumeng = {
@@ -117,7 +118,7 @@
   networking.nftables.enable = true;
   networking.firewall = {
     enable = true;
-    trustedInterfaces = [ "tailscale0" ];
+    trustedInterfaces = [ "tailscale0" "wg0" ];
     allowedUDPPorts = [ config.services.tailscale.port ];
   };
 

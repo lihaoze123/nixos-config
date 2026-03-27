@@ -19,10 +19,10 @@
       port = 12345;
     };
 
-    assetsPath = toString (pkgs.symlinkJoin {
-      name = "dae-assets";
-      paths = [ "${inputs.geodb}" ];
-    });
+    # assetsPath = toString (pkgs.symlinkJoin {
+    #   name = "dae-assets";
+    #   paths = [ "${inputs.geodb}" ];
+    # });
 
     configFile = "/etc/dae/config.dae";
   };
