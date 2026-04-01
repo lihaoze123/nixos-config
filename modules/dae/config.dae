@@ -3,8 +3,21 @@ global {
 
   log_level: info
   allow_insecure: false
-  dial_mode: domain
+  dial_mode: domain++
   auto_config_kernel_parameter: true
+}
+
+dns {
+    upstream {
+        alidns: "udp://223.5.5.5:53"
+        mihomo: "tcp+udp://127.0.0.1:1053"
+    }
+    routing {
+        request {
+            qname(geosite:cn) -> alidns
+            fallback: mihomo
+        }
+    }
 }
 
 node {

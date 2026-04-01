@@ -19,6 +19,7 @@ in
 
     # tools
     pavucontrol
+    moonlight-qt
 
     # massage
     qq

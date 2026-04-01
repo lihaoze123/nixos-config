@@ -45,7 +45,7 @@
     git
     wget
     wl-clipboard
-    wireguard-tools
+    bind
   ];
 
   users.users.chumeng = {
