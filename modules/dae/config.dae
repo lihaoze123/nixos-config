@@ -10,12 +10,12 @@ global {
 dns {
     upstream {
         alidns: "udp://223.5.5.5:53"
-        mihomo: "tcp+udp://127.0.0.1:1053"
+        google: "udp://8.8.8.8:53"
     }
     routing {
         request {
             qname(geosite:cn) -> alidns
-            fallback: mihomo
+            fallback: google
         }
     }
 }

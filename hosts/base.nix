@@ -72,7 +72,7 @@
       nerd-fonts.fira-code
 
       foundertype-fonts
-      windows-fonts
+      # windows-fonts
 
       lxgw-wenkai
 

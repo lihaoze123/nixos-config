@@ -55,5 +55,6 @@ in
     dbeaver-bin
     antigravity
     jetbrains.idea
+    rtk
   ];
 }

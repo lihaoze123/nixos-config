@@ -22,18 +22,7 @@
     enable = true;
   };
 
-  virtualisation.libvirtd.enable = true;
-  programs.virt-manager.enable = true;
-
-  virtualisation.virtualbox.host.enable = true;
-  virtualisation.virtualbox.host.enableExtensionPack = true;
-  networking.firewall.trustedInterfaces = [ "virbr0" ];
-
-  users.users.chumeng.extraGroups = [ "libvirtd" "vboxusers" ];
-
   environment.systemPackages = with pkgs; [
-    virt-manager
-    qemu_kvm
     dnsmasq
     flclash
   ];
