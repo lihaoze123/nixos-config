@@ -21,5 +21,6 @@
     opencode
     jq
     just
+    difftastic
   ];
 }

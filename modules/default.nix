@@ -4,5 +4,6 @@
   imports = [
     ./niri
     ./dae
+    ./hermes
   ];
 }

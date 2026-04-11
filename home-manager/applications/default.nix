@@ -43,6 +43,7 @@ in
 
     # typeset
     pandoc
+    typst
     # tex
     tectonic
     # typora
