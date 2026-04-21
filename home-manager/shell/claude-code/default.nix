@@ -39,17 +39,19 @@ in
   age.secrets.minimax-token = {
     file = ../../secrets/minimax-token.age;
   };
-  age.secrets._2233ai-token = {
-    file = ../../secrets/2233ai-token.age;
+  age.secrets.codex-cpa-token = {
+    file = ../../secrets/codex-cpa-token.age;
   };
 
   home.packages = with pkgs; [
     claude-code
 
-    (claude_alt {
+    (claude_alt_models_modified {
       name = "glm";
       url = "https://open.bigmodel.cn/api/anthropic";
       token_path = config.age.secrets.glm-token.path;
+      reasoner = "glm-5.1";
+      chat = "glm-5.1";
     })
     (claude_alt_models_modified {
       name = "kimi";
@@ -65,10 +67,12 @@ in
       reasoner = "MiniMax-M2.7-highspeed";
       chat = "MiniMax-M2.7-highspeed";
     })
-    (claude_alt {
-      name = "2233ai";
-      url = "https://aicoding.2233.ai";
-      token_path = config.age.secrets._2233ai-token.path;
+    (claude_alt_models_modified {
+      name = "codexcc";
+      url = "localhost:8317";
+      token_path = config.age.secrets.codex-cpa-token.path;
+      reasoner = "gpt-5.4";
+      chat = "gpt-5.4";
     })
   ];
 }

@@ -22,6 +22,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     claude-code.url = "github:sadjow/claude-code-nix";
+    codex-code.url = "github:sadjow/codex-nix";
     hermes-agent.url = "github:NousResearch/hermes-agent";
   };
 
