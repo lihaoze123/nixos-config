@@ -15,15 +15,18 @@ let
     { name
     , url
     , token_path
-    , reasoner
-    , chat
+    , opus
+    , sonnet
+    , haiku
     ,
     }: (
       pkgs.writeShellScriptBin name ''
         export ANTHROPIC_AUTH_TOKEN=$(cat ${token_path})
         export ANTHROPIC_BASE_URL=${url}
-        export ANTHROPIC_MODEL=${reasoner}
-        export ANTHROPIC_SMALL_FAST_MODEL=${chat}
+        export ANTHROPIC_MODEL=${opus}
+        export ANTHROPIC_DEFAULT_OPUS_MODEL=${opus}
+        export ANTHROPIC_DEFAULT_SONNET_MODEL=${sonnet}
+        export ANTHROPIC_DEFAULT_HAIKU_MODEL=${haiku}
 
         exec claude "$@"
       ''
@@ -50,29 +53,17 @@ in
       name = "glm";
       url = "https://open.bigmodel.cn/api/anthropic";
       token_path = config.age.secrets.glm-token.path;
-      reasoner = "glm-5.1";
-      chat = "glm-5.1";
-    })
-    (claude_alt_models_modified {
-      name = "kimi";
-      url = "https://api.kimi.com/coding/";
-      token_path = config.age.secrets.kimi-token.path;
-      reasoner = "kimi-k2-thinking";
-      chat = "kimi-k2-thinking";
-    })
-    (claude_alt_models_modified {
-      name = "minimax";
-      url = "https://api.minimaxi.com/anthropic";
-      token_path = config.age.secrets.minimax-token.path;
-      reasoner = "MiniMax-M2.7-highspeed";
-      chat = "MiniMax-M2.7-highspeed";
+      opus = "glm-5.1";
+      sonnet = "glm-5.1";
+      haiku = "glm-4.7";
     })
     (claude_alt_models_modified {
       name = "codexcc";
       url = "localhost:8317";
       token_path = config.age.secrets.codex-cpa-token.path;
-      reasoner = "gpt-5.4";
-      chat = "gpt-5.4";
+      opus = "gpt-5.4";
+      sonnet = "gpt-5.4";
+      haiku = "gpt-5.4";
     })
   ];
 }

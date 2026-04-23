@@ -56,6 +56,7 @@ in
     dbeaver-bin
     antigravity
     jetbrains.idea
+    cherry-studio
     rtk
   ];
 }
