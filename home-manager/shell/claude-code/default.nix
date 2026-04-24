@@ -61,9 +61,9 @@ in
       name = "codexcc";
       url = "localhost:8317";
       token_path = config.age.secrets.codex-cpa-token.path;
-      opus = "gpt-5.4";
-      sonnet = "gpt-5.4";
-      haiku = "gpt-5.4";
+      opus = "gpt-5.5";
+      sonnet = "gpt-5.5";
+      haiku = "gpt-5.5";
     })
   ];
 }
