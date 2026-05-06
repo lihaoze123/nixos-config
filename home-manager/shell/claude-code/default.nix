@@ -45,10 +45,21 @@ in
   age.secrets.codex-cpa-token = {
     file = ../../secrets/codex-cpa-token.age;
   };
+  age.secrets.deepseek-token = {
+    file = ../../secrets/deepseek-token.age;
+  };
 
   home.packages = with pkgs; [
     claude-code
 
+    (claude_alt_models_modified {
+      name = "dscc";
+      url = "https://api.deepseek.com/anthropic";
+      token_path = config.age.secrets.deepseek-token.path;
+      opus = "deepseek-v4-pro[1m]";
+      sonnet = "deepseek-v4-pro[1m]";
+      haiku = "deepseek-v4-flash";
+    })
     (claude_alt_models_modified {
       name = "glm";
       url = "https://open.bigmodel.cn/api/anthropic";

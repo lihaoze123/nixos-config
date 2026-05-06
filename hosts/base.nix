@@ -122,6 +122,10 @@
     allowedUDPPorts = [ config.services.tailscale.port ];
   };
 
+  programs.appimage = {
+    enable = true;
+    binfmt = true;
+  };
 
   nixpkgs.config.allowUnfree = true;
   nix.settings.substituters = [ "https://mirror.tuna.tsinghua.edu.cn/nix-channels/store" ];

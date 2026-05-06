@@ -7,4 +7,5 @@ in
   "kimi-token.age".publicKeys = users;
   "minimax-token.age".publicKeys = users;
   "codex-cpa-token.age".publicKeys = users;
+  "deepseek-token.age".publicKeys = users;
 }
