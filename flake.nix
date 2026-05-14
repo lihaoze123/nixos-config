@@ -23,7 +23,7 @@
     };
     claude-code.url = "github:sadjow/claude-code-nix";
     codex-code.url = "github:sadjow/codex-nix";
-    hermes-agent.url = "github:NousResearch/hermes-agent";
+    inkline.url = "github:lihaoze123/Inkline";
   };
 
   outputs = { self, nixpkgs, home-manager, ragenix, geodb, ... }@inputs:

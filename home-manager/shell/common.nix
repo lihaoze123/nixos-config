@@ -22,5 +22,9 @@
     jq
     just
     difftastic
+    satty
+    grim
+    slurp
+    tree-sitter
   ];
 }

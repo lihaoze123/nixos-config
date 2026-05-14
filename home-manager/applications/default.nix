@@ -28,18 +28,8 @@ in
 
     # learn
     anki
-    (pkgs.symlinkJoin {
-      name = "obsidian";
-      paths = [ obsidian ];
-      buildInputs = [ pkgs.makeWrapper ];
-      postBuild = ''
-        wrapProgram $out/bin/obsidian \
-          --add-flags "--no-sandbox" \
-          --add-flags "--ozone-platform=wayland" \
-          --add-flags "--ozone-platform-hint=auto" \
-          --add-flags "--enable-features=UseOzonePlatform,WaylandWindowDecorations"
-      '';
-    })
+    obsidian
+    inputs.inkline.packages.${pkgs.system}.default
 
     # typeset
     pandoc
@@ -53,6 +43,7 @@ in
     inkscape
 
     # develop
+    tmux
     dbeaver-bin
     antigravity
     jetbrains.idea
