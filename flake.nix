@@ -23,6 +23,10 @@
     };
     claude-code.url = "github:sadjow/claude-code-nix";
     codex-code.url = "github:sadjow/codex-nix";
+    codex-desktop = {
+      url = "github:ilysenko/codex-desktop-linux";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     inkline.url = "github:lihaoze123/Inkline";
   };
 
