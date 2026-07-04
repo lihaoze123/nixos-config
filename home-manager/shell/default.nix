@@ -5,6 +5,7 @@
     ./fish
     ./neovim
     ./gcc
+    ./rust.nix
     ./claude-code
     ./agent-browser.nix
     ./common.nix

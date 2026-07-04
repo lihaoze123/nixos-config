@@ -1,4 +1,4 @@
-{ inputs, pkgs-stable, system, ... }:
+{ inputs, pkgs-stable, system, mkRustToolchain, ... }:
 
 {
   imports = [
@@ -10,7 +10,7 @@
       home-manager.useGlobalPkgs = true;
       home-manager.useUserPackages = true;
       home-manager.users.chumeng = import ./class.nix;
-      home-manager.extraSpecialArgs = { inherit inputs pkgs-stable system; };
+      home-manager.extraSpecialArgs = { inherit inputs pkgs-stable system mkRustToolchain; };
     }
     (import ../../modules)
     (import ../../overlays)

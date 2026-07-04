@@ -64,8 +64,8 @@ in
       name = "glm";
       url = "https://open.bigmodel.cn/api/anthropic";
       token_path = config.age.secrets.glm-token.path;
-      opus = "glm-5.1";
-      sonnet = "glm-5.1";
+      opus = "glm-5.2";
+      sonnet = "glm-5.2";
       haiku = "glm-4.7";
     })
     (claude_alt_models_modified {

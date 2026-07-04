@@ -127,6 +127,14 @@
     binfmt = true;
   };
 
+  programs.direnv = {
+    enable = true;
+    silent = false;
+    loadInNixShell = true;
+
+    nix-direnv.enable = true;
+  };
+
   nixpkgs.config.allowUnfree = true;
   nix.settings.substituters = [ "https://mirror.tuna.tsinghua.edu.cn/nix-channels/store" ];
 
