@@ -26,5 +26,6 @@
     grim
     slurp
     tree-sitter
+    ghostty
   ];
 }
