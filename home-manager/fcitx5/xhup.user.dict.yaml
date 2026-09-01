@@ -1,0 +1,16 @@
+# Rime dictionary
+# encoding: utf-8
+
+---
+name: xhup.user
+version: "1"
+sort: by_weight
+use_preset_vocabulary: false
+...
+
+自定义词	zdyc	100
+小鹤测试	xhcu	100
+输入法	urfa	100
+人工智能	rgvn	100
+可素	kesu	100
+香泥	xlni	100
