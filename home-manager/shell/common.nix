@@ -27,5 +27,6 @@
     slurp
     tree-sitter
     ghostty
+    jujutsu
   ];
 }

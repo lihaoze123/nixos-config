@@ -14,6 +14,8 @@ opt.smartindent = true
 opt.smarttab = true
 opt.expandtab = true
 
+opt.clipboard = ""
+
 if vim.g.neovide then
     vim.o.guifont = "FiraCode Nerd Font:h18"
     vim.g.neovide_input_ime = false

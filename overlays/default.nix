@@ -4,6 +4,7 @@
   nixpkgs.overlays = [
     inputs.chinese-fonts-overlay.overlays.default
     inputs.rust-overlay.overlays.default
+    inputs.xwayland-satellite.overlays.default
     inputs.claude-code.overlays.default
     inputs.codex-code.overlays.default
     (import ./antigravity-tools.nix)

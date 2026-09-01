@@ -25,6 +25,11 @@
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    xwayland-satellite = {
+      url = "github:Supreeeme/xwayland-satellite";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.rust-overlay.follows = "rust-overlay";
+    };
     claude-code.url = "github:sadjow/claude-code-nix";
     codex-code.url = "github:sadjow/codex-cli-nix";
   };
