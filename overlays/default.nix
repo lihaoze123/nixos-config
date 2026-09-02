@@ -8,5 +8,6 @@
     inputs.claude-code.overlays.default
     inputs.codex-code.overlays.default
     (import ./antigravity-tools.nix)
+    (import ./eudic.nix)
   ];
 }

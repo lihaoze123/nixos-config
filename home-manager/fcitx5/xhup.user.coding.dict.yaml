@@ -1,0 +1,18 @@
+# Rime dictionary
+# encoding: utf-8
+
+---
+name: xhup.user.coding
+version: "1"
+sort: by_weight
+use_preset_vocabulary: false
+...
+
+并发	bkfa	100
+初始	iuui	100
+协作	xpzo	100
+显式	xmui	100
+隐式	ybui	100
+事件	uijm	100
+挂起	gxqi	100
+触发	iufa	100

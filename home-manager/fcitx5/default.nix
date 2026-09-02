@@ -5,10 +5,18 @@
 }:
 let
   rime-crane-rev = "44d00fa68d9f4754b6381797bdbd5fcd405bfaf7";
+  rime-user-dictionaries = {
+    "xhup.user.dict.yaml" = ./xhup.user.dict.yaml;
+    "xhup.user.chat.dict.yaml" = ./xhup.user.chat.dict.yaml;
+    "xhup.user.coding.dict.yaml" = ./xhup.user.coding.dict.yaml;
+    "xhup.user.work.dict.yaml" = ./xhup.user.work.dict.yaml;
+  };
   rime-crane-config-id = builtins.hashString "sha256" ''
     ${rime-crane-rev}
     ${builtins.readFile ./default.custom.yaml}
-    ${builtins.readFile ./xhup.user.dict.yaml}
+    ${lib.concatStringsSep "\n" (
+      lib.mapAttrsToList (_: path: builtins.readFile path) rime-user-dictionaries
+    )}
   '';
   rime-crane-src = pkgs.fetchFromGitHub {
     owner = "kchen0x";
@@ -26,6 +34,13 @@ let
 
       mkdir -p $out/share/rime-data
       cp -r ${rime-crane-src}/. $out/share/rime-data/
+      substituteInPlace $out/share/rime-data/xhup.dict.yaml \
+        --replace-fail \
+          '  - "xhup_dicts/xhup.user"              # 用户码表' \
+          '  - "xhup_dicts/xhup.user"              # 通用用户码表
+        - "xhup_dicts/xhup.user.work"         # 工作词库
+        - "xhup_dicts/xhup.user.coding"       # 编程词库
+        - "xhup_dicts/xhup.user.chat"         # 聊天词库'
 
       runHook postInstall
     '';
@@ -36,7 +51,7 @@ let
   };
 
   rime-user-data-dir = "${config.home.homeDirectory}/.local/share/fcitx5/rime";
-  rime-user-dictionary = "${config.home.homeDirectory}/nixos-config/home-manager/fcitx5/xhup.user.dict.yaml";
+  rime-user-dictionary-dir = "${config.home.homeDirectory}/nixos-config/home-manager/fcitx5";
 in
 {
   xdg.configFile = {
@@ -61,10 +76,13 @@ in
     };
   };
 
-  xdg.dataFile."fcitx5/rime/xhup_dicts/xhup.user.dict.yaml" = {
-    source = config.lib.file.mkOutOfStoreSymlink rime-user-dictionary;
-    force = true;
-  };
+  xdg.dataFile = lib.mapAttrs' (
+    name: _:
+    lib.nameValuePair "fcitx5/rime/xhup_dicts/${name}" {
+      source = config.lib.file.mkOutOfStoreSymlink "${rime-user-dictionary-dir}/${name}";
+      force = true;
+    }
+  ) rime-user-dictionaries;
 
   i18n.inputMethod = {
     enable = true;

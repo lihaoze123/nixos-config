@@ -32,6 +32,7 @@ in
 
     # learn
     anki
+    eudic
     obsidian
 
     # typeset
