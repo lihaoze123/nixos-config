@@ -1,0 +1,2 @@
+# term<TAB>space-separated pinyin
+重排序模型	chong pai xu mo xing
