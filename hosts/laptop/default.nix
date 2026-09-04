@@ -4,6 +4,7 @@
   imports = [
     ./hardware-configuration.nix
     ../base.nix
+    ../../modules/virtualisation
     inputs.ragenix.nixosModules.default
     inputs.home-manager.nixosModules.home-manager
     {
