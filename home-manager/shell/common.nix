@@ -28,5 +28,6 @@
     tree-sitter
     ghostty
     jujutsu
+    tealdeer
   ];
 }

@@ -32,6 +32,7 @@
     };
     claude-code.url = "github:sadjow/claude-code-nix";
     codex-code.url = "github:sadjow/codex-cli-nix";
+    codex-desktop-linux.url = "github:ilysenko/codex-desktop-linux";
   };
 
   outputs = { self, nixpkgs, home-manager, ragenix, geodb, ... }@inputs:

@@ -56,8 +56,8 @@ in
       name = "dscc";
       url = "https://api.deepseek.com/anthropic";
       token_path = config.age.secrets.deepseek-token.path;
-      opus = "deepseek-v4-pro[1m]";
-      sonnet = "deepseek-v4-pro[1m]";
+      opus = "deepseek-v4-flash";
+      sonnet = "deepseek-v4-flash";
       haiku = "deepseek-v4-flash";
     })
     (claude_alt_models_modified {

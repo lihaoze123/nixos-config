@@ -16,6 +16,10 @@
       };
     };
 
+    waydroid = {
+      enable = true;
+    };
+
     # Allow USB devices to be redirected to SPICE guests from virt-manager.
     spiceUSBRedirection.enable = true;
   };
