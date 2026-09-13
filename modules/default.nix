@@ -2,6 +2,7 @@
 
 {
   imports = [
+    ./aria2
     ./niri
     ./dae
   ];

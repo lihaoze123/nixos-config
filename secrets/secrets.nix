@@ -5,4 +5,5 @@ in
 {
     "dae-config.age".publicKeys = users;
     "hermes-env.age".publicKeys = users;
+    "aria2-password.age".publicKeys = users;
 }
