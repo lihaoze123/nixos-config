@@ -16,17 +16,24 @@ let
       });
     };
   };
+  compatibilityPatches = [
+    ../../patches/codex-niri-window-screenshot.patch
+    ../../patches/codex-niri-window-coordinates.patch
+    ../../patches/codex-linux-native-drag.patch
+    ../../patches/codex-linux-drag-interpolation.patch
+  ];
+  patchedSource = pkgs.applyPatches {
+    name = "codex-desktop-linux-niri-source";
+    src = upstream;
+    patches = compatibilityPatches;
+  };
   backend = buildRustPackage {
     pname = "codex-computer-use-niri";
     version = "0.4.9-linux-alpha1";
-    src = upstream;
-    patches = [
-      ../../patches/codex-niri-window-screenshot.patch
-      ../../patches/codex-niri-window-coordinates.patch
-    ];
-    cargoLock.lockFile = upstream + "/Cargo.lock";
+    src = patchedSource;
+    cargoLock.lockFile = patchedSource + "/Cargo.lock";
     cargoBuildFlags = [ "-p" "codex-computer-use-linux" "--bin" "codex-computer-use-linux" ];
-    cargoTestFlags = [ "-p" "codex-computer-use-linux" "--bin" "codex-computer-use-linux" "screenshot" ];
+    cargoTestFlags = [ "-p" "codex-computer-use-linux" "--bin" "codex-computer-use-linux" ];
     doCheck = true;
   };
   desktop = upstream.packages.${system}.codex-desktop-computer-use-ui;
@@ -35,6 +42,10 @@ in
     postInstall = (old.postInstall or "") + ''
       install -m755 ${backend}/bin/codex-computer-use-linux \
         "$out/opt/codex-desktop/resources/plugins/openai-bundled/plugins/unified-computer-use/bin/codex-computer-use-linux"
+      install -m644 ${patchedSource}/linux-features/computer-use-linux/native-client.mjs \
+        "$out/opt/codex-desktop/resources/plugins/openai-bundled/plugins/unified-computer-use/scripts/native-client.mjs"
+      install -m644 ${patchedSource}/linux-features/computer-use-linux/native-service.mjs \
+        "$out/opt/codex-desktop/resources/plugins/openai-bundled/plugins/unified-computer-use/scripts/native-service.mjs"
     '';
     passthru = (old.passthru or { }) // { niriBackend = backend; };
   })

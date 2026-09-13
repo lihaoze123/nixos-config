@@ -38,7 +38,7 @@ The override in `modules/niri/codex-desktop.nix` builds the patched Rust
 backend with screenshot tests enabled, then installs it in the Community
 package. Remove the host's `package` override to return to upstream.
 
-Validation on 2026-09-11:
+Validation on 2026-09-11 and 2026-09-12:
 
 - Rust screenshot test filter: 22 passed, 0 failed.
 - Live `cua.getApp(...).getScreenshot()` returned the correct ChatGPT window.
@@ -47,3 +47,11 @@ Validation on 2026-09-11:
   was verified after activating the rebuilt niri compositor: niri returned
   non-null tiled-window positions, the backend reported global bounds on a
   2× output, and window-relative click and text input completed successfully.
+- The native desktop adapter exposes window-relative `drag`; a live drag on
+  the 2× niri output created the expected text selection, which was then
+  cleared with a click.
+- Drag motion is interpolated while the button remains pressed because GTK
+  applications need post-button-down motion events to enter their drag state.
+  The complete Computer Use Rust test suite passed (281 tests). In a live
+  Inkscape session, Computer Use created an 11-object robot with shape drags,
+  grouped it, moved the entire group, and resized it from a corner handle.
