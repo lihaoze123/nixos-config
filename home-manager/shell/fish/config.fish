@@ -11,7 +11,6 @@ alias la="ls -la"
 alias vim="nvim"
 alias grep="rg"
 alias lg="lazygit"
-alias ssh="kitty +kitten ssh"
 
 function yy
     set tmp (mktemp -t "yazi-cwd.XXXXXX")

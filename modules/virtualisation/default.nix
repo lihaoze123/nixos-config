@@ -25,4 +25,5 @@
   };
 
   users.users.chumeng.extraGroups = [ "kvm" "libvirtd" ];
+  networking.firewall.interfaces."virbr0".allowedUDPPorts = [ 67 ];
 }

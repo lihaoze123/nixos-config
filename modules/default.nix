@@ -4,6 +4,7 @@
   imports = [
     ./aria2
     ./niri
+    ./edunet
     ./dae
   ];
 }

@@ -33,6 +33,7 @@
     claude-code.url = "github:sadjow/claude-code-nix";
     codex-code.url = "github:sadjow/codex-cli-nix";
     codex-desktop-linux.url = "github:ilysenko/codex-desktop-linux";
+    edunet.url = "github:lihaoze123/hhu-edunet-cli";
   };
 
   outputs = { self, nixpkgs, home-manager, ragenix, geodb, ... }@inputs:
