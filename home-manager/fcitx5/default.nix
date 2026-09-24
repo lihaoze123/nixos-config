@@ -16,6 +16,7 @@ let
     ${rime-crane-rev}
     ${xhup-computer-dictionary}
     ${builtins.readFile ./default.custom.yaml}
+    ${builtins.readFile ./xhup.custom.yaml}
     ${lib.concatStringsSep "\n" (
       lib.mapAttrsToList (_: path: builtins.readFile path) rime-user-dictionaries
     )}
@@ -91,6 +92,7 @@ in
   };
   home.file = {
     ".local/share/fcitx5/rime/default.custom.yaml".source = ./default.custom.yaml;
+    ".local/share/fcitx5/rime/xhup.custom.yaml".source = ./xhup.custom.yaml;
 
     # Files in the Nix store have a fixed mtime, so Rime cannot notice that
     # their contents changed. Invalidate only the generated deployment state

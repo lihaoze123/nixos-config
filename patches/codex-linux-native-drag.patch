@@ -246,9 +246,9 @@
      #[test]
      fn accessibility_filter_candidates_prefer_title_and_skip_synthetic_app_id() {
          let window = window_info(
---- a/linux-features/computer-use-linux/native-service.mjs
-+++ b/linux-features/computer-use-linux/native-service.mjs
-@@ -8,6 +8,7 @@
+--- a/linux-features/computer-use-linux/native-protocol.mjs
++++ b/linux-features/computer-use-linux/native-protocol.mjs
+@@ -6,6 +6,7 @@
    screenshot: ['max_width', 'max_height', 'max_bytes', 'scale', 'format', 'quality'],
    click: ['x', 'y', 'button', 'click_count', 'relative'],
    scroll: ['x', 'y', 'direction', 'pages', 'relative'],

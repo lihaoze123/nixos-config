@@ -1,0 +1,19 @@
+patch:
+  # Keep the upstream ` wildcard lookup and add a separate pinyin lookup.
+  schema/dependencies/+:
+    - rime_ice
+  engine/translators/+:
+    - reverse_lookup_translator@pinyin_lookup
+  engine/filters/+:
+    - reverse_lookup_filter@xhup_code
+  recognizer/patterns/pinyin_lookup: '^~[a-z]*$'
+  pinyin_lookup:
+    tag: pinyin_lookup
+    dictionary: rime_ice
+    prefix: '~'
+    tips: '〔拼音反查〕'
+    enable_completion: true
+  xhup_code:
+    tags: [pinyin_lookup]
+    dictionary: xhup
+    overwrite_comment: true

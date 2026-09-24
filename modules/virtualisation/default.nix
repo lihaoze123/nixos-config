@@ -20,9 +20,15 @@
       enable = true;
     };
 
+    podman = {
+      enable = true;
+    };
+
     # Allow USB devices to be redirected to SPICE guests from virt-manager.
     spiceUSBRedirection.enable = true;
   };
+
+  environment.systemPackages = [ pkgs.distrobox ];
 
   users.users.chumeng.extraGroups = [ "kvm" "libvirtd" ];
   networking.firewall.interfaces."virbr0".allowedUDPPorts = [ 67 ];

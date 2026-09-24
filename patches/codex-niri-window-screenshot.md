@@ -55,3 +55,42 @@ Validation on 2026-09-11 and 2026-09-12:
   The complete Computer Use Rust test suite passed (281 tests). In a live
   Inkscape session, Computer Use created an 11-object robot with shape drags,
   grouped it, moved the entire group, and resized it from a corner handle.
+
+Validation on 2026-09-22:
+
+- The native adapter now starts an installed `.desktop` app when `getApp(id)`
+  cannot find a running window. It resolves the entry from XDG/NixOS
+  application directories, reconstructs the unique niri Wayland session for
+  the launch process, then binds to the newly created window. Live
+  `cua.getApp('neovide')` started Neovide and returned its focused niri window.
+  `cua.getApp('org.inkscape.Inkscape')` also launched Inkscape.
+  The adapter accepts an exact desktop app id or an unambiguous display name.
+  An existing Inkscape window is reused by display name, and a newly launched
+  window remained available after the Computer Use session was reset.
+  `toggleMaximize()` targets the bound niri window id; a live call expanded
+  Neovide from 756×963 to 1560×995 in the returned window context.
+  An obsolete `gvim.desktop` entry is present, but its `TryExec=gvim` is not
+  installed; it cannot be used for launch validation.
+- The enabled `codex-niri-scroll-unicode.patch` moves the pointer to a targeted scroll
+  location with the existing absolute uinput device before sending ydotool
+  wheel events. In a live niri session, the same local Edge page that did not
+  scroll with ydotool absolute movement scrolled down and back up correctly.
+- The non-ASCII input path uses niri's virtual keyboard through `wtype` without
+  modifying the clipboard. An initial attempt omitted the first character;
+  a modifier tap before typing fixed this in a live Neovide buffer. Its
+  screenshot showed the full string `中文首字完整测试`. The combined backend passed
+  all 281 Rust unit tests.
+- Edge 148 crashes its main process with SIGILL at the same Chromium `ud2`
+  offset when `wtype` injects Chinese into a contenteditable field. ASCII
+  input in that field remains stable. The niri backend now recognizes Chromium
+  browser windows by app id/class and enters each non-ASCII code point with
+  `Ctrl+Shift+U`, its hexadecimal code point, and Space via ydotool; other
+  niri applications retain the verified `wtype` path. A live Edge test entered
+  `中文🙂` through this sequence without crashing. This path does not touch the
+  clipboard. The rebuilt backend passed all 281 Rust tests and a direct
+  `cua.getApp('microsoft-edge').typeText('修复验证中文🙂abc123')` call displayed the
+  complete string in Edge while its main process stayed alive. Untargeted
+  non-ASCII input resolves the focused niri window first and refuses input if
+  that window cannot be identified. The final system build passed and a fresh
+  Computer Use session displayed `最终验证：中文🙂abc123` in Edge without a new
+  crash. The exact Chromium assertion behind the `ud2` is unknown.

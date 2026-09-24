@@ -58,6 +58,10 @@
     trustedInterfaces = [ "p2p-wl+" ];
     allowedTCPPorts = [ 7236 7250 ];
     allowedUDPPorts = [ 7236 5353 ];
+    interfaces."wlp0s20f3" = {
+      allowedTCPPorts = [ 45545 ];
+      allowedUDPPorts = [ 45545 6771 ];
+    };
   };
 
   services.avahi = {

@@ -21,20 +21,27 @@ let
     ../../patches/codex-niri-window-coordinates.patch
     ../../patches/codex-linux-native-drag.patch
     ../../patches/codex-linux-drag-interpolation.patch
+    ../../patches/codex-niri-scroll-unicode.patch
   ];
-  patchedSource = pkgs.applyPatches {
+  backendSource = pkgs.applyPatches {
     name = "codex-desktop-linux-niri-source";
     src = upstream;
     patches = compatibilityPatches;
   };
+  patchedSource = pkgs.applyPatches {
+    name = "codex-desktop-linux-native-launch-source";
+    src = backendSource;
+    patches = [ ../../patches/codex-linux-native-launch.patch ];
+  };
   backend = buildRustPackage {
     pname = "codex-computer-use-niri";
     version = "0.4.9-linux-alpha1";
-    src = patchedSource;
-    cargoLock.lockFile = patchedSource + "/Cargo.lock";
+    src = backendSource;
+    cargoLock.lockFile = backendSource + "/Cargo.lock";
     cargoBuildFlags = [ "-p" "codex-computer-use-linux" "--bin" "codex-computer-use-linux" ];
     cargoTestFlags = [ "-p" "codex-computer-use-linux" "--bin" "codex-computer-use-linux" ];
     doCheck = true;
+    COMPUTER_USE_WTYPE_EXECUTABLE = "${pkgs.wtype}/bin/wtype";
   };
   desktop = upstream.packages.${system}.codex-desktop-computer-use-ui;
 in
@@ -46,6 +53,10 @@ in
         "$out/opt/codex-desktop/resources/plugins/openai-bundled/plugins/unified-computer-use/scripts/native-client.mjs"
       install -m644 ${patchedSource}/linux-features/computer-use-linux/native-service.mjs \
         "$out/opt/codex-desktop/resources/plugins/openai-bundled/plugins/unified-computer-use/scripts/native-service.mjs"
+      install -m644 ${patchedSource}/linux-features/computer-use-linux/native-backend-service.mjs \
+        "$out/opt/codex-desktop/resources/plugins/openai-bundled/plugins/unified-computer-use/scripts/native-backend-service.mjs"
+      install -m644 ${patchedSource}/linux-features/computer-use-linux/native-protocol.mjs \
+        "$out/opt/codex-desktop/resources/plugins/openai-bundled/plugins/unified-computer-use/scripts/native-protocol.mjs"
     '';
     passthru = (old.passthru or { }) // { niriBackend = backend; };
   })
