@@ -15,6 +15,7 @@ let
   rime-crane-config-id = builtins.hashString "sha256" ''
     ${rime-crane-rev}
     ${xhup-computer-dictionary}
+    ${xhup-reverse-dictionary}
     ${builtins.readFile ./default.custom.yaml}
     ${builtins.readFile ./xhup.custom.yaml}
     ${lib.concatStringsSep "\n" (
@@ -51,6 +52,17 @@ let
       --output $out/share/rime-data/xhup_dicts/xhup.user.computer.dict.yaml
   '';
 
+  xhup-reverse-dictionary = pkgs.runCommand "xhup-weighted-reverse-dictionary"
+    {
+      nativeBuildInputs = [ pkgs.python3 ];
+    } ''
+    mkdir -p $out/share/rime-data
+    python ${./generate-xhup-reverse-dict.py} \
+      --reverse-dictionary ${rime-crane-src}/xhup_reverse.dict.yaml \
+      --frequency-dictionary ${rime-crane-src}/cn_dicts/8105.dict.yaml \
+      --output $out/share/rime-data/xhup_reverse.dict.yaml
+  '';
+
   rime-crane = pkgs.stdenvNoCC.mkDerivation {
     pname = "rime-crane";
     version = builtins.substring 0 7 rime-crane-rev;
@@ -62,6 +74,9 @@ let
       cp -r ${rime-crane-src}/. $out/share/rime-data/
       chmod -R u+w $out/share/rime-data
       cp -r ${xhup-computer-dictionary}/share/rime-data/. $out/share/rime-data/
+      install -Dm644 \
+        ${xhup-reverse-dictionary}/share/rime-data/xhup_reverse.dict.yaml \
+        $out/share/rime-data/xhup_reverse.dict.yaml
       install -Dm644 ${./THUOCL-LICENSE.txt} $out/share/licenses/rime-crane/THUOCL.txt
       substituteInPlace $out/share/rime-data/xhup.dict.yaml \
         --replace-fail \

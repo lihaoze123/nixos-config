@@ -94,3 +94,17 @@ Validation on 2026-09-22:
   that window cannot be identified. The final system build passed and a fresh
   Computer Use session displayed `最终验证：中文🙂abc123` in Edge without a new
   crash. The exact Chromium assertion behind the `ud2` is unknown.
+
+Validation on 2026-09-28:
+
+- Desktop release 26.917 changed the public Linux CUA surface to
+  `listWindows()`, `getApp({ windowId })`, `computer.launch_app()`, and pixel
+  scroll distances. The community adapter still exposed only its earlier
+  string app ids, so current CUA calls failed with `e.list_apps is not a
+  function` even though the niri host socket and Rust backend were healthy.
+- The adapter now accepts both exact `{ windowId }` targets and its legacy app
+  ids, supplies `listWindows()` and `computer.launch_app()`, translates pixel
+  scroll distances, and removes the failed built-in native inventory error
+  after the community inventory succeeds. A live 26.917 session enumerated
+  the niri windows, bound Edge by numeric window id, captured its window, and
+  scrolled it successfully. The complete NixOS system build also passed.
