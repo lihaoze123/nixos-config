@@ -1,6 +1,26 @@
 { config, pkgs, ... }@inputs:
 let
   niriConfigPath = "${config.home.homeDirectory}/nixos-config/home-manager/niri/config.kdl";
+
+  # 小鹤音形官方部件字根键盘图 (https://flypy.cc/help/#/zg)
+  xhup-roots-image = pkgs.fetchurl {
+    url = "https://flypy.cc/help/assets/img/xhzg.webp";
+    hash = "sha256-nV14v2z67cX34jRt4ncRMbFduJG+WGDRnwXsQt5AJYE=";
+  };
+
+  # Toggle the chart: close it if it is already open, otherwise open it.
+  # The niri window rule for app-id "xhup-roots" makes it float centered.
+  xhup-roots = pkgs.writeShellApplication {
+    name = "xhup-roots";
+    runtimeInputs = with pkgs; [ jq swayimg ];
+    text = ''
+      id=$(niri msg --json windows | jq -r 'first(.[] | select(.app_id == "xhup-roots") | .id) // empty')
+      if [ -n "$id" ]; then
+        exec niri msg action close-window --id "$id"
+      fi
+      exec swayimg --class=xhup-roots --scale=fit --config=info.show=no ${xhup-roots-image}
+    '';
+  };
 in
 {
   xdg.configFile."niri/config.kdl".source = config.lib.file.mkOutOfStoreSymlink niriConfigPath;
@@ -73,5 +93,6 @@ in
     cliphist
     xwayland-satellite
     nautilus
+    xhup-roots
   ];
 }

@@ -3,7 +3,7 @@
 
 ---
 name: xhup.user
-version: "1"
+version: "user-b6c81a013273453999a3682f3df61be7"
 sort: by_weight
 use_preset_vocabulary: false
 ...
@@ -23,3 +23,5 @@ use_preset_vocabulary: false
 与其	yuqi	100
 稀疏	xiuu	100
 
+让我	rhwo	100
+可素	kesu	100

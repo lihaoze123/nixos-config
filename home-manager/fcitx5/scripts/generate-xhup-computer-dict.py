@@ -9,62 +9,11 @@ from collections import Counter
 from pathlib import Path
 from typing import Iterable
 
-from pypinyin import Style, lazy_pinyin
+from xhup_common import is_allowed_term, phrase_code, phrase_code_from_units
 
 
 SOURCE_NAME = "THUOCL_IT"
 DICTIONARY_NAME = "xhup.user.computer"
-
-INITIAL_CODES = {
-    "zh": "v",
-    "ch": "i",
-    "sh": "u",
-}
-
-FINAL_CODES = {
-    "iu": "q",
-    "ei": "w",
-    "uan": "r",
-    "ue": "t",
-    "ve": "t",
-    "un": "y",
-    "uo": "o",
-    "ie": "p",
-    "ong": "s",
-    "iong": "s",
-    "ing": "k",
-    "uai": "k",
-    "ai": "d",
-    "en": "f",
-    "eng": "g",
-    "uang": "l",
-    "iang": "l",
-    "ang": "h",
-    "ian": "m",
-    "an": "j",
-    "ou": "z",
-    "ua": "x",
-    "ia": "x",
-    "iao": "n",
-    "ao": "c",
-    "ui": "v",
-    "in": "b",
-}
-
-ZERO_INITIAL_CODES = {
-    "a": "aa",
-    "ai": "ai",
-    "an": "an",
-    "ang": "ah",
-    "ao": "ao",
-    "e": "ee",
-    "ei": "ei",
-    "en": "en",
-    "eng": "eg",
-    "er": "er",
-    "o": "oo",
-    "ou": "ou",
-}
 
 
 def parse_args() -> argparse.Namespace:
@@ -78,112 +27,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--min-frequency", default=1000, type=int)
     parser.add_argument("--output", required=True, type=Path)
     return parser.parse_args()
-
-
-def is_han(character: str) -> bool:
-    codepoint = ord(character)
-    return (
-        0x3400 <= codepoint <= 0x4DBF
-        or 0x4E00 <= codepoint <= 0x9FFF
-        or 0xF900 <= codepoint <= 0xFAFF
-        or 0x20000 <= codepoint <= 0x2FA1F
-    )
-
-
-def is_ascii_letter(character: str) -> bool:
-    return "A" <= character <= "Z" or "a" <= character <= "z"
-
-
-def is_allowed_term(term: str) -> bool:
-    return (
-        len(term) >= 2
-        and any(is_han(character) for character in term)
-        and all(is_han(character) or is_ascii_letter(character) for character in term)
-    )
-
-
-def normalize_syllable(syllable: str) -> str:
-    return syllable.lower().replace("u:", "v").replace("ü", "v")
-
-
-def split_initial(syllable: str) -> tuple[str, str]:
-    for initial in ("zh", "ch", "sh"):
-        if syllable.startswith(initial):
-            return initial, syllable[len(initial) :]
-
-    if len(syllable) >= 2 and syllable[0] not in "aeo":
-        return syllable[0], syllable[1:]
-
-    return "", syllable
-
-
-def initial_code(syllable: str) -> str:
-    syllable = normalize_syllable(syllable)
-    for initial, code in INITIAL_CODES.items():
-        if syllable.startswith(initial):
-            return code
-    if not syllable or not is_ascii_letter(syllable[0]):
-        raise ValueError(f"unsupported syllable: {syllable!r}")
-    return syllable[0]
-
-
-def double_pinyin_code(syllable: str) -> str:
-    syllable = normalize_syllable(syllable)
-    if syllable in ZERO_INITIAL_CODES:
-        return ZERO_INITIAL_CODES[syllable]
-
-    # A literal Latin letter is one unit in a mixed term. Doubling it gives
-    # that unit the same two-key width as a Han syllable in a two-unit term.
-    if len(syllable) == 1 and is_ascii_letter(syllable):
-        return syllable * 2
-
-    initial, final = split_initial(syllable)
-    if not initial or not final:
-        raise ValueError(f"unsupported syllable: {syllable!r}")
-
-    initial = INITIAL_CODES.get(initial, initial)
-    final = FINAL_CODES.get(final, final)
-    code = initial + final
-    if len(code) != 2 or not code.isascii() or not code.isalpha():
-        raise ValueError(f"unsupported syllable: {syllable!r}")
-    return code
-
-
-def pinyin_units(term: str) -> list[str]:
-    units = lazy_pinyin(
-        term,
-        style=Style.NORMAL,
-        errors=lambda value: list(value),
-        strict=False,
-    )
-    if len(units) != len(term):
-        raise ValueError(f"unexpected pinyin segmentation for {term!r}: {units!r}")
-    return units
-
-
-def phrase_code_from_units(term: str, units: list[str]) -> str:
-    if len(units) != len(term):
-        raise ValueError(f"unexpected pinyin segmentation for {term!r}: {units!r}")
-    if len(units) == 2:
-        code = double_pinyin_code(units[0]) + double_pinyin_code(units[1])
-    elif len(units) == 3:
-        code = (
-            initial_code(units[0])
-            + initial_code(units[1])
-            + double_pinyin_code(units[2])
-        )
-    else:
-        code = "".join(initial_code(unit) for unit in units[:3]) + initial_code(
-            units[-1]
-        )
-
-    if len(code) != 4 or not code.isascii() or not code.isalpha():
-        raise ValueError(f"invalid code for {term!r}: {code!r}")
-    return code.lower()
-
-
-def phrase_code(term: str) -> str:
-    return phrase_code_from_units(term, pinyin_units(term))
 
 
 def self_test() -> None:

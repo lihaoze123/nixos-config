@@ -1,0 +1,235 @@
+--- a/src/wofi.c
++++ b/src/wofi.c
+@@ -20,6 +20,7 @@
+ #include <ctype.h>
+ #include <dlfcn.h>
+ #include <errno.h>
++#include <fcntl.h>
+ #include <string.h>
+ #include <libgen.h>
+ #include <unistd.h>
+@@ -72,6 +73,8 @@
+ static struct zwlr_layer_shell_v1* shell = NULL;
+ static GtkWidget* window, *outer_box, *scroll, *entry, *inner_box, *previous_selection = NULL;
+ static gchar* filter = NULL;
++static GIOChannel* lookup_channel = NULL;
++static void lookup_query(void);
+ static char* mode = NULL;
+ static bool allow_images, allow_markup;
+ static uint64_t image_size;
+@@ -223,6 +226,10 @@
+ 			free(filter);
+ 		}
+ 		filter = strdup(new_filter);
++		if(lookup_channel != NULL) {
++			lookup_query();
++			return G_SOURCE_CONTINUE;
++		}
+ 		gtk_flow_box_invalidate_filter(GTK_FLOW_BOX(inner_box));
+ 		gtk_flow_box_invalidate_sort(GTK_FLOW_BOX(inner_box));
+ 		GtkFlowBoxChild* child = gtk_flow_box_get_child_at_index(GTK_FLOW_BOX(inner_box), 0);
+@@ -1057,6 +1064,10 @@
+ 		flag_box(GTK_BOX(previous_selection), GTK_STATE_FLAG_NORMAL);
+ 	}
+ 	GList* selected_children = gtk_flow_box_get_selected_children(flow_box);
++	if(selected_children == NULL) {
++		previous_selection = NULL;
++		return;
++	}
+ 	GtkWidget* box = gtk_bin_get_child(GTK_BIN(selected_children->data));
+ 	g_list_free(selected_children);
+ 	if(GTK_IS_EXPANDER(box)) {
+@@ -1070,7 +1081,7 @@
+ static void activate_search(GtkEntry* entry, gpointer data) {
+ 	(void) data;
+ 	GtkFlowBoxChild* child = gtk_flow_box_get_child_at_index(GTK_FLOW_BOX(inner_box), 0);
+-	gboolean is_visible = gtk_widget_get_visible(GTK_WIDGET(child));
++	gboolean is_visible = child != NULL && gtk_widget_get_visible(GTK_WIDGET(child));
+ 	if(mode != NULL && (exec_search || child == NULL || !is_visible)) {
+ 		execute_action(mode, gtk_entry_get_text(entry));
+ 	} else if(child != NULL) {
+@@ -1286,7 +1297,7 @@
+ 
+ static void do_expand(void) {
+ 	GList* children = gtk_flow_box_get_selected_children(GTK_FLOW_BOX(inner_box));
+-	if(children->data != NULL && gtk_widget_has_focus(children->data)) {
++	if(children != NULL && children->data != NULL && gtk_widget_has_focus(children->data)) {
+ 		GtkWidget* expander = gtk_bin_get_child(children->data);
+ 		if(GTK_IS_EXPANDER(expander)) {
+ 			g_signal_emit_by_name(expander, "activate");
+@@ -1304,7 +1315,7 @@
+ 
+ static void do_copy(void) {
+ 	GList* children = gtk_flow_box_get_selected_children(GTK_FLOW_BOX(inner_box));
+-	if(children->data != NULL && gtk_widget_has_focus(children->data)) {
++	if(children != NULL && children->data != NULL && gtk_widget_has_focus(children->data)) {
+ 		GtkWidget* widget = gtk_bin_get_child(children->data);
+ 		if(GTK_IS_EXPANDER(widget)) {
+ 			GtkWidget* box = gtk_bin_get_child(GTK_BIN(widget));
+@@ -1506,7 +1517,7 @@
+ 		GList* children = gtk_flow_box_get_selected_children(GTK_FLOW_BOX(inner_box));
+ 		if(gtk_widget_has_focus(entry)) {
+ 			g_signal_emit_by_name(entry, "activate", entry, NULL);
+-		} else if(gtk_widget_has_focus(inner_box) || children->data != NULL) {
++		} else if(children != NULL && children->data != NULL) {
+ 			gpointer obj = children->data;
+ 
+ 			if(obj != NULL) {
+@@ -1809,6 +1820,125 @@
+ 	gtk_widget_set_sensitive(entry, !hide_search);
+ 	update_surface_size();
+ 	return G_SOURCE_REMOVE;
++}
++
++/* Private live-dmenu transport used only by xhup-lookup. Queries and replies
++ * travel over an inherited socket, never a shell. GTK only renders the bounded
++ * results supplied by the backend. Reply IDs prevent stale results appearing. */
++static guint64 lookup_serial = 0;
++static GtkWidget* lookup_status = NULL;
++
++static void lookup_clear(void) {
++	previous_selection = NULL;
++	GList* children = gtk_container_get_children(GTK_CONTAINER(inner_box));
++	for(GList* it = children; it != NULL; it = it->next) {
++		previous_selection = NULL;
++		gtk_widget_destroy(GTK_WIDGET(it->data));
++	}
++	g_list_free(children);
++	line_count = 0;
++	user_moved = false;
++}
++
++static void lookup_changed(GtkEditable* editable, gpointer data) {
++	(void) editable;
++	(void) data;
++	free(filter);
++	filter = NULL;
++	lookup_clear();
++	gtk_label_set_text(GTK_LABEL(lookup_status), "查询中…");
++}
++
++static void lookup_query(void) {
++	gchar* encoded = g_base64_encode((const guchar*) filter, strlen(filter));
++	gchar* request = g_strdup_printf("%" G_GUINT64_FORMAT "\t%s\n", ++lookup_serial, encoded);
++	GError* error = NULL;
++	GIOStatus status = g_io_channel_write_chars(lookup_channel, request, -1, NULL, &error);
++	if(status == G_IO_STATUS_NORMAL) {
++		status = g_io_channel_flush(lookup_channel, &error);
++	}
++	g_free(encoded);
++	g_free(request);
++	if(status != G_IO_STATUS_NORMAL) {
++		g_printerr("xhup lookup transport: %s\n", error ? error->message : "write failed");
++		g_clear_error(&error);
++		wofi_exit(1);
++	}
++}
++
++static gboolean lookup_receive(GIOChannel* channel, GIOCondition condition, gpointer data) {
++	(void) data;
++	if(condition & (G_IO_ERR | G_IO_NVAL)) {
++		wofi_exit(1);
++	}
++	for(;;) {
++		gchar* packet = NULL;
++		GError* error = NULL;
++		GIOStatus status = g_io_channel_read_line(channel, &packet, NULL, NULL, &error);
++		if(status == G_IO_STATUS_AGAIN) {
++			return G_SOURCE_CONTINUE;
++		}
++		if(status != G_IO_STATUS_NORMAL) {
++			g_printerr("xhup lookup backend closed: %s\n", error ? error->message : "EOF");
++			g_clear_error(&error);
++			g_free(packet);
++			wofi_exit(1);
++		}
++		packet[strcspn(packet, "\r\n")] = '\0';
++		gchar** parts = g_strsplit(packet, "\t", 3);
++		if(g_strv_length(parts) == 3 &&
++			g_ascii_strtoull(parts[0], NULL, 10) == lookup_serial &&
++			g_strcmp0(filter, gtk_entry_get_text(GTK_ENTRY(entry))) == 0) {
++			gsize length;
++			guchar* raw = g_base64_decode(parts[2], &length);
++			gchar* text = g_strndup((const gchar*) raw, length);
++			gchar** rows = g_strsplit(text, "\n", -1);
++			lookup_clear();
++			for(guint i = 0; rows[i] != NULL && line_count < 200; ++i) {
++				gchar* label = strchr(rows[i], '\t');
++				if(label == NULL) continue;
++				*label++ = '\0';
++				GtkWidget* box = create_label("dmenu", label, label, rows[i]);
++				gtk_widget_set_halign(box, content_halign);
++				GtkWidget* child = gtk_flow_box_child_new();
++				gtk_widget_set_name(child, "entry");
++				gtk_container_add(GTK_CONTAINER(child), box);
++				gtk_container_add(GTK_CONTAINER(inner_box), child);
++				gtk_widget_show_all(child);
++				++line_count;
++			}
++			gchar* message = g_strdup_printf("显示 %u / %s 条 · 完全匹配优先，其次字词频 · 回车复制编码", line_count, parts[1]);
++			gtk_label_set_text(GTK_LABEL(lookup_status), message);
++			g_free(message);
++			GtkFlowBoxChild* first = gtk_flow_box_get_child_at_index(GTK_FLOW_BOX(inner_box), 0);
++			if(first != NULL) gtk_flow_box_select_child(GTK_FLOW_BOX(inner_box), first);
++			GtkAdjustment* adjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scroll));
++			gtk_adjustment_set_value(adjustment, 0);
++			g_strfreev(rows);
++			g_free(text);
++			g_free(raw);
++		}
++		g_strfreev(parts);
++		g_free(packet);
++	}
++}
++
++static void lookup_init(int fd) {
++	/* Copy helpers must not keep the backend socket alive after wofi exits. */
++	fcntl(fd, F_SETFD, FD_CLOEXEC);
++	pre_display_cmd = NULL;
++	previous_selection = NULL;
++	lookup_channel = g_io_channel_unix_new(fd);
++	g_io_channel_set_encoding(lookup_channel, NULL, NULL);
++	g_io_channel_set_flags(lookup_channel, G_IO_FLAG_NONBLOCK, NULL);
++	g_io_channel_set_close_on_unref(lookup_channel, TRUE);
++	gtk_flow_box_set_filter_func(GTK_FLOW_BOX(inner_box), NULL, NULL, NULL);
++	gtk_flow_box_set_sort_func(GTK_FLOW_BOX(inner_box), NULL, NULL, NULL);
++	lookup_status = gtk_label_new("查询中…");
++	gtk_widget_set_name(lookup_status, "lookup-status");
++	gtk_container_add(GTK_CONTAINER(outer_box), lookup_status);
++	g_signal_connect(entry, "changed", G_CALLBACK(lookup_changed), NULL);
++	g_io_add_watch(lookup_channel, G_IO_IN | G_IO_HUP | G_IO_ERR | G_IO_NVAL, lookup_receive, NULL);
+ }
+ 
+ void wofi_init(struct map* _config) {
+@@ -2139,9 +2269,14 @@
+ 
+ 	wl_list_init(&mode_list);
+ 
+-	pthread_create(&mode_thread, NULL, start_mode_thread, mode);
+-
+-	gdk_threads_add_idle(insert_all_widgets, &mode_list);
++	const char* lookup_fd = getenv("WOFI_LOOKUP_FD");
++	if(lookup_fd != NULL && strcmp(mode, "dmenu") == 0) {
++		start_mode_thread(mode);
++		lookup_init(atoi(lookup_fd));
++	} else {
++		pthread_create(&mode_thread, NULL, start_mode_thread, mode);
++		gdk_threads_add_idle(insert_all_widgets, &mode_list);
++	}
+ 
+ 	gtk_window_set_title(GTK_WINDOW(window), prompt);
+ 	gtk_widget_show_all(window);
+--- a/modes/dmenu.c
++++ b/modes/dmenu.c
+@@ -54,6 +54,11 @@
+ 	}
+ 
+ 	wl_list_init(&widgets);
++	if(getenv("WOFI_LOOKUP_FD") != NULL) {
++		print_line_num = true; /* Disable history writes; actions come from backend. */
++		parse_action = false;
++		return;
++	}
+ 
+ 	struct map* cached = map_init();
+ 

@@ -350,6 +350,15 @@ window-rule {
     clip-to-geometry true
 }
 
+// 小鹤音形字根图 (Mod+X): float centered at the chart's native size.
+window-rule {
+    match app-id="^xhup-roots$"
+    open-floating true
+    open-focused true
+    default-column-width { fixed 880; }
+    default-window-height { fixed 760; }
+}
+
 binds {
     // Keys consist of modifiers separated by + signs, followed by an XKB key name
     // in the end. To find an XKB name for a particular key, you may use a program
@@ -580,6 +589,9 @@ binds {
     Mod+Shift+Equal { set-window-height "+10%"; }
 
     // Move the focused window between the floating and the tiling layout.
+    Mod+X hotkey-overlay-title="小鹤音形字根图" { spawn "xhup-roots"; }
+    Mod+Shift+X hotkey-overlay-title="小鹤音形反查" { spawn "xhup-lookup"; }
+    Mod+Ctrl+X hotkey-overlay-title="小鹤快速加词" { spawn "xhup-add-word"; }
     Mod+V hotkey-overlay-title="Open Clipboard" { spawn-sh "cliphist list | wofi --dmenu | cliphist decode | wl-copy"; }
     Mod+Shift+V       { toggle-window-floating; }
     // Mod+Shift+V { switch-focus-between-floating-and-tiling; }

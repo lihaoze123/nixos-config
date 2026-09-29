@@ -1,0 +1,62 @@
+# Fcitx5 与小鹤音形
+
+[default.nix](default.nix) 是 Home Manager 模块入口，负责词库构建、
+配置部署、输入法服务和 wofi 查码工具的安装。
+
+当前固定上游 [rime-crane `71f3add`（2026-09-10）](https://github.com/kchen0x/rime-crane/commit/71f3add6a39d58a8e8b35abc7ca9c998d766b274)，
+包含小鹤音形官方清风版 `v1.26.9c` 码表及同步至 2026-09-08 的雾凇词库。
+本地继续采用「上游词库 → 通用/工作/编程/聊天用户词库 → 计算机补充词库」
+的导入顺序；置顶用户词库仍在最前。上游可选的 5 码英文联想未启用。
+
+```text
+fcitx5/
+├── default.nix         # Nix 模块入口
+├── README.md
+├── config/             # Fcitx5 profile 与 Rime 配置补丁
+├── dictionaries/       # 手工码表、计算机术语源数据与许可证
+├── scripts/            # 词库生成脚本与实时查码程序
+├── patches/            # 查码专用的 wofi 补丁
+├── tests/              # 查码测试
+└── docs/               # 使用与维护说明
+    └── archive/        # 已完成任务的计划和研究记录
+```
+
+## 常用修改入口
+
+| 修改内容 | 文件 |
+| --- | --- |
+| 通用自定义词 | [dictionaries/xhup.user.dict.yaml](dictionaries/xhup.user.dict.yaml) |
+| 聊天、编程、工作词库 | `dictionaries/xhup.user.{chat,coding,work}.dict.yaml` |
+| 计算机术语补充 | [dictionaries/computer-terms.txt](dictionaries/computer-terms.txt) |
+| 术语读音修正 | [dictionaries/computer-pinyin-overrides.txt](dictionaries/computer-pinyin-overrides.txt) |
+| Rime 方案列表 | [config/default.custom.yaml](config/default.custom.yaml) |
+| 小鹤方案与输入法内反查 | [config/xhup.custom.yaml](config/xhup.custom.yaml) |
+| wofi 前缀、glob 与排序逻辑 | [scripts/xhup-lookup.py](scripts/xhup-lookup.py) |
+
+四份手工码表通过 `mkOutOfStoreSymlink` 链接到
+`~/.local/share/fcitx5/rime/xhup_dicts/`，直接编辑 `dictionaries/` 下的源文件。
+修改后，Rime 需要重新部署；wofi 查码窗口重新打开即可读取。
+计算机术语码表由 Nix 生成，修改术语源数据后需要重新构建。
+
+## 说明与验证
+
+- [计算机词库来源、生成规则与维护](docs/computer-dictionary.md)
+- [wofi 实时查码、前缀与 glob 用法](docs/xhup-lookup.md)
+- [快速添加用户词：快捷键、部署与恢复](docs/add-user-word.md)
+- [加词实现计划及验证记录](docs/plans/add-user-word/implementation.md)
+- [历史研究记录](docs/archive/notes.md)与[已完成任务计划](docs/archive/task_plan.md)
+  仅作归档，其中的路径和阶段描述保留当时记录。
+
+查码测试需要 Python 与 PyYAML，从仓库根目录运行：
+
+```bash
+python3 home-manager/fcitx5/tests/test-xhup-lookup.py
+```
+
+从仓库根目录构建当前 laptop 配置：
+
+```bash
+nixos-rebuild build --flake path:.#laptop
+```
+
+`path:.` 会包含尚未加入 Git 的迁移文件。其他机器替换主机名。
