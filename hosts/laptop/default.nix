@@ -1,5 +1,8 @@
 { inputs, pkgs, pkgs-stable, system, mkRustToolchain, ... }:
 
+let
+  codexDesktop = import ../../modules/niri/codex-desktop.nix { inherit inputs system; };
+in
 {
   imports = [
     ./hardware-configuration.nix
@@ -22,9 +25,16 @@
 
   programs.codexDesktopLinux = {
     enable = true;
-    package = import ../../modules/niri/codex-desktop.nix { inherit inputs system; };
+    package = codexDesktop;
     linuxFeatures = [ "computer-use-linux" ];
   };
+
+  # Reuse the patched Computer Use backend as a stdio MCP server for Claude Code.
+  home-manager.users.chumeng.home.packages = [
+    (pkgs.writeShellScriptBin "codex-computer-use" ''
+      exec ${codexDesktop}/opt/codex-desktop/resources/plugins/openai-bundled/plugins/unified-computer-use/bin/codex-computer-use-linux "$@"
+    '')
+  ];
 
   # Expose tiled-window positions for exact niri Computer Use input mapping.
   programs.niri.package = pkgs.niri.overrideAttrs (old: {
