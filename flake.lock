@@ -122,6 +122,24 @@
         "type": "github"
       }
     },
+    "computer-use": {
+      "inputs": {
+        "codex-desktop-linux": "codex-desktop-linux"
+      },
+      "locked": {
+        "lastModified": 1790694860,
+        "narHash": "sha256-ow1ykHA/W3r7zPf2K2Pisb9XBp/BAjedHAfd3SExt+0=",
+        "owner": "lihaoze123",
+        "repo": "niri-computer-use",
+        "rev": "647b84e3648e80f986aa5ca86cdb02cae30273de",
+        "type": "github"
+      },
+      "original": {
+        "owner": "lihaoze123",
+        "repo": "niri-computer-use",
+        "type": "github"
+      }
+    },
     "crane": {
       "locked": {
         "lastModified": 1760924934,
@@ -612,7 +630,7 @@
         "chinese-fonts-overlay": "chinese-fonts-overlay",
         "claude-code": "claude-code",
         "codex-code": "codex-code",
-        "codex-desktop-linux": "codex-desktop-linux",
+        "computer-use": "computer-use",
         "daeuniverse": "daeuniverse",
         "edunet": "edunet",
         "geodb": "geodb",

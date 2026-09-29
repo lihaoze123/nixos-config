@@ -1,8 +1,5 @@
 { inputs, pkgs, pkgs-stable, system, mkRustToolchain, ... }:
 
-let
-  codexDesktop = import ../../modules/niri/codex-desktop.nix { inherit inputs system; };
-in
 {
   imports = [
     ./hardware-configuration.nix
@@ -10,7 +7,7 @@ in
     ../../modules/virtualisation
     inputs.ragenix.nixosModules.default
     inputs.home-manager.nixosModules.home-manager
-    inputs.codex-desktop-linux.nixosModules.default
+    inputs.computer-use.nixosModules.default
     {
       home-manager.useGlobalPkgs = true;
       home-manager.useUserPackages = true;
@@ -23,36 +20,12 @@ in
 
   networking.hostName = "laptop";
 
-  programs.codexDesktopLinux = {
+  # Codex Desktop Computer Use on niri, including agent input that does not take the
+  # pointer or focus: https://github.com/lihaoze123/niri-computer-use
+  programs.codexComputerUse = {
     enable = true;
-    package = codexDesktop;
-    linuxFeatures = [ "computer-use-linux" ];
+    users = [ "chumeng" ];
   };
-
-  # Reuse the patched Computer Use backend as a stdio MCP server for Claude Code.
-  home-manager.users.chumeng.home.packages = [
-    (pkgs.writeShellScriptBin "codex-computer-use" ''
-      exec ${codexDesktop}/opt/codex-desktop/resources/plugins/openai-bundled/plugins/unified-computer-use/bin/codex-computer-use-linux "$@"
-    '')
-  ];
-
-  # Expose tiled-window positions for exact niri Computer Use input mapping.
-  programs.niri.package = pkgs.niri.overrideAttrs (old: {
-    patches = (old.patches or [ ]) ++ [ ../../patches/niri-ipc-tiled-window-position.patch ];
-  });
-
-  programs.ydotool.enable = true;
-  services.gnome.at-spi2-core.enable = true;
-  home-manager.users.chumeng.dconf.settings."org/gnome/desktop/interface" = {
-    toolkit-accessibility = true;
-  };
-  users.users.chumeng.extraGroups = [ "ydotool" ];
-  boot.kernelModules = [ "uinput" ];
-
-  # Native pointer input; keyboard input uses the ydotool daemon socket.
-  services.udev.extraRules = ''
-    KERNEL=="uinput", SUBSYSTEM=="misc", GROUP="ydotool", MODE="0660"
-  '';
 
   programs.steam = {
     enable = true;
