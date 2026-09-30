@@ -664,3 +664,26 @@ environment {
 	XMODIFIERS "@im=fcitx"
 	SDL_IM_MODULE "fcitx"
 }
+
+// Indicate windows driven by a computer-use agent (niri-computer-use agent
+// input patch) with a thin indigo-violet border and a soft glow.
+// Disabled with "/-" until the patched niri is running: stock niri rejects
+// is-agent-driven and would refuse to load this config.
+window-rule {
+    match is-agent-driven=true
+
+    border {
+        on
+        width 2
+        active-gradient from="#818cf8" to="#c084fc" angle=135
+        inactive-gradient from="#818cf8" to="#c084fc" angle=135
+    }
+
+    shadow {
+        on
+        softness 40
+        spread 3
+        offset x=0 y=0
+        color "#a78bfa70"
+    }
+}

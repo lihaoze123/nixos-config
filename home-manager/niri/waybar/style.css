@@ -138,3 +138,20 @@
     color: rgb(134, 216, 231);
     background: rgb(22, 19, 32);
 }
+
+/* Computer-use agent activity (agent-activity.py): hidden while idle. */
+#custom-agent {
+    margin: 6px;
+    padding-left: 8px;
+    padding-right: 8px;
+    border-radius: 5px;
+    color: #c4b5fd;
+    background: rgba(129, 140, 248, 0.12);
+    border: 1px solid rgba(167, 139, 250, 0.35);
+    transition: all 0.4s ease;
+}
+#custom-agent.active {
+    color: #ffffff;
+    background: linear-gradient(135deg, rgba(129, 140, 248, 0.55), rgba(192, 132, 252, 0.55));
+    border-color: rgba(196, 181, 253, 0.9);
+}

@@ -1,6 +1,6 @@
 {
     "layer": "top",
-    "modules-left": ["custom/launcher", "hyprland/workspaces", "hyprland/window"],
+    "modules-left": ["custom/launcher", "custom/agent", "hyprland/workspaces", "hyprland/window"],
     "modules-center": ["clock"],
     "modules-right": ["custom/media", "network", "cpu","memory", "pulseaudio", "backlight", "battery", "tray"],
     
@@ -44,6 +44,12 @@
         "interval": 30,
         "format": " {}%",
         "max-length": 10
+    },
+    "custom/agent": {
+        "return-type": "json",
+        "exec": "$HOME/.config/waybar/agent-activity.py",
+        "escape": true,
+        "max-length": 40
     },
     "custom/launcher":{
             "format": "",

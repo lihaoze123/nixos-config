@@ -127,11 +127,11 @@
         "codex-desktop-linux": "codex-desktop-linux"
       },
       "locked": {
-        "lastModified": 1790697947,
-        "narHash": "sha256-QUn/i9ze7GiWseOY9eJOcLuTMbdaZhhoWKaTltGEzUI=",
+        "lastModified": 1790752475,
+        "narHash": "sha256-hSIMHZZNfIeZ3rz+6T9UYU3O4JPD0XaOCbw901TWA8A=",
         "owner": "lihaoze123",
         "repo": "niri-computer-use",
-        "rev": "448437bb967201ad66673918ede76b30ae8ddb96",
+        "rev": "2e518b2d555936fe48e89efe43c8f7f2ef0225f9",
         "type": "github"
       },
       "original": {
