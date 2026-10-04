@@ -39,8 +39,10 @@
 
   programs.git = {
     enable = true;
-    userName = "chumeng";
-    userEmail = "2595248810@qq.com";
+    settings.user = {
+      name = "chumeng";
+      email = "2595248810@qq.com";
+    };
   };
 
   home.stateVersion = "25.05";
