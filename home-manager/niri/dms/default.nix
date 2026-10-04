@@ -56,7 +56,11 @@ in
       };
     };
 
-    home.packages = [ pkgs.adw-gtk3 ];
+    home.packages = [
+      pkgs.adw-gtk3
+      # CPU recording backend for Quick Capture.
+      pkgs.wf-recorder
+    ];
 
     # Install both Qt control tools, leaving their writable settings to DMS.
     qt = {
