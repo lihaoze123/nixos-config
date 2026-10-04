@@ -39,7 +39,6 @@
 
   environment.systemPackages = with pkgs; [
     dnsmasq
-    flclash
     gnome-network-displays
   ];
 

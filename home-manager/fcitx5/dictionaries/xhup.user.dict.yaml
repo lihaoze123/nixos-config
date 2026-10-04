@@ -3,7 +3,7 @@
 
 ---
 name: xhup.user
-version: "user-9d56aeda86324310afcc3667b1222809"
+version: "user-f70005661cc94e719a412f151fa11041"
 sort: by_weight
 use_preset_vocabulary: false
 ...
@@ -42,3 +42,4 @@ use_preset_vocabulary: false
 给你	gwni	100
 移植	yivi	100
 边界	bmjp	100
+本机	bfji	100

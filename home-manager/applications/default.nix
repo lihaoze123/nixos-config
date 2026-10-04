@@ -23,18 +23,8 @@
     pandoc
     typst
     tectonic
-    typora
-    # wpsoffice
-    libreoffice-qt
-
-    # image
-    inkscape
 
     # develop
     tmux
-    dbeaver-bin
-    jetbrains.idea
-    jetbrains.rust-rover
-    cherry-studio
   ];
 }
