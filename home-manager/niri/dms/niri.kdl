@@ -18,8 +18,3 @@ include optional=true "dms/outputs.kdl"
 include optional=true "dms/windowrules.kdl"
 include optional=true "dms/wpblur.kdl"
 include optional=true "dms/input.kdl"
-
-layer-rule {
-    match namespace="^quickshell$"
-    place-within-backdrop true
-}
