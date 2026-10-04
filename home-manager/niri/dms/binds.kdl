@@ -1,0 +1,9 @@
+// HHKB-friendly DMS shortcuts. The base configuration uses Alt for Mod.
+binds {
+    Ctrl+Alt+Space hotkey-overlay-title="DMS Launcher" { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
+    Ctrl+Alt+N hotkey-overlay-title="DMS Notifications" { spawn "dms" "ipc" "call" "notifications" "toggle"; }
+    Ctrl+Alt+M hotkey-overlay-title="DMS System Monitor" { spawn "dms" "ipc" "call" "processlist" "focusOrToggle"; }
+    Ctrl+Alt+Comma hotkey-overlay-title="DMS Settings" { spawn "dms" "ipc" "call" "settings" "focusOrToggle"; }
+    Mod+P hotkey-overlay-title="Run an Application: DMS" { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
+    Mod+V hotkey-overlay-title="DMS Clipboard" { spawn "dms" "ipc" "call" "clipboard" "toggle"; }
+}

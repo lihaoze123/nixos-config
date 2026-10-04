@@ -31,6 +31,12 @@
     enable = true;
   };
 
+  # System backends used by the Home Manager DMS session.
+  services.upower.enable = true;
+  services.power-profiles-daemon.enable = true;
+  services.accounts-daemon.enable = true;
+  security.pam.services.dankshell = { };
+
   environment.systemPackages = with pkgs; [
     dnsmasq
     flclash

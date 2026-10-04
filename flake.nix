@@ -6,6 +6,10 @@
     nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-25.05";
     home-manager.url = "github:nix-community/home-manager/release-25.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    dms = {
+      url = "github:AvengeMedia/DankMaterialShell/v1.6.2";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     daeuniverse.url = "github:daeuniverse/flake.nix";
     geodb = {
       url = "github:Loyalsoldier/v2ray-rules-dat/release";

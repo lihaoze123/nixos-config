@@ -1,0 +1,63 @@
+# DMS on Niri
+
+目前仅在 `hosts/laptop/laptop.nix` 启用：
+
+```nix
+programs.dank-material-shell.enable = true;
+```
+
+Home Manager 通过官方 DMS v1.6.2 模块管理 `dms.service`，运行包使用
+仓库锁定的 `pkgs.dms-shell` 和 `pkgs.quickshell`。DMS 随 Niri 图形会话启动，
+接管状态栏、通知和壁纸；启用时不再安装或启动 Waybar、Mako、swaybg。
+`hosts/laptop/default.nix` 提供 UPower、电源模式、AccountsService 和锁屏 PAM。
+
+## 配置归属
+
+| 配置 | 管理方式 |
+| --- | --- |
+| `~/.config/niri/config.kdl` | Home Manager 部署本目录的 `niri.kdl`，负责加载下列文件 |
+| `~/.config/niri/base.kdl` | 链接到仓库的 `home-manager/niri/config.kdl`，保留原有窗口管理配置 |
+| `~/.config/niri/dms-bindings.kdl` | Home Manager 部署本目录的 `binds.kdl` |
+| `~/.config/niri/dms/*.kdl` | DMS 界面生成，放在基础配置之后加载，让界面调整生效 |
+| `~/.config/DankMaterialShell/settings.json` | DMS 界面设置，可写且重建时保留 |
+| `~/.local/state/DankMaterialShell/session.json` | 壁纸、明暗模式等本机状态，可写且重建时保留 |
+
+`default.nix` 中的 `initialSettings`、`initialSession` 只在文件不存在时初始化。
+已有设置不会被覆盖。首次安装默认使用紫色主题、24 小时制和仓库壁纸；
+外部主题模板默认关闭，可以之后在 DMS 中启用。
+
+**界面调整会保存在本机，但不会自动进入 Git。** 想让某项偏好在新机器上也
+复现，可将对应值加入上述初始配置；修改初始值不会覆盖本机已有文件。
+Niri 的固定默认值可写入仓库的 KDL，DMS 生成的片段拥有更后的覆盖顺序。
+不要把 GUI 管理的 JSON 或 KDL 链接到只读 Nix store，否则界面无法正常保存。
+
+## HHKB 快捷键
+
+现有 Niri 的 `Mod` 是 `Alt`，不需要 Win 键。
+
+| 按键 | 功能 |
+| --- | --- |
+| `Ctrl+Alt+Space` 或 `Alt+P` | 应用启动器 |
+| `Ctrl+Alt+N` | 通知中心 |
+| `Ctrl+Alt+M` | 进程监视器 |
+| `Ctrl+Alt+,` | DMS 设置 |
+| `Alt+V` | 剪贴板历史 |
+
+## 应用配置
+
+在仓库根目录执行：
+
+```bash
+nixos-rebuild build --flake .#laptop
+sudo nixos-rebuild switch --flake .#laptop
+```
+
+从临时试用首次切换后，保存工作并注销、重新登录，以结束临时服务并由
+`dms.service` 接管。之后配置不再依赖试用脚本或 `~/.cache/dms-trial-*`。
+
+可用 `systemctl --user status dms.service` 检查启动结果，
+用 `journalctl --user -u dms.service -b` 查看日志。
+其他主机仍使用原有 Waybar 配置；要让 laptop 恢复 Waybar，移除它的 DMS
+启用选项，重新构建、切换并登录。
+
+参考：[官方 NixOS / Home Manager 模块文档](https://danklinux.com/docs/dankmaterialshell/nixos-flake)。

@@ -687,3 +687,6 @@ window-rule {
         color "#a78bfa70"
     }
 }
+
+// DMS Include Configs
+include "dms/layout.kdl"

@@ -4,6 +4,8 @@
     ../../home-manager/home.nix
   ];
 
+  programs.dank-material-shell.enable = true;
+
   home.packages = with pkgs; [
   ];
 }

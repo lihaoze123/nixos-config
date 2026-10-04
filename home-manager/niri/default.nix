@@ -1,6 +1,7 @@
-{ config, pkgs, ... }@inputs:
+{ config, lib, pkgs, ... }:
 let
   niriConfigPath = "${config.home.homeDirectory}/nixos-config/home-manager/niri/config.kdl";
+  useDms = config.programs.dank-material-shell.enable;
 
   # 小鹤音形官方部件字根键盘图 (https://flypy.cc/help/#/zg)
   xhup-roots-image = pkgs.fetchurl {
@@ -23,10 +24,14 @@ let
   };
 in
 {
-  xdg.configFile."niri/config.kdl".source = config.lib.file.mkOutOfStoreSymlink niriConfigPath;
-  xdg.configFile."waybar".source = ./waybar;
+  imports = [ ./dms ];
+
+  xdg.configFile."niri/config.kdl" = lib.mkIf (!useDms) {
+    source = config.lib.file.mkOutOfStoreSymlink niriConfigPath;
+  };
+  xdg.configFile."waybar" = lib.mkIf (!useDms) { source = ./waybar; };
   xdg.configFile."wofi".source = ./wofi;
-  xdg.configFile."mako".source = ./mako;
+  xdg.configFile."mako" = lib.mkIf (!useDms) { source = ./mako; };
   home.file.".background/wallpaper.jpg".source = ./wallpaper.jpg;
   home.file.".face.icon".source = ./.face.icon;
 
@@ -36,26 +41,26 @@ in
   };
 
   programs.waybar = {
-    enable = true;
-    systemd.enable = true;
+    enable = !useDms;
+    systemd.enable = !useDms;
   };
 
   systemd.user.services = {
-    mako = {
+    mako = lib.mkIf (!useDms) {
       Unit = {
         After = [ "niri.service" ];
         Requires = [ "niri.service" ];
       };
     };
 
-    waybar = {
+    waybar = lib.mkIf (!useDms) {
       Unit = {
         After = [ "niri.service" ];
         Requires = [ "niri.service" ];
       };
     };
 
-    swaybg = {
+    swaybg = lib.mkIf (!useDms) {
       Unit = {
         After = [ "niri.service" ];
         Requires = [ "niri.service" ];
@@ -88,11 +93,9 @@ in
 
   home.packages = with pkgs; [
     wofi
-    mako
-    swaybg
     cliphist
     xwayland-satellite
     nautilus
     xhup-roots
-  ];
+  ] ++ lib.optionals (!useDms) [ mako swaybg ];
 }
