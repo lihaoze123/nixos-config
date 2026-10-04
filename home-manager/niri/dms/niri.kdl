@@ -2,6 +2,11 @@
 include "base.kdl"
 include "dms-bindings.kdl"
 
+environment {
+    QT_QPA_PLATFORMTHEME "qt5ct"
+    QT_QPA_PLATFORMTHEME_QT6 "qt6ct"
+}
+
 // These files are writable and managed by DMS. Optional includes also allow
 // the first Niri session to start before DMS has initialized its fragments.
 include optional=true "dms/colors.kdl"

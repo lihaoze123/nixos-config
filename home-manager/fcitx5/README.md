@@ -1,7 +1,7 @@
 # Fcitx5 与小鹤音形
 
 [default.nix](default.nix) 是 Home Manager 模块入口，负责词库构建、
-配置部署、输入法服务和 wofi 查码工具的安装。
+配置部署、输入法服务，以及查码/加词工具和 DMS 插件的安装。
 
 当前固定上游 [rime-crane `71f3add`（2026-09-10）](https://github.com/kchen0x/rime-crane/commit/71f3add6a39d58a8e8b35abc7ca9c998d766b274)，
 包含小鹤音形官方清风版 `v1.26.9c` 码表及同步至 2026-09-08 的雾凇词库。
@@ -14,8 +14,8 @@ fcitx5/
 ├── README.md
 ├── config/             # Fcitx5 profile 与 Rime 配置补丁
 ├── dictionaries/       # 手工码表、计算机术语源数据与许可证
-├── scripts/            # 词库生成脚本与实时查码程序
-├── patches/            # 查码专用的 wofi 补丁
+├── scripts/            # 词库生成脚本与查码/加词程序
+├── patches/            # 非 DMS 主机查码用的 wofi 补丁
 ├── tests/              # 查码测试
 └── docs/               # 使用与维护说明
     └── archive/        # 已完成任务的计划和研究记录
@@ -31,17 +31,18 @@ fcitx5/
 | 术语读音修正 | [dictionaries/computer-pinyin-overrides.txt](dictionaries/computer-pinyin-overrides.txt) |
 | Rime 方案列表 | [config/default.custom.yaml](config/default.custom.yaml) |
 | 小鹤方案与输入法内反查 | [config/xhup.custom.yaml](config/xhup.custom.yaml) |
-| wofi 前缀、glob 与排序逻辑 | [scripts/xhup-lookup.py](scripts/xhup-lookup.py) |
+| 查码前缀、glob 与排序逻辑 | [scripts/xhup-lookup.py](scripts/xhup-lookup.py) |
+| DMS 插件（启动器、加词语法、字根图） | 独立仓库 [dms-xhup](https://github.com/lihaoze123/dms-xhup)，经 flake 输入 `dms-xhup` 引入 |
 
 四份手工码表通过 `mkOutOfStoreSymlink` 链接到
 `~/.local/share/fcitx5/rime/xhup_dicts/`，直接编辑 `dictionaries/` 下的源文件。
-修改后，Rime 需要重新部署；wofi 查码窗口重新打开即可读取。
+修改后，Rime 需要重新部署；wofi 查码窗口重新打开即可读取，DMS 插件在下次查询时自动重新加载。
 计算机术语码表由 Nix 生成，修改术语源数据后需要重新构建。
 
 ## 说明与验证
 
 - [计算机词库来源、生成规则与维护](docs/computer-dictionary.md)
-- [wofi 实时查码、前缀与 glob 用法](docs/xhup-lookup.md)
+- [实时查码（DMS / wofi）、前缀与 glob 用法](docs/xhup-lookup.md)
 - [快速添加用户词：快捷键、部署与恢复](docs/add-user-word.md)
 - [加词实现计划及验证记录](docs/plans/add-user-word/implementation.md)
 - [历史研究记录](docs/archive/notes.md)与[已完成任务计划](docs/archive/task_plan.md)
@@ -52,6 +53,8 @@ fcitx5/
 ```bash
 python3 home-manager/fcitx5/tests/test-xhup-lookup.py
 ```
+
+DMS 插件及其后端的测试在 dms-xhup 仓库中。
 
 从仓库根目录构建当前 laptop 配置：
 

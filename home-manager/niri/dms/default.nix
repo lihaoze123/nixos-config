@@ -46,13 +46,33 @@ in
   imports = [ inputs.dms.homeModules.dank-material-shell ];
 
   config = lib.mkIf cfg.enable {
+    # Qt's GTK platform theme needs a complete icon theme for named tray icons.
+    # Application-provided icons remain available through the hicolor fallback.
+    gtk = {
+      enable = true;
+      iconTheme = {
+        name = "Papirus-Dark";
+        package = pkgs.papirus-icon-theme;
+      };
+    };
+
+    home.packages = [ pkgs.adw-gtk3 ];
+
+    # Install both Qt control tools, leaving their writable settings to DMS.
+    qt = {
+      enable = true;
+      platformTheme.name = "qtct";
+    };
+    home.sessionVariables.QT_QPA_PLATFORMTHEME_QT6 = "qt6ct";
+    systemd.user.sessionVariables.QT_QPA_PLATFORMTHEME_QT6 = "qt6ct";
+
     programs.dank-material-shell = {
       # Use nixpkgs for the runtime and the upstream flake for its module.
       package = pkgs.dms-shell;
       quickshell.package = pkgs.quickshell;
       systemd.enable = true;
       systemd.target = "graphical-session.target";
-      enableCalendarEvents = false;
+      enableCalendarEvents = true;
       # Leave settings/session unset: the upstream options create read-only
       # files. Seed writable defaults below so GUI edits survive rebuilds.
     };
@@ -76,7 +96,11 @@ in
       };
       Service = {
         ExecStartPre = lib.getExe initialize;
-        Environment = [ "QT_QPA_PLATFORM=wayland" ];
+        Environment = [
+          "QT_QPA_PLATFORM=wayland"
+          "QT_QPA_PLATFORMTHEME=qt5ct"
+          "QT_QPA_PLATFORMTHEME_QT6=qt6ct"
+        ];
       };
     };
   };

@@ -1,6 +1,7 @@
 { config
 , lib
 , pkgs
+, inputs
 , ...
 }:
 let
@@ -14,6 +15,7 @@ let
   xhup-encoder-scripts = xhup-script-bundle "xhup-encoder-scripts" [ "generate-xhup-computer-dict.py" ];
   xhup-lookup-scripts = xhup-script-bundle "xhup-lookup-scripts" [ "xhup-lookup.py" ];
   xhup-add-scripts = xhup-script-bundle "xhup-add-scripts" [ "xhup-add-word.py" ];
+  useDms = lib.attrByPath [ "programs" "dank-material-shell" "enable" ] false config;
   rime-crane-rev = "71f3add6a39d58a8e8b35abc7ca9c998d766b274";
   thuocl-it-rev = "a30ce79d895d01ab5132a5c74c29703ff7efb4cc";
   rime-user-dictionaries = {
@@ -130,7 +132,8 @@ let
 
   rime-user-data-dir = "${config.home.homeDirectory}/.local/share/fcitx5/rime";
   rime-user-dictionary-dir = "${config.home.homeDirectory}/nixos-config/home-manager/fcitx5/dictionaries";
-  # Only the lookup launcher uses this live-dmenu extension.
+  # Only the wofi lookup frontend uses this live-dmenu extension; DMS hosts
+  # use the launcher plugin instead and keep just the command-line query.
   xhup-wofi = pkgs.wofi.overrideAttrs (old: {
     patches = (old.patches or [ ]) ++ [ ./patches/wofi-live.patch ];
   });
@@ -138,9 +141,8 @@ let
     name = "xhup-lookup";
     runtimeInputs = [
       (pkgs.python3.withPackages (ps: [ ps.pyyaml ]))
-      xhup-wofi
       pkgs.wl-clipboard
-    ];
+    ] ++ lib.optional (!useDms) xhup-wofi;
     text = ''
       exec python3 ${xhup-lookup-scripts}/xhup-lookup.py \
         --data-dir ${rime-crane}/share/rime-data \
@@ -163,11 +165,54 @@ let
         --expected-plugin ${fcitx5-rime-crane}/lib/fcitx5/librime.so "$@"
     '';
   };
+  # DMS plugin (github:lihaoze123/dms-xhup): lookup, quick add and the
+  # part-root chart. The Rime shared data lives in the store, so pass it here;
+  # directories set in the plugin settings would take precedence.
+  xhup-dms-plugin = inputs.dms-xhup.packages.${pkgs.stdenv.hostPlatform.system}.default.override {
+    serviceArgs = [
+      "--data-dir"
+      "${rime-crane}/share/rime-data"
+      "--user-dir"
+      rime-user-data-dir
+      "--dictionary-dir"
+      rime-user-dictionary-dir
+      "--expected-plugin"
+      "${fcitx5-rime-crane}/lib/fcitx5/librime.so"
+    ];
+  };
+  # Enable the plugin once, but keep a later choice made in the DMS settings UI.
+  # A running shell does not load plugins enabled only through this file.
+  enable-xhup-dms-plugin = pkgs.writeShellApplication {
+    name = "enable-xhup-dms-plugin";
+    runtimeInputs = [ pkgs.coreutils pkgs.jq config.programs.dank-material-shell.package ];
+    text = ''
+      settings=${lib.escapeShellArg "${config.xdg.configHome}/DankMaterialShell/plugin_settings.json"}
+      install -d -m 700 "$(dirname "$settings")"
+      current='{}'
+      if [ -s "$settings" ]; then
+        current=$(cat "$settings")
+      fi
+      if [ "$(jq '.flypyXhup.enabled == null' <<<"$current")" = true ]; then
+        tmp=$(mktemp "$settings.XXXXXX")
+        jq '.flypyXhup.enabled = true' <<<"$current" >"$tmp"
+        chmod 600 "$tmp"
+        mv "$tmp" "$settings"
+        timeout 5 dms ipc call plugins enable flypyXhup >/dev/null 2>&1 || true
+      fi
+    '';
+  };
 in
 {
   home.packages = [ xhup-lookup xhup-add-word ];
 
+  home.activation.enableXhupDmsPlugin = lib.mkIf useDms (
+    lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+      run ${lib.getExe enable-xhup-dms-plugin}
+    ''
+  );
+
   xdg.configFile = {
+    "DankMaterialShell/plugins/flypyXhup" = lib.mkIf useDms { source = xhup-dms-plugin; };
     # The Home Manager service owns Fcitx5; an XDG autostart instance could
     # otherwise acquire its D-Bus name first and survive package upgrades.
     "autostart/org.fcitx.Fcitx5.desktop".text = ''

@@ -10,6 +10,18 @@
       url = "github:AvengeMedia/DankMaterialShell/v1.6.2";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    dms-xhup = {
+      url = "github:lihaoze123/dms-xhup";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    libfprint-gxfp = {
+      url = "git+https://github.com/Void755/libfprint?ref=sigfm&submodules=1";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    gxfp-linux-driver = {
+      url = "github:Void755/gxfp_linux_driver";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     daeuniverse.url = "github:daeuniverse/flake.nix";
     geodb = {
       url = "github:Loyalsoldier/v2ray-rules-dat/release";

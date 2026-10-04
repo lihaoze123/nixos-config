@@ -236,6 +236,26 @@
         "type": "github"
       }
     },
+    "dms-xhup": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1791101020,
+        "narHash": "sha256-MdxwgcfUCEcHdK+D+xVtFK/a11qZFGtZMurW/74PYv0=",
+        "owner": "lihaoze123",
+        "repo": "dms-xhup",
+        "rev": "3323ff83dcf34f569f9c433234a2d20e3c0daec1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "lihaoze123",
+        "repo": "dms-xhup",
+        "type": "github"
+      }
+    },
     "edunet": {
       "inputs": {
         "home-manager": "home-manager",
@@ -384,6 +404,26 @@
         "type": "github"
       }
     },
+    "gxfp-linux-driver": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1783165906,
+        "narHash": "sha256-wDYSjMro20j+5Kgph8FitGkXJuqFXiQ4eBOaWx6sgCI=",
+        "owner": "Void755",
+        "repo": "gxfp_linux_driver",
+        "rev": "594c372eef78805f1d1cfb0f72145d1e3c860237",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Void755",
+        "repo": "gxfp_linux_driver",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -445,6 +485,29 @@
         "owner": "nix-community",
         "repo": "home-manager",
         "type": "github"
+      }
+    },
+    "libfprint-gxfp": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1783157892,
+        "narHash": "sha256-0V1CX0VVgkmAV0hk+jqkXgzRtrV12ZIpgkFBO7sw81o=",
+        "ref": "sigfm",
+        "rev": "1f7941e7c5216cfbc7a8bfe4ffdd734369e0e2eb",
+        "revCount": 1645,
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/Void755/libfprint"
+      },
+      "original": {
+        "ref": "sigfm",
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/Void755/libfprint"
       }
     },
     "nixpkgs": {
@@ -687,9 +750,12 @@
         "computer-use": "computer-use",
         "daeuniverse": "daeuniverse",
         "dms": "dms",
+        "dms-xhup": "dms-xhup",
         "edunet": "edunet",
         "geodb": "geodb",
+        "gxfp-linux-driver": "gxfp-linux-driver",
         "home-manager": "home-manager_2",
+        "libfprint-gxfp": "libfprint-gxfp",
         "nixpkgs": "nixpkgs_7",
         "nixpkgs-stable": "nixpkgs-stable",
         "ragenix": "ragenix",

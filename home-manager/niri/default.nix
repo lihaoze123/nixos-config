@@ -19,7 +19,9 @@ let
       if [ -n "$id" ]; then
         exec niri msg action close-window --id "$id"
       fi
-      exec swayimg --class=xhup-roots --scale=fit --config=info.show=no ${xhup-roots-image}
+      exec swayimg --appid=xhup-roots \
+        --execute='swayimg.viewer.default_scale = "fit"; swayimg.text.visible = false' \
+        ${xhup-roots-image}
     '';
   };
 in
@@ -30,7 +32,7 @@ in
     source = config.lib.file.mkOutOfStoreSymlink niriConfigPath;
   };
   xdg.configFile."waybar" = lib.mkIf (!useDms) { source = ./waybar; };
-  xdg.configFile."wofi".source = ./wofi;
+  xdg.configFile."wofi" = lib.mkIf (!useDms) { source = ./wofi; };
   xdg.configFile."mako" = lib.mkIf (!useDms) { source = ./mako; };
   home.file.".background/wallpaper.jpg".source = ./wallpaper.jpg;
   home.file.".face.icon".source = ./.face.icon;
@@ -38,6 +40,12 @@ in
   xresources.properties = {
     "Xcursor.size" = 16;
     "Xft.dpi" = 172;
+  };
+
+  # DMS runs its own clipboard history server.
+  services.cliphist = {
+    enable = !useDms;
+    systemdTargets = [ "graphical-session.target" ];
   };
 
   programs.waybar = {
@@ -92,10 +100,7 @@ in
   };
 
   home.packages = with pkgs; [
-    wofi
-    cliphist
     xwayland-satellite
     nautilus
-    xhup-roots
-  ] ++ lib.optionals (!useDms) [ mako swaybg ];
+  ] ++ lib.optionals (!useDms) [ wofi mako swaybg xhup-roots ];
 }

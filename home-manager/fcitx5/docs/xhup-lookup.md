@@ -1,7 +1,14 @@
-# 小鹤 wofi 反查
+# 小鹤反查
 
-`Mod+Shift+X` 打开实时查码窗口；输入后自动更新，回车复制选中的编码，Esc 关闭。
-`Mod+X` 仍然打开字根图。
+`Mod+Shift+X` 打开实时查码；输入后自动更新，回车复制选中的编码，Esc 关闭。
+`Mod+X` 打开字根图。
+
+- **启用 DMS 的主机**（laptop）：快捷键打开 DMS 启动器并填入触发前缀 `;`，
+  结果由 [dms-xhup](https://github.com/lihaoze123/dms-xhup) 插件提供；在启动器中直接输入 `;he` 也一样。
+  右键结果可单独复制词语或某个编码。字根图是 DMS 覆盖层，按 Esc 或点击外侧关闭。
+- **其他主机**：使用下文的 wofi 实时窗口和 swayimg 字根图。
+
+两种前端共用同一套匹配规则：
 
 - 普通文本按**字段前缀**匹配汉字/词语、单字全拼和小鹤编码。
   `he` 可以匹配 `he`、`hei`、`hen`、`heng`，不会因为 `she` 中间含有 `he` 而命中。
@@ -20,6 +27,11 @@
   空查询显示高频条目，查不到时显示 0 条，回车不会复制查询文字。
 
 ## 实现与维护
+
+DMS 前端是独立仓库 [dms-xhup](https://github.com/lihaoze123/dms-xhup)，实现与字根图转写说明见其 README。
+[default.nix](../default.nix) 用 `serviceArgs` 传入 rime-crane 数据目录、本仓库词库目录和
+预期的 librime 插件；在 DMS 插件设置中填写的目录会覆盖这些参数，因此这里应保持留空。
+升级插件：`nix flake update dms-xhup`。
 
 [xhup-lookup.py](../scripts/xhup-lookup.py) 加载词库并保持运行。私有的 wofi 构建通过
 [wofi-live.patch](../patches/wofi-live.patch) 增加实时 dmenu 通道：约每 60 ms 检查输入变化，

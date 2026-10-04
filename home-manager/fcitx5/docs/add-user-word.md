@@ -14,7 +14,25 @@ systemctl --user restart fcitx5-daemon.service
 
 本模块禁用了重复的 XDG Fcitx5 自启动，以 Home Manager 用户服务为唯一入口。服务的 `Conflicts` 和 `After` 会在启动前停止旧的 `app-org.fcitx.Fcitx5@autostart.service`。第一次应用后执行上面的 restart，确保旧实例已交接；输入法短暂退出后恢复。工具不会在每次加词时重启输入法。
 
-## 日常使用
+## 日常使用（DMS）
+
+启用 DMS 的主机上，`Mod+Ctrl+X` 打开 DMS 启动器并填入 `;+`，接着在同一行输入（插件来自 [dms-xhup](https://github.com/lihaoze123/dms-xhup)）：
+
+```text
+;+词语 [编码] [common|work|coding|chat] [=读 音]
+```
+
+- 只写词语时自动给出建议编码与读音；写 1–4 个字母即指定编码。
+- 分类也可写成「通用 / 工作 / 编程 / 聊天」，默认 common。
+- `=kuai su jia ci` 按指定读音重新组码，规则同下文“修改读音并重新编码”。
+- 结果列表依次是「保存并部署」「仅保存」、改存到其他词库，以及已有词条、重码候选和其他读音；
+  后几类只用于查看。保存结果通过 DMS 通知显示。
+
+保存前同样核对确认期间词库是否变化，变化时提示重新确认。
+
+## 日常使用（wofi）
+
+其他主机仍使用 wofi 多步窗口：
 
 1. 按 `Mod+Ctrl+X`，在空白输入框中输入词语，也可以手动粘贴。窗口不读取剪贴板进行预填。
 2. 回车进入编码页，检查建议读音与编码，编码可以直接编辑。
