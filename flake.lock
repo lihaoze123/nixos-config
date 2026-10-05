@@ -431,6 +431,26 @@
         "type": "github"
       }
     },
+    "gxfp5130Chicago": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1791226593,
+        "narHash": "sha256-wkQHknnhjptpj6dvX10WZ3ko7YA/kTwh9XZnPcUsHhI=",
+        "owner": "lihaoze123",
+        "repo": "gxfp5130-chicago",
+        "rev": "fa78a635b5e4b2f20bf03178a0cdce53bc9318aa",
+        "type": "github"
+      },
+      "original": {
+        "owner": "lihaoze123",
+        "repo": "gxfp5130-chicago",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -738,6 +758,7 @@
         "dms-xhup": "dms-xhup",
         "edunet": "edunet",
         "geodb": "geodb",
+        "gxfp5130Chicago": "gxfp5130Chicago",
         "home-manager": "home-manager_2",
         "nixpkgs": "nixpkgs_7",
         "nixpkgs-stable": "nixpkgs-stable",

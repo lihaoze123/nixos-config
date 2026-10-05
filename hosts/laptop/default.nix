@@ -8,6 +8,7 @@
     inputs.ragenix.nixosModules.default
     inputs.home-manager.nixosModules.home-manager
     inputs.computer-use.nixosModules.default
+    inputs.gxfp5130Chicago.nixosModules.default
     {
       home-manager.useGlobalPkgs = true;
       home-manager.useUserPackages = true;
@@ -20,6 +21,19 @@
   ];
 
   networking.hostName = "laptop";
+
+  # Native ChicagoHS support; private files and enrolled prints stay in /var/lib.
+  hardware.gxfp5130Chicago.enable = true;
+
+  # Local login, privilege prompts and screen lockers; retain password fallback.
+  security.pam.services = {
+    login.fprintAuth = true;
+    sddm.fprintAuth = true;
+    sudo.fprintAuth = true;
+    polkit-1.fprintAuth = true;
+    dankshell.fprintAuth = true;
+    swaylock.fprintAuth = true;
+  };
 
   # Codex Desktop Computer Use on niri, including agent input that does not take the
   # pointer or focus: https://github.com/lihaoze123/niri-computer-use
@@ -37,7 +51,6 @@
   services.upower.enable = true;
   services.power-profiles-daemon.enable = true;
   services.accounts-daemon.enable = true;
-  security.pam.services.dankshell = { };
 
   # Use the pinned nixpkgs module and its user service for DMS file search.
   programs.dsearch = {

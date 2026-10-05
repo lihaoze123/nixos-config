@@ -48,6 +48,10 @@
       inputs.flake-utils.follows = "computer-use/codex-desktop-linux/flake-utils";
     };
     edunet.url = "github:lihaoze123/hhu-edunet-cli";
+    gxfp5130Chicago = {
+      url = "github:lihaoze123/gxfp5130-chicago";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, ragenix, geodb, ... }@inputs:
