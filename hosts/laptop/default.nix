@@ -8,7 +8,6 @@
     inputs.ragenix.nixosModules.default
     inputs.home-manager.nixosModules.home-manager
     inputs.computer-use.nixosModules.default
-    inputs.gxfp-linux-driver.nixosModules.default
     {
       home-manager.useGlobalPkgs = true;
       home-manager.useUserPackages = true;
@@ -27,6 +26,7 @@
   programs.codexComputerUse = {
     enable = true;
     users = [ "chumeng" ];
+    package = import ../../modules/niri/codex-desktop.nix { inherit inputs system; };
   };
 
   programs.steam = {
@@ -39,34 +39,6 @@
   services.accounts-daemon.enable = true;
   security.pam.services.dankshell = { };
 
-  # Fingerprint authentication supplements the existing password PAM rules.
-  services.fprintd = {
-    enable = true;
-    # The GXFP fork needs its matching daemon (newer fprintd needs libfprint >=1.94.9).
-    package = (pkgs.callPackage "${inputs.libfprint-gxfp}/nix/fprintd.nix" {
-      libfprint-gxfp = pkgs.callPackage "${inputs.libfprint-gxfp}/nix/libfprint.nix" { };
-    }).overrideAttrs (_: {
-      # Manage DeviceAllow below; upstream's service patch emits a literal \\n.
-      postInstall = "";
-    });
-  };
-  hardware.gxfp.enable = true;
-  services.udev.extraRules = ''
-    SUBSYSTEM=="misc", KERNEL=="gxfp", MODE="0660", TAG+="uaccess"
-  '';
-  # The sensor PSK is provisioned separately and must never enter the Nix store.
-  # StateDirectory also permits this path through fprintd's systemd sandbox.
-  systemd.services.fprintd.serviceConfig = {
-    DeviceAllow = [ "/dev/gxfp rw" ];
-    StateDirectory = "fprintd/gxfp";
-    StateDirectoryMode = "0700";
-  };
-  security.pam.services = {
-    sudo.fprintAuth = true;
-    # SDDM authenticates through the login PAM substack in this nixpkgs version.
-    login.fprintAuth = true;
-  };
-
   # Use the pinned nixpkgs module and its user service for DMS file search.
   programs.dsearch = {
     enable = true;
@@ -76,8 +48,6 @@
   environment.systemPackages = with pkgs; [
     dnsmasq
     gnome-network-displays
-    # Diagnostic tools use the same nixpkgs as the host and fingerprint stack.
-    (pkgs.callPackage "${inputs.libfprint-gxfp}/nix/gxfp-tools.nix" { })
   ];
 
   networking.firewall = {

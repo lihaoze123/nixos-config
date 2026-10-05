@@ -46,17 +46,20 @@ in
   imports = [ inputs.dms.homeModules.dank-material-shell ];
 
   config = lib.mkIf cfg.enable {
-    # Qt's GTK platform theme needs a complete icon theme for named tray icons.
-    # Application-provided icons remain available through the hicolor fallback.
+    # Keep GTK on Adwaita: GTK4 indexes the whole Papirus cache at startup,
+    # adding ~700ms to every cold launch. Set it explicitly so the dconf
+    # icon-theme key read through the portal is overwritten too.
     gtk = {
       enable = true;
       iconTheme = {
-        name = "Papirus-Dark";
-        package = pkgs.papirus-icon-theme;
+        name = "Adwaita";
+        package = pkgs.adwaita-icon-theme;
       };
     };
 
     home.packages = [
+      # Qt (qt6ct, including DMS tray icons) still uses Papirus-Dark.
+      pkgs.papirus-icon-theme
       pkgs.adw-gtk3
       # CPU recording backend for Quick Capture.
       pkgs.wf-recorder

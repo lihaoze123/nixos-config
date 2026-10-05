@@ -14,14 +14,6 @@
       url = "github:lihaoze123/dms-xhup";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    libfprint-gxfp = {
-      url = "git+https://github.com/Void755/libfprint?ref=sigfm&submodules=1";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    gxfp-linux-driver = {
-      url = "github:Void755/gxfp_linux_driver";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     daeuniverse.url = "github:daeuniverse/flake.nix";
     geodb = {
       url = "github:Loyalsoldier/v2ray-rules-dat/release";
@@ -49,6 +41,12 @@
     claude-code.url = "github:sadjow/claude-code-nix";
     codex-code.url = "github:sadjow/codex-cli-nix";
     computer-use.url = "github:lihaoze123/niri-computer-use";
+    # Update the desktop independently of the niri backend's compatibility pins.
+    codex-desktop = {
+      url = "github:ilysenko/codex-desktop-linux";
+      inputs.nixpkgs.follows = "computer-use/codex-desktop-linux/nixpkgs";
+      inputs.flake-utils.follows = "computer-use/codex-desktop-linux/flake-utils";
+    };
     edunet.url = "github:lihaoze123/hhu-edunet-cli";
   };
 

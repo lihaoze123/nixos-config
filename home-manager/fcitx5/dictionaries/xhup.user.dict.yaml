@@ -3,7 +3,7 @@
 
 ---
 name: xhup.user
-version: "user-569fd65354014c5e8d98aa4fed23314f"
+version: "user-59aa2063d20d4d3bb08eea29b2ddfd0b"
 sort: by_weight
 use_preset_vocabulary: false
 ...
@@ -44,3 +44,12 @@ use_preset_vocabulary: false
 边界	bmjp	100
 本机	bfji	100
 挂载	gxzd	100
+掉帧	dnvf	100
+请你	qkni	100
+鉴权	jmqr	100
+复刻	fuke	100
+逆向	nixl	100
+密钥	miyc	100
+直到	zidc	100
+稳态	wftd	100
+事实	uiui	100
