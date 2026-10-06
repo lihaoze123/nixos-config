@@ -1,4 +1,4 @@
-{ config, pkgs, inputs, ... }:
+{ config, lib, pkgs, inputs, ... }:
 {
   imports = [ inputs.nix-index-database.homeModules.default ];
 
@@ -13,7 +13,8 @@
 
   programs.fish = {
     enable = true;
-    shellInit = ''
+    shellInit = lib.mkBefore ''
+      set -gx SHELL ${pkgs.fish}/bin/fish
       source ${./config.fish}
     '';
   };
