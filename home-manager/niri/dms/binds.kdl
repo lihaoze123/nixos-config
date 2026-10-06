@@ -12,6 +12,7 @@ binds {
     Super+L hotkey-overlay-title="Lock the Screen: DMS" { spawn "dms" "ipc" "call" "lock" "lock"; }
     Mod+P hotkey-overlay-title="Run an Application: DMS" { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
     Mod+V hotkey-overlay-title="DMS Clipboard" { spawn "dms" "ipc" "call" "clipboard" "toggle"; }
+    Mod+N hotkey-overlay-title="DMS 便签" { spawn "dms" "ipc" "call" "notepad" "toggle"; }
     // Xiaohe plugin from github:lihaoze123/dms-xhup (home-manager/fcitx5).
     Mod+X hotkey-overlay-title="小鹤音形字根图" { spawn "dms" "ipc" "call" "flypyXhup" "roots"; }
     Mod+Shift+X hotkey-overlay-title="小鹤音形反查" { spawn "dms" "ipc" "call" "flypyXhup" "lookup"; }
