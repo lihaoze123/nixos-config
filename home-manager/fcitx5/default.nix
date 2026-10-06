@@ -30,6 +30,7 @@ let
     ${xhup-reverse-dictionary}
     ${builtins.readFile ./config/default.custom.yaml}
     ${builtins.readFile ./config/xhup.custom.yaml}
+    ${builtins.readFile ./patches/rime-crane-shortcuts.patch}
     ${lib.concatStringsSep "\n" (
       lib.mapAttrsToList (_: path: builtins.readFile path) rime-user-dictionaries
     )}
@@ -79,13 +80,16 @@ let
     pname = "rime-crane";
     version = builtins.substring 0 7 rime-crane-rev;
     dontUnpack = true;
-    nativeBuildInputs = [ (pkgs.python3.withPackages (ps: [ ps.pyyaml ])) ];
+    nativeBuildInputs = [ pkgs.patch (pkgs.python3.withPackages (ps: [ ps.pyyaml ])) ];
     installPhase = ''
       runHook preInstall
 
       mkdir -p $out/share/rime-data
       cp -r ${rime-crane-src}/. $out/share/rime-data/
       chmod -R u+w $out/share/rime-data
+      # Upstream shortcut tables omit Linux/Others (NixOS). Keep ordinary
+      # translation and candidate selection working on unsupported systems.
+      patch -d "$out/share/rime-data" -p1 < ${./patches/rime-crane-shortcuts.patch}
       cp -r ${xhup-computer-dictionary}/share/rime-data/. $out/share/rime-data/
       install -Dm644 \
         ${xhup-reverse-dictionary}/share/rime-data/xhup_reverse.dict.yaml \
@@ -263,6 +267,11 @@ in
       fcitx5-gtk
     ];
   };
+
+  # DMS launches applications through systemd-run, which inherits the user
+  # manager environment rather than niri's environment block. WeChat bundles
+  # its Qt Fcitx module and needs this selection in either launch path.
+  systemd.user.sessionVariables.QT_IM_MODULE = "fcitx";
 
   # Restart Fcitx5 after cache invalidation so Rime deploys the new schema
   # before it handles the next input event.

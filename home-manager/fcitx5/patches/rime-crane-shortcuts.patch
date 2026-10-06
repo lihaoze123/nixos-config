@@ -1,0 +1,25 @@
+--- a/lua/xhup/shortcut_translator.lua
++++ b/lua/xhup/shortcut_translator.lua
+@@ -27,7 +27,7 @@
+ 
+ local function translator(input, seg)
+   local sys = common.detect_os()
+-  local lbls = labels[sys][input]
++  local lbls = (labels[sys] or {})[input]
+   if lbls == nil then return end
+   for i, lbl in pairs(lbls) do
+     yield(Candidate("shortcut", seg.start, seg._end, lbl, ""))
+--- a/lua/xhup/shortcut_processor.lua
++++ b/lua/xhup/shortcut_processor.lua
+@@ -62,8 +62,9 @@
+   local sys = common.detect_os()
+   local index = common.select_index(env, key)
+   if index < 0 then return common.kNoop end
+-  if command[sys][context.input] ~= nil then
+-    local cmd = command[sys][context.input][index+1]
++  local commands = command[sys] or {}
++  if commands[context.input] ~= nil then
++    local cmd = commands[context.input][index+1]
+     if cmd ~= nil then
+       os.execute(cmd)
+       context:clear()
