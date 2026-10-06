@@ -16,4 +16,5 @@ binds {
     Mod+X hotkey-overlay-title="小鹤音形字根图" { spawn "dms" "ipc" "call" "flypyXhup" "roots"; }
     Mod+Shift+X hotkey-overlay-title="小鹤音形反查" { spawn "dms" "ipc" "call" "flypyXhup" "lookup"; }
     Mod+Ctrl+X hotkey-overlay-title="小鹤快速加词" { spawn "dms" "ipc" "call" "flypyXhup" "add"; }
+    Mod+Ctrl+T hotkey-overlay-title="语音快速加热词" { spawn "dms" "ipc" "call" "vocotypeHotwords" "add"; }
 }

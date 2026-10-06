@@ -266,7 +266,7 @@ let
   };
 in
 {
-  imports = [ ./doubao.nix ];
+  imports = [ ./doubao.nix ./hotwords.nix ];
   home.packages = [ xhup-lookup xhup-add-word vocotype doubaoWorker ];
   # Also expose settings when activating Home Manager before a system switch.
   home.file.".local/bin/vocotype-settings".source = "${vocotype}/bin/vocotype-settings";

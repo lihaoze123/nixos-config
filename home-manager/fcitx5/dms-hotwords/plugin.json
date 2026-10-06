@@ -1,0 +1,16 @@
+{
+  "id": "vocotypeHotwords",
+  "name": "语音热词",
+  "description": "快速添加 VoCoType 与豆包共用的本地热词及纠错别名",
+  "version": "0.1.0",
+  "author": "chumeng",
+  "icon": "mic",
+  "type": "composite",
+  "capabilities": ["daemon", "launcher", "ipc"],
+  "components": {
+    "daemon": "./HotwordsDaemon.qml",
+    "launcher": "./HotwordsLauncher.qml"
+  },
+  "trigger": "热+",
+  "requires_dms": ">=1.6.0"
+}

@@ -126,6 +126,8 @@ nix run --impure --expr 'let f = builtins.getFlake (toString ./.); in builtins.h
 
 目前仍需保留已下载的本地模型目录：上游核心启动 worker 前会检查目录。
 本地热词会自动随每次最终识别请求传给豆包，无需在控制台维护第二份词表。
+使用 DMS 时可按 `Alt+Ctrl+T` 快速加热词，或在启动器输入 `热+NixOS`；
+详见 [DMS 语音热词插件](dms-hotwords/README.md)。
 继续在 VoCoType 设置中心维护用户词典（`hotword: true` / `hotwords`）及
 `asr.hotword` 临时热词；核心合并后的热词通过 `request.corpus.context`
 发送，格式遵循上面的豆包接口文档。修改词典后可在设置中心点击“热更新词典”。
