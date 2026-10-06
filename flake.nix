@@ -4,6 +4,8 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-25.05";
+    # Keep upstream's nixpkgs pin so the CachyOS binary cache matches.
+    nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     # Keep VoCoType's validated ONNX Runtime / FunASR dependency versions.

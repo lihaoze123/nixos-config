@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ inputs, pkgs, ... }:
 let
   # Fixed dark palette from the DMS "purple" theme; it does not follow
   # wallpaper-driven colours at runtime.
@@ -61,6 +61,14 @@ let
   '';
 in
 {
+  nixpkgs.overlays = [ inputs.nix-cachyos-kernel.overlays.pinned ];
+  boot.kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-latest;
+
+  nix.settings = {
+    substituters = [ "https://attic.xuyh0120.win/lantian" ];
+    trusted-public-keys = [ "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc=" ];
+  };
+
   boot.loader = {
     # Boot straight through; press Esc during the 1s window for the menu.
     timeout = 1;
