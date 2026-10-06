@@ -39,6 +39,13 @@ in
 
   networking.hostName = "laptop";
 
+  # Ignore the Wi-Fi side of F9 to avoid accidental rfkill toggles when
+  # switching Fn modes. The regular F9 used by VoCoType remains available.
+  services.udev.extraHwdb = ''
+    evdev:name:Huawei WMI hotkeys:dmi:*:svnHUAWEI:pnVGHH-XX:*
+     KEYBOARD_KEY_289=reserved
+  '';
+
   # Native ChicagoHS support; private files and enrolled prints stay in /var/lib.
   hardware.gxfp5130Chicago.enable = true;
 
