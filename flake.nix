@@ -6,6 +6,8 @@
     nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-25.05";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    # Keep VoCoType's validated ONNX Runtime / FunASR dependency versions.
+    vocotype.url = "github:LeonardNJU/VocoType-linux/v5.0.1";
     dms = {
       url = "github:AvengeMedia/DankMaterialShell/v1.6.2";
       inputs.nixpkgs.follows = "nixpkgs";

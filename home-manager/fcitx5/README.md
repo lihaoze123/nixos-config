@@ -23,6 +23,26 @@ fcitx5/
 
 ## 常用修改入口
 
+### 离线语音输入
+
+通过 flake 固定 VoCoType-linux `v5.0.1`，作为 Fcitx5 全局插件安装。
+在小鹤或英文输入模式下，聚焦文本框后按住 `F9` 说话，松开后提交文字。
+
+首次使用运行 `vocotype-model-manager --download --all` 下载并校验模型，
+再打开 `vocotype-settings` 选择麦克风，可在 Playground 中测试录音和识别。
+模型保存在用户缓存中；普通听写在本地运行。设置中心中的 AI 润色和
+语音编辑需要另外配置 API，普通听写无需配置。
+
+插件由 Nix / Home Manager 安装，更新后重启 `fcitx5-daemon.service`；
+无需使用设置中心的输入法安装或修复按钮。
+
+录音和回放通过 PipeWire 的 PulseAudio 兼容服务，设备选择 `default`，
+采样率为 `48000`，跟随系统当前默认麦克风和扬声器。
+直接选择笔记本的 `DMIC Raw` 曾出现严重失真，因此包装器仅暴露系统
+默认音频设备。ALSA 插件使用 VoCoType 固定的 nixpkgs，以匹配其 libc。
+
+### 配置与词库
+
 | 修改内容 | 文件 |
 | --- | --- |
 | 通用自定义词 | [dictionaries/xhup.user.dict.yaml](dictionaries/xhup.user.dict.yaml) |

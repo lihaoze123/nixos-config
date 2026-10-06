@@ -5,6 +5,31 @@
 , ...
 }:
 let
+  vocotypePackage = inputs.vocotype.packages.${pkgs.stdenv.hostPlatform.system}.vocotype-fcitx5;
+  vocotypePkgs = import inputs.vocotype.inputs.nixpkgs {
+    system = pkgs.stdenv.hostPlatform.system;
+  };
+  # Route capture and playback through PipeWire's PulseAudio compatibility
+  # server. Opening DMIC Raw directly caused distorted recordings here.
+  # Match the ALSA plugin to VoCoType's pinned libc rather than the host's.
+  vocotypeAlsaPlugins = "${vocotypePkgs.alsa-plugins}/lib/alsa-lib";
+  vocotypeAlsaConfig = pkgs.writeText "vocotype-asound.conf" ''
+    pcm.!default { type pulse }
+    ctl.!default { type pulse }
+  '';
+  vocotype = pkgs.symlinkJoin {
+    name = "vocotype-fcitx5-pipewire";
+    paths = [ vocotypePackage ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    inherit (vocotypePackage) meta;
+    postBuild = ''
+      for program in vocotype-settings vocotype-fcitx5-recorder; do
+        wrapProgram "$out/bin/$program" \
+          --set ALSA_CONFIG_PATH ${vocotypeAlsaConfig} \
+          --set ALSA_PLUGIN_DIR ${vocotypeAlsaPlugins}
+      done
+    '';
+  };
   # Keep Python entry points beside their shared module in the store.
   xhup-script-bundle = name: files: pkgs.runCommand name { } ''
     mkdir -p $out
@@ -207,7 +232,9 @@ let
   };
 in
 {
-  home.packages = [ xhup-lookup xhup-add-word ];
+  home.packages = [ xhup-lookup xhup-add-word vocotype ];
+  # Also expose settings when activating Home Manager before a system switch.
+  home.file.".local/bin/vocotype-settings".source = "${vocotype}/bin/vocotype-settings";
 
   home.activation.enableXhupDmsPlugin = lib.mkIf useDms (
     lib.hm.dag.entryAfter [ "linkGeneration" ] ''
@@ -255,13 +282,24 @@ in
           force = true;
         }
     )
-    rime-user-dictionaries;
+    rime-user-dictionaries // {
+      "applications/vocotype-settings.desktop".text = ''
+        [Desktop Entry]
+        Type=Application
+        Name=VoCoType 设置
+        Exec=${vocotype}/bin/vocotype-settings
+        Icon=${vocotype}/share/icons/hicolor/192x192/apps/vocotype.png
+        Terminal=false
+        Categories=Settings;Utility;
+      '';
+    };
 
   i18n.inputMethod = {
     enable = true;
     type = "fcitx5";
     fcitx5.waylandFrontend = true;
     fcitx5.addons = with pkgs; [
+      vocotype
       fcitx5-rime-crane
       qt6Packages.fcitx5-configtool
       fcitx5-gtk
@@ -276,6 +314,10 @@ in
   # Restart Fcitx5 after cache invalidation so Rime deploys the new schema
   # before it handles the next input event.
   systemd.user.services.fcitx5-daemon.Unit.X-Restart-Triggers = [ rime-crane-config-id ];
+  systemd.user.services.fcitx5-daemon.Service.Environment = [
+    "ALSA_CONFIG_PATH=${vocotypeAlsaConfig}"
+    "ALSA_PLUGIN_DIR=${vocotypeAlsaPlugins}"
+  ];
   # Also handle an already-running desktop instance during the first handover.
   systemd.user.services.fcitx5-daemon.Unit.Conflicts = [ "app-org.fcitx.Fcitx5@autostart.service" ];
   systemd.user.services.fcitx5-daemon.Unit.After = [ "app-org.fcitx.Fcitx5@autostart.service" ];

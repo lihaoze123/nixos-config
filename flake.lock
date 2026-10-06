@@ -673,6 +673,22 @@
         "type": "github"
       }
     },
+    "nixpkgs_9": {
+      "locked": {
+        "lastModified": 1782847189,
+        "narHash": "sha256-twXPFqFsrrY5r28Zh7Homgcp2gUMBgQ6WDS98Q/3xFI=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "b6018f87da91d19d0ab4cf979885689b469cdd41",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "b6018f87da91d19d0ab4cf979885689b469cdd41",
+        "type": "github"
+      }
+    },
     "pyproject-build-systems": {
       "inputs": {
         "nixpkgs": [
@@ -765,6 +781,7 @@
         "ragenix": "ragenix",
         "rust-overlay": "rust-overlay_2",
         "silentSDDM": "silentSDDM",
+        "vocotype": "vocotype",
         "xwayland-satellite": "xwayland-satellite"
       }
     },
@@ -941,6 +958,25 @@
       "original": {
         "owner": "pyproject-nix",
         "repo": "uv2nix",
+        "type": "github"
+      }
+    },
+    "vocotype": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_9"
+      },
+      "locked": {
+        "lastModified": 1787062804,
+        "narHash": "sha256-SD3fqtV3JUxkeUr/BgfLTqWMsmki4y2Ke3U6dyP+uyY=",
+        "owner": "LeonardNJU",
+        "repo": "VocoType-linux",
+        "rev": "a6c8400d6300df020b4611ce0c1bc3e68667891b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "LeonardNJU",
+        "ref": "v5.0.1",
+        "repo": "VocoType-linux",
         "type": "github"
       }
     },
