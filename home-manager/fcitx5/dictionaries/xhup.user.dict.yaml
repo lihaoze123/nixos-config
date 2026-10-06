@@ -3,7 +3,7 @@
 
 ---
 name: xhup.user
-version: "user-59aa2063d20d4d3bb08eea29b2ddfd0b"
+version: "user-3b933a36d82b4d1a9afdd1db579fbfa7"
 sort: by_weight
 use_preset_vocabulary: false
 ...
@@ -53,3 +53,4 @@ use_preset_vocabulary: false
 直到	zidc	100
 稳态	wftd	100
 事实	uiui	100
+一件	yijm	100

@@ -6,7 +6,7 @@
 
 ### 主要特性
 - **窗口管理器**: Niri 窗口管理器
-- **显示管理器**: SDDM 配合 SilentSDDM 主题
+- **显示管理器**: SDDM 配合 SilentSDDM 主题（laptop 使用 Dank Greeter，见 [docs/laptop-desktop.md](docs/laptop-desktop.md)）
 - **音频系统**: PipeWire
 - **输入法**: Fcitx5 + Rime 小鹤音形
 - **代理服务**: DAE 高级代理系统，智能路由和自动化订阅管理
