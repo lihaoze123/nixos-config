@@ -5,6 +5,10 @@ let
   initialSettings = jsonFormat.generate "dms-settings.json" {
     configVersion = 18;
     clockFormat = "24h";
+    cursorSettings = {
+      theme = "Bibata-Modern-Ice";
+      size = 24;
+    };
     currentThemeName = "purple";
     launchPrefix = "systemd-run --user --collect --no-block --";
     # Application themes remain opt-in in the DMS settings UI.
@@ -46,6 +50,15 @@ in
   imports = [ inputs.dms.homeModules.dank-material-shell ];
 
   config = lib.mkIf cfg.enable {
+    home.pointerCursor = {
+      enable = true;
+      package = pkgs.bibata-cursors;
+      name = "Bibata-Modern-Ice";
+      size = 24;
+      gtk.enable = true;
+      x11.enable = true;
+    };
+
     # Keep GTK on Adwaita: GTK4 indexes the whole Papirus cache at startup,
     # adding ~700ms to every cold launch. Set it explicitly so the dconf
     # icon-theme key read through the portal is overwritten too.

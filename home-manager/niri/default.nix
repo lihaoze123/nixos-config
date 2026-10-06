@@ -38,7 +38,7 @@ in
   home.file.".face.icon".source = ./.face.icon;
 
   xresources.properties = {
-    "Xcursor.size" = 16;
+    "Xcursor.size" = lib.mkDefault 16;
     "Xft.dpi" = 172;
   };
 
