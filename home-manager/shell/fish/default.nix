@@ -42,4 +42,18 @@
     enable = true;
     enableFishIntegration = true;
   };
+
+  programs.atuin = {
+    enable = true;
+    enableFishIntegration = true;
+    enableBashIntegration = false;
+    # Use Ctrl+R for Atuin; keep Fish's usual up-arrow history behaviour.
+    flags = [ "--disable-up-arrow" ];
+    settings = {
+      auto_sync = false;
+      update_check = false;
+      # Return the selected command to the prompt for editing before execution.
+      enter_accept = false;
+    };
+  };
 }
