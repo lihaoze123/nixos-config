@@ -24,6 +24,14 @@ let
   officialPlugins = fetchPlugin "AvengeMedia" "dms-plugins"
     "a8a508bc371e7c3f2c7862d8840b88cf5c63978f"
     "sha256-3nHfkGzmmq8JpN7bmO8Z5zIumvx8dzwS1GtQ6V0XgMg=";
+  valent = pkgs.valent.overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [ ./valent-wl-clipboard.patch ];
+    postPatch = (old.postPatch or "") + ''
+      substituteInPlace src/plugins/gtk/valent-gdk-clipboard.c \
+        --replace-fail '@wlPaste@' '${pkgs.wl-clipboard}/bin/wl-paste' \
+        --replace-fail '@wlCopy@' '${pkgs.wl-clipboard}/bin/wl-copy'
+    '';
+  });
   initialize = pkgs.writeShellApplication {
     name = "initialize-dms-plugins";
     runtimeInputs = [ pkgs.python3 pkgs.systemd ];
@@ -35,11 +43,34 @@ in
 {
   config = lib.mkIf config.programs.dank-material-shell.enable {
     home.packages = [ pkgs.translate-shell ];
+    # Mutter's adapter has higher priority, but its service is absent in Niri.
+    dconf.settings."ca/andyholmes/valent/clipboard/plugin/gnome".enabled = false;
     xdg.configFile = {
       "DankMaterialShell/plugins/calculator".source = calculator;
       "DankMaterialShell/plugins/dankTranslate".source = translate;
       "DankMaterialShell/plugins/dankscale".source = dankscale;
       "DankMaterialShell/plugins/dankPomodoroTimer".source = "${officialPlugins}/DankPomodoroTimer";
+      "DankMaterialShell/plugins/dankKDEConnect".source = "${officialPlugins}/DankKDEConnect";
+    };
+    systemd.user.services.valent = {
+      Unit = {
+        Description = "Phone connectivity for DMS";
+        After = [ "graphical-session.target" "gcr-ssh-agent.socket" ];
+        PartOf = [ "graphical-session.target" ];
+      };
+      Service = {
+        ExecStart = "${valent}/bin/valent --gapplication-service";
+        Environment = [
+          "SSH_AUTH_SOCK=%t/gcr/ssh"
+          # Valent needs the GVfs backend to mount the phone's SFTP share.
+          "GIO_EXTRA_MODULES=${pkgs.gvfs}/lib/gio/modules"
+          # Use Niri's data-control protocol for background clipboard access.
+          "VALENT_WL_CLIPBOARD=1"
+        ];
+        Restart = "on-failure";
+        RestartSec = 3;
+      };
+      Install.WantedBy = [ "graphical-session.target" ];
     };
     home.activation.initializeDmsPlugins = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
       run ${lib.getExe initialize}

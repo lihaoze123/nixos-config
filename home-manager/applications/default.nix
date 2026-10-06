@@ -3,6 +3,7 @@
   imports = [
     ./vscode.nix
     ./file-manager.nix
+    ./desktop-utilities.nix
   ];
 
   home.packages = with pkgs;[

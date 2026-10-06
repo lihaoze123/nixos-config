@@ -155,6 +155,11 @@ in
   programs.dconf.enable = true;
   # Dankscale manages Tailscale as the desktop user, without recurring prompts.
   services.tailscale.extraSetFlags = [ "--operator=chumeng" ];
+  # Valent speaks KDE Connect and browses phone files through Nautilus/GVfs.
+  programs.kdeconnect = {
+    enable = true;
+    package = pkgs.valent;
+  };
 
   # Use the pinned nixpkgs module and its user service for DMS file search.
   programs.dsearch = {
@@ -179,6 +184,11 @@ in
 
   services.avahi = {
     enable = true;
+    # Valent advertises its KDE Connect endpoint through DNS-SD.
+    publish = {
+      enable = true;
+      userServices = true;
+    };
     nssmdns4 = true;
     openFirewall = true;
   };

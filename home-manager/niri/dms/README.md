@@ -87,6 +87,7 @@ Niri 的固定默认值可写入仓库的 KDL，DMS 生成的片段拥有更后�
 | Translate | 启动器输入 `>hello world`，默认译为中文；`>en 你好` 指定英文 |
 | Dankscale | 状态栏与控制中心查看 Tailscale 设备、连接状态及出口节点 |
 | Dank Pomodoro Timer | 状态栏启动番茄钟，默认工作 25 分钟、短休息 5 分钟 |
+| Phone Connect | 状态栏查看手机、配对、传文件与响铃；后端使用 Valent |
 
 翻译依赖 translate-shell 在线服务，翻译文本会发往所选服务。
 默认目标语言只在首次初始化时设置，可在插件设置中修改。
@@ -95,6 +96,21 @@ Dankscale 和番茄钟仅首次自动加入第一条启用的状态栏，之后�
 Tailscale 用户管理权限由 laptop 的 `services.tailscale.extraSetFlags`
 配置为 `--operator=chumeng`。应用系统配置之前，也可通过 Dankscale 的
 授权按钮完成本机认证。不要把插件配置文件链接到只读 Nix store。
+
+Phone Connect 使用现有 GVfs 和 GCR SSH agent，在 Nautilus 中浏览手机文件。
+Valent 用户服务随图形会话启动；laptop 的 `programs.kdeconnect` 安装 Valent
+并开放协议所需的 TCP/UDP 1714–1764 端口；Avahi 服务广播支持局域网自动发现。
+手机安装 KDE Connect，连接同一局域网后在 Phone Connect 中发起配对，
+并在手机上确认。
+Valent 服务显式加载 GVfs 模块；本地补丁通过 `wl-copy` / `wl-paste`
+使用 Niri 的 data-control 协议，支持后台读写剪贴板。
+同时关闭仅用于 GNOME/Mutter 的剪贴板适配器，避免它抢占 GTK 适配器。
+手机到电脑的剪贴板接收需要在 Valent 的配对设备设置中开启自动接收
+（`auto-pull`）；该设置按设备保存在本机，重建时保留。
+Android 10 及以上通常需要在手机 KDE Connect 中点击“发送剪贴板”。
+电脑到手机保留手动发送，不默认开启自动推送所有复制内容。
+手机文件浏览还需要在 KDE Connect 中选择并授权共享目录。
+首次部署需要应用系统配置使防火墙生效。
 
 ## 应用配置
 

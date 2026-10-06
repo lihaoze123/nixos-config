@@ -3,7 +3,7 @@
 
 ---
 name: xhup.user
-version: "user-be06e5422ed944b5a007596e50447deb"
+version: "user-4abf3f1d10944559a7f9f2456cd7b694"
 sort: by_weight
 use_preset_vocabulary: false
 ...
@@ -60,3 +60,4 @@ use_preset_vocabulary: false
 异常	yiih	100
 电音	dmyb	100
 彳亍	iiiu	100
+实用	uiys	100

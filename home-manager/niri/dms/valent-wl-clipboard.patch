@@ -1,0 +1,144 @@
+--- a/src/plugins/gtk/valent-gdk-clipboard.c
++++ b/src/plugins/gtk/valent-gdk-clipboard.c
+@@ -34,6 +34,52 @@
+ };
+ 
+ 
++/* Niri supports data-control; GTK's focus-based clipboard does not work
++ * reliably for a background service. Keep GTK for other sessions. */
++static gboolean
++use_wl_clipboard (void)
++{
++  return g_strcmp0 (g_getenv ("VALENT_WL_CLIPBOARD"), "1") == 0;
++}
++
++static void
++wl_read_done (GSubprocess *process, GAsyncResult *result, gpointer user_data)
++{
++  g_autoptr (GTask) task = user_data;
++  g_autoptr (GError) error = NULL;
++  g_autoptr (GBytes) output = NULL;
++
++  if (!g_subprocess_communicate_finish (process, result, &output, NULL, &error) ||
++      !g_subprocess_get_successful (process))
++    {
++      if (error == NULL)
++        error = g_error_new_literal (G_IO_ERROR, G_IO_ERROR_FAILED,
++                                     "Failed to read Wayland clipboard");
++      g_task_return_error (task, g_steal_pointer (&error));
++      return;
++    }
++  g_task_return_pointer (task, g_steal_pointer (&output),
++                         (GDestroyNotify)g_bytes_unref);
++}
++
++static void
++wl_write_done (GSubprocess *process, GAsyncResult *result, gpointer user_data)
++{
++  g_autoptr (GTask) task = user_data;
++  g_autoptr (GError) error = NULL;
++
++  if (!g_subprocess_communicate_finish (process, result, NULL, NULL, &error) ||
++      !g_subprocess_get_successful (process))
++    {
++      if (error == NULL)
++        error = g_error_new_literal (G_IO_ERROR, G_IO_ERROR_FAILED,
++                                     "Failed to write Wayland clipboard");
++      g_task_return_error (task, g_steal_pointer (&error));
++      return;
++    }
++  g_task_return_boolean (task, TRUE);
++}
++
+ /*
+  * GdkClipboard Callbacks
+  */
+@@ -136,6 +182,21 @@
+   const char * const *mimetypes = NULL;
+ 
+   g_assert (VALENT_IS_GDK_CLIPBOARD (self));
++  if (use_wl_clipboard ())
++    {
++      g_autoptr (GSubprocess) process = NULL;
++      g_autofree char *output = NULL;
++      process = g_subprocess_new (G_SUBPROCESS_FLAGS_STDOUT_PIPE |
++                                  G_SUBPROCESS_FLAGS_STDERR_SILENCE,
++                                  NULL, "@wlPaste@", "--list-types", NULL);
++      if (process == NULL ||
++          !g_subprocess_communicate_utf8 (process, NULL, NULL, &output, NULL, NULL) ||
++          !g_subprocess_get_successful (process))
++        return NULL;
++      g_strchomp (output);
++      return g_strsplit (output, "\n", -1);
++    }
++
+   g_return_val_if_fail (GDK_IS_CLIPBOARD (self->clipboard), NULL);
+ 
+   if ((formats = gdk_clipboard_get_formats (self->clipboard)) == NULL)
+@@ -178,6 +239,25 @@
+                                G_IO_ERROR,
+                                G_IO_ERROR_NOT_SUPPORTED,
+                                "Clipboard not available");
++      return;
++    }
++
++  if (use_wl_clipboard ())
++    {
++      g_autoptr (GSubprocess) process = NULL;
++      g_autoptr (GError) error = NULL;
++      task = g_task_new (adapter, cancellable, callback, user_data);
++      g_task_set_source_tag (task, valent_gdk_clipboard_read_bytes);
++      process = g_subprocess_new (G_SUBPROCESS_FLAGS_STDOUT_PIPE |
++                                  G_SUBPROCESS_FLAGS_STDERR_SILENCE,
++                                  &error, "@wlPaste@", "--no-newline",
++                                  "--type", mimetype, NULL);
++      if (process == NULL)
++        g_task_return_error (task, g_steal_pointer (&error));
++      else
++        g_subprocess_communicate_async (process, NULL, cancellable,
++                                         (GAsyncReadyCallback)wl_read_done,
++                                         g_steal_pointer (&task));
+       return;
+     }
+ 
+@@ -243,6 +323,40 @@
+   g_assert (bytes != NULL || (mimetype != NULL && *mimetype != '\0'));
+   g_return_if_fail (GDK_IS_CLIPBOARD (self->clipboard));
+ 
++  if (use_wl_clipboard ())
++    {
++      g_autoptr (GSubprocess) process = NULL;
++      g_autoptr (GError) error = NULL;
++      g_autoptr (GBytes) input = NULL;
++      task = g_task_new (adapter, cancellable, callback, user_data);
++      g_task_set_source_tag (task, valent_gdk_clipboard_write_bytes);
++      if (bytes != NULL)
++        {
++          gsize size;
++          const char *data = g_bytes_get_data (bytes, &size);
++          /* Valent includes the string terminator; Wayland text must not. */
++          if (g_strv_contains (text_mimetypes, mimetype) && size > 0 &&
++              data[size - 1] == '\0')
++            size--;
++          input = g_bytes_new_from_bytes (bytes, 0, size);
++          process = g_subprocess_new (G_SUBPROCESS_FLAGS_STDIN_PIPE |
++                                      G_SUBPROCESS_FLAGS_STDOUT_SILENCE |
++                                      G_SUBPROCESS_FLAGS_STDERR_SILENCE,
++                                      &error, "@wlCopy@", "--type", mimetype, NULL);
++        }
++      else
++        process = g_subprocess_new (G_SUBPROCESS_FLAGS_STDOUT_SILENCE |
++                                    G_SUBPROCESS_FLAGS_STDERR_SILENCE,
++                                    &error, "@wlCopy@", "--clear", NULL);
++      if (process == NULL)
++        g_task_return_error (task, g_steal_pointer (&error));
++      else
++        g_subprocess_communicate_async (process, input, cancellable,
++                                         (GAsyncReadyCallback)wl_write_done,
++                                         g_steal_pointer (&task));
++      return;
++    }
++
+   if (bytes != NULL)
+     content = gdk_content_provider_new_for_bytes (mimetype, bytes);
+ 

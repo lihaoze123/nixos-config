@@ -1,5 +1,16 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 {
+  imports = [ inputs.nix-index-database.homeModules.default ];
+
+  programs.nix-index = {
+    enable = true;
+    package = inputs.nix-index-database.packages.${pkgs.stdenv.hostPlatform.system}.nix-index-with-small-db;
+    enableFishIntegration = true;
+    enableBashIntegration = false;
+    enableZshIntegration = false;
+  };
+  programs.nix-index-database.comma.enable = true;
+
   programs.fish = {
     enable = true;
     shellInit = ''

@@ -31,7 +31,7 @@ def main():
     root = Path(sys.argv[1]) / "DankMaterialShell"
     plugins_path = root / "plugin_settings.json"
     plugins = read_json(plugins_path)
-    ids = ("calculator", "dankTranslate", "dankscale", "dankPomodoroTimer")
+    ids = ("calculator", "dankTranslate", "dankscale", "dankPomodoroTimer", "dankKDEConnect")
     new_widgets = []
     changed = False
     for plugin_id in ids:
@@ -39,7 +39,7 @@ def main():
         if "enabled" not in entry:
             entry["enabled"] = True
             changed = True
-            if plugin_id in ("dankscale", "dankPomodoroTimer"):
+            if plugin_id in ("dankscale", "dankPomodoroTimer", "dankKDEConnect"):
                 new_widgets.append(plugin_id)
     translation = plugins["dankTranslate"]
     if "defaultLang" not in translation:
