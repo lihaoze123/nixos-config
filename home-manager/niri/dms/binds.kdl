@@ -1,5 +1,9 @@
 // HHKB-friendly DMS shortcuts. The base configuration uses Alt for Mod.
 binds {
+    // Quick Capture uses the same editor as the DankBar screenshot widget.
+    Print repeat=false hotkey-overlay-title="Quick Capture: Region" { spawn "dms" "ipc" "call" "quickCapture" "screenshot" "region" "edit"; }
+    Ctrl+Print repeat=false hotkey-overlay-title="Quick Capture: Screen" { spawn "dms" "ipc" "call" "quickCapture" "screenshot" "full" "edit"; }
+    Alt+Print repeat=false hotkey-overlay-title="Quick Capture: Window" { spawn "dms" "ipc" "call" "quickCapture" "screenshot" "window" "edit"; }
     Ctrl+Alt+Space hotkey-overlay-title="DMS Launcher" { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
     Ctrl+Alt+N hotkey-overlay-title="DMS Notifications" { spawn "dms" "ipc" "call" "notifications" "toggle"; }
     Ctrl+Alt+M hotkey-overlay-title="DMS System Monitor" { spawn "dms" "ipc" "call" "processlist" "focusOrToggle"; }

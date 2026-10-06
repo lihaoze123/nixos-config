@@ -53,6 +53,9 @@ Niri 的固定默认值可写入仓库的 KDL，DMS 生成的片段拥有更后�
 
 | 按键 | 功能 |
 | --- | --- |
+| `Print` | Quick Capture 框选截图并编辑 |
+| `Ctrl+Print` | Quick Capture 当前屏幕截图并编辑 |
+| `Alt+Print` | Quick Capture 当前窗口截图并编辑 |
 | `Ctrl+Alt+Space` 或 `Alt+P` | 应用启动器 |
 | `Ctrl+Alt+N` | 通知中心 |
 | `Ctrl+Alt+M` | 进程监视器 |
@@ -64,6 +67,8 @@ Niri 的固定默认值可写入仓库的 KDL，DMS 生成的片段拥有更后�
 
 剪贴板历史由 DMS 自带的服务记录，启用 DMS 时不再运行 cliphist；
 其他主机通过 Home Manager 的 `services.cliphist` 记录。
+截图快捷键通过 IPC 调用已安装并启用的 `quickCapture` 插件，与状态栏部件
+使用同一套截图和编辑功能，覆盖基础配置中的 Niri 原生截图快捷键。
 小鹤功能由独立仓库 [dms-xhup](https://github.com/lihaoze123/dms-xhup) 的 DMS 插件提供，在 fcitx5 模块中部署，
 用法见 [反查](../../fcitx5/docs/xhup-lookup.md) 与 [加词](../../fcitx5/docs/add-user-word.md)。
 
