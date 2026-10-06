@@ -153,6 +153,8 @@ in
   services.power-profiles-daemon.enable = true;
   services.accounts-daemon.enable = true;
   programs.dconf.enable = true;
+  # Dankscale manages Tailscale as the desktop user, without recurring prompts.
+  services.tailscale.extraSetFlags = [ "--operator=chumeng" ];
 
   # Use the pinned nixpkgs module and its user service for DMS file search.
   programs.dsearch = {

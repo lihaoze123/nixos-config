@@ -76,6 +76,26 @@ Niri 的固定默认值可写入仓库的 KDL，DMS 生成的片段拥有更后�
 语音热词使用本仓库的 [VoCoType 热词插件](../../fcitx5/dms-hotwords/README.md)，
 直接维护原来的语音词库，支持 `热+NixOS = 尼克斯 | nix os` 添加热词及纠错别名。
 
+## 扩展插件
+
+`plugins.nix` 固定插件的上游提交与内容哈希，由 Home Manager 部署。
+首次接入时初始化启用状态，之后保留 DMS 界面中的开关、参数和状态栏布局。
+
+| 插件 | 入口与用法 |
+| --- | --- |
+| Calculator | `Alt+P` 打开启动器，输入 `= sqrt(144)`；回车复制结果 |
+| Translate | 启动器输入 `>hello world`，默认译为中文；`>en 你好` 指定英文 |
+| Dankscale | 状态栏与控制中心查看 Tailscale 设备、连接状态及出口节点 |
+| Dank Pomodoro Timer | 状态栏启动番茄钟，默认工作 25 分钟、短休息 5 分钟 |
+
+翻译依赖 translate-shell 在线服务，翻译文本会发往所选服务。
+默认目标语言只在首次初始化时设置，可在插件设置中修改。
+Dankscale 和番茄钟仅首次自动加入第一条启用的状态栏，之后可自由移动或移除。
+首次添加状态栏组件时，会重启正在运行的 DMS 用户服务以刷新布局。
+Tailscale 用户管理权限由 laptop 的 `services.tailscale.extraSetFlags`
+配置为 `--operator=chumeng`。应用系统配置之前，也可通过 Dankscale 的
+授权按钮完成本机认证。不要把插件配置文件链接到只读 Nix store。
+
 ## 应用配置
 
 在仓库根目录执行：

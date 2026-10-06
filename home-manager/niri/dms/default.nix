@@ -47,7 +47,7 @@ let
   };
 in
 {
-  imports = [ inputs.dms.homeModules.dank-material-shell ];
+  imports = [ inputs.dms.homeModules.dank-material-shell ./plugins.nix ];
 
   config = lib.mkIf cfg.enable {
     home.pointerCursor = {
