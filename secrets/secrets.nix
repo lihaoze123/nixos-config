@@ -7,4 +7,5 @@ in
     "hermes-env.age".publicKeys = users;
     "aria2-password.age".publicKeys = users;
     "edunet-env.age".publicKeys = users;
+    "doubao-asr.age".publicKeys = users;
 }
