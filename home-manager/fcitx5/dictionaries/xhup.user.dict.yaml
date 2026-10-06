@@ -3,7 +3,7 @@
 
 ---
 name: xhup.user
-version: "user-b4f15913f60d4b60af98ef700caf004e"
+version: "user-be06e5422ed944b5a007596e50447deb"
 sort: by_weight
 use_preset_vocabulary: false
 ...
@@ -57,3 +57,6 @@ use_preset_vocabulary: false
 后继	hzji	100
 沙箱	uaxl	100
 帮我	bhwo	100
+异常	yiih	100
+电音	dmyb	100
+彳亍	iiiu	100
