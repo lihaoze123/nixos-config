@@ -24,6 +24,17 @@
     settings = {
       add_newline = true;
       character.success_symbol = "[~](bold green)";
+
+      # jj-starship 统一处理 Git 和 Jujutsu 仓库，关闭内置 git 模块避免重复显示
+      git_branch.disabled = true;
+      git_commit.disabled = true;
+      git_status.disabled = true;
+      custom.jj = {
+        when = "${pkgs.jj-starship}/bin/jj-starship detect";
+        command = "${pkgs.jj-starship}/bin/jj-starship";
+        shell = [ "sh" ];
+        format = "$output ";
+      };
     };
   };
 
