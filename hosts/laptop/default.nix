@@ -122,7 +122,10 @@ in
     login.fprintAuth = false;
     sudo.fprintAuth = true;
     polkit-1.fprintAuth = true;
-    dankshell.fprintAuth = true;
+    # DMS lock runs its own fingerprint PAM context ("fprint") in parallel with
+    # the password one. pam_fprintd here would make both claim the reader and
+    # block typed passwords until it times out.
+    dankshell.fprintAuth = false;
     swaylock.fprintAuth = true;
   };
 

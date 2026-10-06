@@ -47,12 +47,12 @@ reboot
 - 启动 greetd 前，会从 `/home/chumeng` 复制 DMS 的 `settings.json`、`session.json` 与配色，因此主题和壁纸与桌面一致。
 - greeter 自己的 niri 配置写在 `compositor.customConfig` 中（eDP-1、2 倍缩放、触摸板轻触）。修改缩放时要同时改这里。
 - 登录只用密码：greetd 通过 `login` PAM substack 认证，`login.fprintAuth = false`。greetd 只有一个 PAM 会话，`pam_fprintd` 排在密码前面时，回车后要等指纹超时才验证密码，所以登录不启用指纹。用密码登录也能自动解锁 GNOME Keyring。
-- 指纹仍用于锁屏（`dankshell`，DMS 锁屏会让密码和指纹并行认证）、sudo 和 polkit。TTY 登录同样只用密码。
+- 指纹仍用于锁屏（DMS 自带的 `fprint` 会话，和密码并行）、sudo 和 polkit。TTY 登录同样只用密码。
 
 ## 锁屏
 
 - 手动锁屏：**Super+L**（HHKB 的 ◇ 键），对应 `dms ipc call lock lock`。没有用 Ctrl+Alt+L，因为它会抢走 JetBrains 的 Reformat Code。
-- 锁屏 PAM 服务是 `dankshell`，已开启指纹，密码可作为后备。
+- 锁屏同时运行两个 PAM 会话：`dankshell` 只验证密码，DMS 自带的 `fprint` 会话负责指纹（DMS 设置中的指纹开关 `enableFprint`）。`dankshell` 不能再开 `fprintAuth`，否则两个会话会抢同一个指纹设备，导致指纹成功率低、键盘输入的密码要等指纹超时才验证。
 - 系统中没有启动 swayidle/swaylock，锁屏与空闲只由 DMS 管理。
 
 ### 空闲策略（在 DMS 设置界面中手动设置）
