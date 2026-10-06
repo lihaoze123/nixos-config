@@ -18,6 +18,10 @@
 
     security.polkit.enable = true;
     services.gnome.gnome-keyring.enable = true;
+    # Nautilus: removable disks, MTP phones, trash and remote file access.
+    services.gvfs.enable = true;
+    services.udisks2.enable = true;
+    services.gnome.sushi.enable = true;
     security.pam.services.swaylock = { };
 
     environment.systemPackages = with pkgs; [

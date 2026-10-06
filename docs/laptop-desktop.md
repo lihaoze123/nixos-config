@@ -71,7 +71,35 @@ reboot
 
 当前合盖行为（未在仓库中显式配置，沿用 logind 默认值）：`HandleLidSwitch=suspend`，接电源时同样挂起，扩展坞模式下不处理。
 
+## 麦克风处理与文件管理
+
+`laptop` 的 Home Manager 启用 EasyEffects，随图形会话启动并加载
+`microphone-denoise` 输入预设，使用内置 RNNoise 模型。默认不增加增益，
+不开启 VAD 门限，避免截断轻声和词尾。设置与预设见
+`home-manager/applications/easyeffects.nix`。
+
+EasyEffects 自动将录音应用移到处理后的虚拟输入，VoCoType 的
+PulseAudio 兼容录音流也在其中。系统默认输入仍应选择真实麦克风，
+不要改成 EasyEffects Source。打开 EasyEffects 的输入页面可查看
+应用是否已接入；可用全局旁路对比原声与降噪效果。若 VoCoType 被手动
+指定为直接访问硬件的 ALSA 设备，请在其设置中改回 `default` 或 `pulse`。
+识别率变化仍需用同一段语音实测。
+
+所有 Niri 主机的 Nautilus 配套启用 GVfs、UDisks2、udiskie 与 Sushi：
+
+- U 盘、移动硬盘接入后自动挂载并通知，在 Nautilus 侧栏弹出/卸载。
+- Android 手机解锁并选择「文件传输」后，可通过 MTP 浏览文件。
+- `Ctrl+L` 输入 `sftp://主机/路径` 或 `smb://主机/共享` 可访问远程文件。
+- 选中文件按空格打开 Sushi 预览；File Roller 提供图形压缩包管理。
+
+Nautilus 是默认的目录打开程序。udiskie 不显示独立托盘图标，
+其服务随图形会话启动和停止。文件管理配置在
+`home-manager/applications/file-manager.nix`，系统后端在
+`modules/niri/default.nix`。
+
 ## 验收记录
+
+以下为此前启动、登录和锁屏改动的验收记录，不包含新增的麦克风与文件管理功能。
 
 | 项目 | 状态 |
 | --- | --- |

@@ -2,6 +2,7 @@
 {
   imports = [
     ./vscode.nix
+    ./file-manager.nix
   ];
 
   home.packages = with pkgs;[

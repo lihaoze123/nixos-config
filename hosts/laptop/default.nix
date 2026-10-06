@@ -152,6 +152,7 @@ in
   services.upower.enable = true;
   services.power-profiles-daemon.enable = true;
   services.accounts-daemon.enable = true;
+  programs.dconf.enable = true;
 
   # Use the pinned nixpkgs module and its user service for DMS file search.
   programs.dsearch = {

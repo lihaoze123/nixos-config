@@ -2,6 +2,7 @@
 {
   imports = [
     ../../home-manager/home.nix
+    ../../home-manager/applications/easyeffects.nix
   ];
 
   programs.dank-material-shell.enable = true;

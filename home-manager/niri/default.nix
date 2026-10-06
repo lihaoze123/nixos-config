@@ -101,6 +101,5 @@ in
 
   home.packages = with pkgs; [
     xwayland-satellite
-    nautilus
   ] ++ lib.optionals (!useDms) [ wofi mako swaybg xhup-roots ];
 }
