@@ -3,7 +3,7 @@
 
 ---
 name: xhup.user
-version: "user-3b933a36d82b4d1a9afdd1db579fbfa7"
+version: "user-b4f15913f60d4b60af98ef700caf004e"
 sort: by_weight
 use_preset_vocabulary: false
 ...
@@ -54,3 +54,6 @@ use_preset_vocabulary: false
 稳态	wftd	100
 事实	uiui	100
 一件	yijm	100
+后继	hzji	100
+沙箱	uaxl	100
+帮我	bhwo	100
