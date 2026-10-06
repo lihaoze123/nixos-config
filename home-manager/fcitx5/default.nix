@@ -311,6 +311,18 @@ in
   # its Qt Fcitx module and needs this selection in either launch path.
   systemd.user.sessionVariables.QT_IM_MODULE = "fcitx";
 
+  # The upstream Nix package does not install the backend user unit. Keep the
+  # core alive independently of the settings window and Fcitx's launcher.
+  systemd.user.services.vocotype-fcitx5-backend = {
+    Unit.Description = "VoCoType native speech recognition core";
+    Service = {
+      ExecStart = "${vocotype}/bin/vocotype-fcitx5-backend";
+      Restart = "on-failure";
+      RestartSec = 3;
+    };
+    Install.WantedBy = [ "default.target" ];
+  };
+
   # Restart Fcitx5 after cache invalidation so Rime deploys the new schema
   # before it handles the next input event.
   systemd.user.services.fcitx5-daemon.Unit.X-Restart-Triggers = [ rime-crane-config-id ];

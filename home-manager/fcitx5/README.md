@@ -36,6 +36,12 @@ fcitx5/
 插件由 Nix / Home Manager 安装，更新后重启 `fcitx5-daemon.service`；
 无需使用设置中心的输入法安装或修复按钮。
 
+识别核心由 `vocotype-fcitx5-backend.service` 用户服务在登录后启动，
+独立于设置窗口运行，异常退出后自动重启。如果出现
+`cannot connect to native core`，用
+`systemctl --user status vocotype-fcitx5-backend.service` 查看状态，
+用 `journalctl --user -u vocotype-fcitx5-backend.service -b` 查看日志。
+
 录音和回放通过 PipeWire 的 PulseAudio 兼容服务，设备选择 `default`，
 采样率为 `48000`，跟随系统当前默认麦克风和扬声器。
 直接选择笔记本的 `DMIC Raw` 曾出现严重失真，因此包装器仅暴露系统
