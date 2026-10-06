@@ -144,6 +144,18 @@ async def recognize(pcm, request, headers, connect):
         "request": {"model_name": "bigmodel", "enable_itn": request.get("itn", True),
                     "enable_punc": True, "result_type": "full"},
     }
+    # Core already merges the user terminology dictionary and temporary
+    # hotwords into a whitespace-separated string for each transcription.
+    hotwords = request.get("hotwords", "")
+    if not isinstance(hotwords, str):
+        raise ValueError("热词必须是空白分隔的字符串")
+    words = list(dict.fromkeys(hotwords.split()))[:5000]
+    if words:
+        # Doubao requires corpus.context to be a JSON string, not an object.
+        payload["request"]["corpus"] = {
+            "context": json.dumps({"hotwords": [{"word": word} for word in words]},
+                                  ensure_ascii=False),
+        }
     async with connect(ENDPOINT, additional_headers=headers, open_timeout=15,
                        close_timeout=2, max_size=2 * 1024 * 1024) as connection:
         await connection.send(make_frame(1, json.dumps(payload).encode(), 1, json_payload=True))
@@ -235,7 +247,7 @@ def main():
         emit({"type": "ready", "success": False, "error": str(error)})
         return 1
     emit({"type": "ready", "success": True, "backend": "doubao",
-          "contextual_hotword": False, "punctuation": True, "vad": False})
+          "contextual_hotword": True, "punctuation": True, "vad": False})
     for line in sys.stdin:
         try:
             request = json.loads(line)

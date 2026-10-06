@@ -99,6 +99,14 @@ class WorkerTests(unittest.TestCase):
 
         async def run():
             pcm = b"\x01\x02" * 8000  # Multiple 200 ms packets, with a shorter final packet.
+            cases = [
+                ({"itn": False, "hotwords": " NixOS 豆包\tNixOS\nVoCoType "},
+                 ["NixOS", "豆包", "VoCoType"]),
+                ({"itn": False, "hotwords": "更新词库"}, ["更新词库"]),
+                ({"itn": False, "hotwords": " \t\n"}, []),
+                ({"itn": False}, []),
+            ]
+            expected_words = iter(words for _, words in cases)
 
             async def handler(connection):
                 self.assertEqual(connection.request.headers["X-Api-Key"], "test-key")
@@ -110,6 +118,14 @@ class WorkerTests(unittest.TestCase):
                 self.assertEqual(metadata["audio"]["format"], "pcm")
                 self.assertFalse(metadata["request"]["enable_itn"])
                 self.assertEqual(metadata["request"]["result_type"], "full")
+                words = next(expected_words)
+                if words:
+                    context = metadata["request"]["corpus"]["context"]
+                    self.assertIsInstance(context, str)
+                    self.assertEqual(json.loads(context),
+                                     {"hotwords": [{"word": word} for word in words]})
+                else:
+                    self.assertNotIn("corpus", metadata["request"])
                 await connection.send(server_frame({"result": {"text": ""}}))
                 received = bytearray()
                 sequence = 2
@@ -140,11 +156,20 @@ class WorkerTests(unittest.TestCase):
                     self.assertTrue(endpoint.endswith("/bigmodel_nostream"))
                     return connect(f"ws://127.0.0.1:{port}", **kwargs)
 
-                result = await asyncio.wait_for(worker.recognize(pcm, {"itn": False},
-                    worker.auth_headers({"api_key": "test-key"}), local_connect), 5)
-                self.assertEqual(result["result"]["text"], "测试 NixOS。")
+                for request, _ in cases:
+                    result = await asyncio.wait_for(worker.recognize(pcm, request,
+                        worker.auth_headers({"api_key": "test-key"}), local_connect), 5)
+                    self.assertEqual(result["result"]["text"], "测试 NixOS。")
 
         asyncio.run(run())
+
+    def test_invalid_hotwords_fail_before_connecting(self):
+        def unexpected_connect(*args, **kwargs):
+            self.fail("Invalid hotwords must not start a cloud request")
+
+        with self.assertRaisesRegex(ValueError, "热词必须"):
+            asyncio.run(worker.recognize(b"pcm", {"hotwords": ["NixOS"]},
+                                        {}, unexpected_connect))
 
     def test_connection_failure(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -172,6 +197,7 @@ class WorkerTests(unittest.TestCase):
                                      capture_output=True, text=True, check=True)
             replies = [json.loads(line) for line in process.stdout.splitlines()]
             self.assertEqual(replies[0]["backend"], "doubao")
+            self.assertTrue(replies[0]["contextual_hotword"])
             self.assertTrue(replies[1]["prepared"])
             config.chmod(0o644)
             with self.assertRaisesRegex(ValueError, "仅允许当前用户访问"):
