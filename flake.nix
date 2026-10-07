@@ -2,7 +2,7 @@
   description = "A simple NixOS flake";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "https://channels.nixos.org/nixos-unstable/nixexprs.tar.zst";
     nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-25.05";
     # Keep upstream's nixpkgs pin so the CachyOS binary cache matches.
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";

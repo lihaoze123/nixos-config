@@ -13,19 +13,8 @@
   services.dae = {
     enable = true;
 
-    # The daeuniverse flake still pins its release package to v1.0.0.
-    package = inputs.daeuniverse.packages.${pkgs.stdenv.hostPlatform.system}.dae.overrideAttrs (old: rec {
-      version = "v2.1.1";
-      src = pkgs.fetchFromGitHub {
-        owner = "daeuniverse";
-        repo = "dae";
-        rev = version;
-        fetchSubmodules = true;
-        hash = "sha256-+Gls/lFhOjzfPisgWS96mEevI0mMtQ139Zf4NIik2X8=";
-      };
-      vendorHash = "sha256-N2noQXRV9Vewie4PiWkjDeX6U2+kF1kQ9L10kZ5X/LI=";
-      env = (old.env or { }) // { VERSION = version; };
-    });
+    # Use the release maintained by nixpkgs; the upstream flake's default lags behind.
+    package = pkgs.dae;
 
     openFirewall = {
       enable = true;
