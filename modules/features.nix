@@ -5,6 +5,7 @@ let
     extra = "commonly used command-line tools beyond the minimal system";
     extraDesktop = "commonly used graphical tools: terminal, editor, audio and disk utilities";
     desktop = "Niri with DankMaterialShell and Dank Greeter, Chinese input, audio and desktop utilities";
+    graphicalBoot = "quiet boot with the DMS Plymouth theme and Dank Greeter handoff";
     bluetooth = "Bluetooth and its desktop applet";
     docker = "rootless Docker";
     podman = "Podman and Distrobox";
@@ -42,6 +43,7 @@ in
   config = {
     assertions = [
       { assertion = !cfg.extraDesktop.enable || cfg.desktop.enable; message = "my.features.extraDesktop requires desktop"; }
+      { assertion = !cfg.graphicalBoot.enable || cfg.desktop.enable; message = "my.features.graphicalBoot requires desktop"; }
       { assertion = !cfg.speech.enable || cfg.desktop.enable; message = "my.features.speech requires desktop"; }
       { assertion = !cfg.doubao.enable || cfg.speech.enable; message = "my.features.doubao requires speech"; }
       { assertion = !cfg.easyeffects.enable || cfg.desktop.enable; message = "my.features.easyeffects requires desktop"; }

@@ -1,8 +1,10 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, inputs, system, ... }:
 let
   cfg = config.my.niri;
 in
 {
+  imports = [ inputs.computer-use.nixosModules.default ];
+
   options.my.niri.greeterExtraConfig = lib.mkOption {
     type = lib.types.lines;
     default = "";
@@ -12,6 +14,13 @@ in
   config = lib.mkIf config.my.features.desktop.enable {
     programs.niri = {
       enable = true;
+    };
+
+    # Share the desktop and native niri backend across hosts.
+    programs.codexComputerUse = {
+      enable = config.my.features.codexDesktop.enable;
+      users = [ "chumeng" ];
+      package = import ./codex-desktop.nix { inherit inputs system; };
     };
 
     # Dank Greeter on greetd. Switching display managers stops the running

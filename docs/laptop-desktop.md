@@ -1,19 +1,19 @@
 # Laptop 桌面：启动、登录与锁屏
 
-仅适用于 `laptop` / `nixos` 主机。Dank Greeter 与 DMS 本身是所有桌面主机共用的（`modules/niri/default.nix`），这里记录 laptop 特有的 Plymouth 衔接、面板输出和指纹设置。
+这里记录 `laptop` / `nixos` 的桌面与指纹设置。Dank Greeter 与 DMS 是所有桌面主机共用的（`modules/niri/default.nix`）；Plymouth 启动画面与登录衔接通过 `my.features.graphicalBoot.enable` 启用，目前由 laptop 与 class 共用。
 
 | 环节 | 实现 | 配置位置 |
 | --- | --- | --- |
-| GRUB | 隐藏菜单，1 秒窗口 | `hosts/laptop/boot.nix` |
-| 启动/关机画面 | Plymouth `dms-nixos` 主题（spinner 改色，居中 NixOS 标志） | `hosts/laptop/boot.nix` |
-| 登录 | Dank Greeter（greetd + niri） | `modules/niri/default.nix`；laptop 的输出与 Plymouth 衔接在 `hosts/laptop/default.nix` |
+| GRUB | 隐藏菜单，1 秒窗口 | `modules/graphical-boot/default.nix` |
+| 启动/关机画面 | Plymouth `dms-nixos` 主题（spinner 改色，居中 NixOS 标志） | `modules/graphical-boot/default.nix`；laptop 缩放在 `hosts/laptop/boot.nix` |
+| 登录 | Dank Greeter（greetd + niri） | `modules/niri/default.nix`；Plymouth 衔接在 `modules/graphical-boot/default.nix`；laptop 输出在 `hosts/laptop/default.nix` |
 | 锁屏与空闲 | DMS 自带锁屏与 IdleService | `home-manager/niri/dms/binds.kdl`，空闲策略在 DMS 设置界面 |
 
 `i915` 放在 initrd 中，Plymouth 一开始就画在最终的显卡设备上。否则它会先画在固件帧缓冲（simpledrm）上，第二阶段 i915 接管时会短暂露出厂商 logo。固件自己显示的厂商 logo（Plymouth 启动前约 2 秒）不受系统控制。
 
-Plymouth 到 greeter 的交接（`hosts/laptop/default.nix`）：NixOS 默认先退出 Plymouth 再启动 greetd，中间几秒 i915 会把从固件继承的帧缓冲（厂商 logo）重新显示出来。现在的顺序是：greetd 立即启动（`Type=simple`），`plymouth deactivate` 只交出显示控制权，画面保留；`plymouth-quit` 等 greeter 的 niri 创建 Wayland socket 后（最多等 15 秒）再执行 `quit --retain-splash`。如果 greeter 启动失败，Plymouth 也会在 15 秒后退出。
+Plymouth 到 greeter 的交接（`modules/graphical-boot/default.nix`）：NixOS 默认先退出 Plymouth 再启动 greetd，中间几秒 i915 会把从固件继承的帧缓冲（厂商 logo）重新显示出来。现在的顺序是：greetd 立即启动（`Type=simple`），`plymouth deactivate` 只交出显示控制权，画面保留；`plymouth-quit` 等 greeter 的 niri 创建 Wayland socket 后（最多等 15 秒）再执行 `quit --retain-splash`。如果 greeter 启动失败，Plymouth 也会在 15 秒后退出。
 
-Plymouth 运行在 `DeviceScale=1`，主题素材直接按屏幕 2 倍分辨率生成（logo 192px，转圈 48px），避免 Plymouth 放大位图导致模糊。如果更换了缩放比例不同的屏幕，要修改 `boot.nix` 里的 `scale`。
+Plymouth 运行在 `DeviceScale=1`，主题素材直接按屏幕 2 倍分辨率生成（logo 192px，转圈 48px），避免 Plymouth 放大位图导致模糊。如果更换了缩放比例不同的屏幕，要修改 `hosts/laptop/boot.nix` 里的 `my.graphicalBoot.scale`。class 使用默认的 1 倍素材。
 
 启动画面颜色固定取自 DMS purple 主题深色方案（背景 `#141218`，主色 `#d0bcff`），不跟随壁纸动态配色。
 
@@ -45,7 +45,7 @@ reboot
 ## 登录（Dank Greeter）
 
 - 启动 greetd 前，会从 `/home/chumeng` 复制 DMS 的 `settings.json`、`session.json` 与配色，因此主题和壁纸与桌面一致。
-- greeter 的 niri 配置由 `modules/niri/default.nix` 的 `compositor.customConfig` 提供通用部分（触摸板轻触等），laptop 通过 `my.niri.greeterExtraConfig` 追加 eDP-1、2 倍缩放和与 Plymouth 一致的背景色。修改缩放时要同时改这里。
+- greeter 的 niri 配置由 `modules/niri/default.nix` 的 `compositor.customConfig` 提供通用部分（触摸板轻触等），laptop 通过 `my.niri.greeterExtraConfig` 追加 eDP-1 和 2 倍缩放，`graphical-boot` 模块追加与 Plymouth 一致的背景色。修改缩放时要同时改这里。
 - 登录只用密码：greetd 通过 `login` PAM substack 认证，`login.fprintAuth = false`。greetd 只有一个 PAM 会话，`pam_fprintd` 排在密码前面时，回车后要等指纹超时才验证密码，所以登录不启用指纹。用密码登录也能自动解锁 GNOME Keyring。
 - 启用 `my.features.fingerprint.enable` 后，指纹用于锁屏（DMS 自带的 `fprint` 会话，和密码并行）、sudo 和 polkit。TTY 登录同样只用密码。
 

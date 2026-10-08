@@ -5,6 +5,7 @@
   my.features = {
     extra.enable = true;
     desktop.enable = true;
+    graphicalBoot.enable = true; # 需要 desktop
     extraDesktop.enable = true; # 需要 desktop
     bluetooth.enable = true;
     # tailscale.enable = true;
@@ -17,9 +18,10 @@
     # waydroid.enable = true;
     # wireshark.enable = true;
     # appimage.enable = true;
-    # nixLd.enable = true;
+    nixLd.enable = true;
     # extraFonts.enable = true;
-    # aiCli.enable = true;
+    aiCli.enable = true;
+    codexDesktop.enable = true; # 需要 desktop
     # speech.enable = true; # 需要 desktop
     # doubao.enable = true; # 需要 speech
     # easyeffects.enable = true; # 需要 desktop

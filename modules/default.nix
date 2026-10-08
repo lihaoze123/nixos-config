@@ -3,6 +3,7 @@
 {
   imports = [
     ./features.nix
+    ./graphical-boot
     ./virtualisation
     ./aria2
     ./niri

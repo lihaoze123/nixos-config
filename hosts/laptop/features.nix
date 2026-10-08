@@ -5,6 +5,7 @@
   my.features = {
     extra.enable = true;
     desktop.enable = true;
+    graphicalBoot.enable = true; # 需要 desktop
     extraDesktop.enable = true; # 需要 desktop
     bluetooth.enable = true;
     tailscale.enable = true;
