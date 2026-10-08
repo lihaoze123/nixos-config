@@ -2,7 +2,7 @@
 """Run on a private bus: dbus-run-session -- python3 this-file --help.
 
 Requires Python + PyYAML + pypinyin and a compiled rime-candidate-probe.c.
-All dictionaries and Fcitx settings are copied to a temporary HOME.
+Empty user dictionaries and the Fcitx settings are created in a temporary HOME.
 """
 import argparse
 import importlib.util
@@ -45,9 +45,14 @@ def main():
             os.environ.pop(key, None)
         user = home / '.local/share/fcitx5/rime'
         (user / 'xhup_dicts').mkdir(parents=True)
+        # The real user dictionaries live in a separate repository; empty
+        # tables with the same names satisfy the schema imports.
         dictionaries = root / 'dictionaries'
-        shutil.copytree(source / 'dictionaries', dictionaries)
-        for file in dictionaries.glob('xhup.user*.dict.yaml'):
+        dictionaries.mkdir()
+        for name in ('xhup.user', 'xhup.user.chat', 'xhup.user.coding', 'xhup.user.work'):
+            file = dictionaries / f'{name}.dict.yaml'
+            file.write_text(f'# Rime dictionary\n# encoding: utf-8\n\n---\nname: {name}\nversion: "1"\n'
+                            'sort: by_weight\nuse_preset_vocabulary: false\n...\n')
             (user / 'xhup_dicts' / file.name).symlink_to(file)
         for file in ('default.custom.yaml', 'xhup.custom.yaml'):
             shutil.copy(source / 'config' / file, user / file)

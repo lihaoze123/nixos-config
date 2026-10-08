@@ -78,12 +78,15 @@ let
   xhup-add-scripts = xhup-script-bundle "xhup-add-scripts" [ "xhup-add-word.py" ];
   rime-crane-rev = "71f3add6a39d58a8e8b35abc7ca9c998d766b274";
   thuocl-it-rev = "a30ce79d895d01ab5132a5c74c29703ff7efb4cc";
-  rime-user-dictionaries = {
-    "xhup.user.dict.yaml" = ./dictionaries/xhup.user.dict.yaml;
-    "xhup.user.chat.dict.yaml" = ./dictionaries/xhup.user.chat.dict.yaml;
-    "xhup.user.coding.dict.yaml" = ./dictionaries/xhup.user.coding.dict.yaml;
-    "xhup.user.work.dict.yaml" = ./dictionaries/xhup.user.work.dict.yaml;
-  };
+  # Words added by xhup-add-word live in a separate private repository, so
+  # adding one changes neither this configuration nor the system build.
+  rime-user-dictionaries = [
+    "xhup.user.dict.yaml"
+    "xhup.user.chat.dict.yaml"
+    "xhup.user.coding.dict.yaml"
+    "xhup.user.work.dict.yaml"
+  ];
+  rime-user-dictionary-repo = "git@github.com:lihaoze123/xhup-dicts.git";
   rime-crane-config-id = builtins.hashString "sha256" ''
     ${rime-crane-rev}
     ${xhup-computer-dictionary}
@@ -91,9 +94,6 @@ let
     ${builtins.readFile ./config/default.custom.yaml}
     ${builtins.readFile ./config/xhup.custom.yaml}
     ${builtins.readFile ./patches/rime-crane-shortcuts.patch}
-    ${lib.concatStringsSep "\n" (
-      lib.mapAttrsToList (_: path: builtins.readFile path) rime-user-dictionaries
-    )}
   '';
   rime-crane-src = pkgs.fetchFromGitHub {
     owner = "kchen0x";
@@ -120,7 +120,6 @@ let
       --pinyin-dictionary ${rime-crane-src}/cn_dicts \
       --pinyin-overrides ${./dictionaries/computer-pinyin-overrides.txt} \
       --exclude ${rime-crane-src}/xhup_dicts \
-      ${lib.concatMapStringsSep " " (path: "--exclude ${path}") (lib.attrValues rime-user-dictionaries)} \
       --min-frequency 1000 \
       --output $out/share/rime-data/xhup_dicts/xhup.user.computer.dict.yaml
   '';
@@ -195,7 +194,7 @@ let
   };
 
   rime-user-data-dir = "${config.home.homeDirectory}/.local/share/fcitx5/rime";
-  rime-user-dictionary-dir = "${config.home.homeDirectory}/nixos-config/home-manager/fcitx5/dictionaries";
+  rime-user-dictionary-dir = "${config.home.homeDirectory}/src/xhup-dicts";
   # The DMS launcher plugin is the lookup UI; this keeps the command-line query.
   xhup-lookup = pkgs.writeShellApplication {
     name = "xhup-lookup";
@@ -306,15 +305,27 @@ in
       };
     };
 
-    xdg.dataFile = lib.mapAttrs'
-      (
-        name: _:
+    # Clone the dictionary repository on a new machine. Failure (offline, no
+    # SSH key yet) only warns; clone it by hand later and redeploy Rime.
+    home.activation.cloneXhupDictionaries = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      dictionary_dir=${lib.escapeShellArg rime-user-dictionary-dir}
+      if [ ! -e "$dictionary_dir" ]; then
+        run mkdir -p -- "$(dirname -- "$dictionary_dir")"
+        if ! GIT_SSH_COMMAND="${pkgs.openssh}/bin/ssh -o BatchMode=yes" \
+          run ${lib.getExe pkgs.git} clone --quiet ${rime-user-dictionary-repo} "$dictionary_dir"; then
+          warnEcho "Could not clone ${rime-user-dictionary-repo} into $dictionary_dir; Xiaohe user words are unavailable until it is cloned."
+        fi
+      fi
+    '';
+
+    xdg.dataFile = lib.listToAttrs
+      (map
+        (name:
           lib.nameValuePair "fcitx5/rime/xhup_dicts/${name}" {
             source = config.lib.file.mkOutOfStoreSymlink "${rime-user-dictionary-dir}/${name}";
             force = true;
-          }
-      )
-      rime-user-dictionaries // {
+          })
+        rime-user-dictionaries) // {
       "applications/vocotype-settings.desktop" = lib.mkIf speechEnabled {
         text = ''
           [Desktop Entry]

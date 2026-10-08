@@ -22,7 +22,9 @@ the repository.
 - Terms must contain at least one Han character and otherwise contain only Han
   characters or ASCII letters. Terms containing digits, spaces, or punctuation
   are excluded because the active Xiaohe schema accepts four lowercase letters.
-- Existing upstream and manual terms are removed case-insensitively.
+- Existing upstream terms are removed case-insensitively. User dictionaries live in the
+  separate `xhup-dicts` repository and are not read at build time, so a word present in
+  both keeps both codes.
 - Rime Ice's annotated dictionaries provide preferred pronunciations. Pypinyin
   is used only when a term has no annotated Rime Ice entry.
 - Exceptional readings are recorded in [computer-pinyin-overrides.txt](../dictionaries/computer-pinyin-overrides.txt).

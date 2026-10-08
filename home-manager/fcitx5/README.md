@@ -13,7 +13,7 @@ fcitx5/
 ├── default.nix         # Nix 模块入口
 ├── README.md
 ├── config/             # Fcitx5 profile 与 Rime 配置补丁
-├── dictionaries/       # 手工码表、计算机术语源数据与许可证
+├── dictionaries/       # 计算机术语源数据与许可证（用户词库在独立仓库 xhup-dicts）
 ├── scripts/            # 词库生成脚本与查码/加词程序
 ├── patches/            # rime-crane 快捷键补丁
 ├── tests/              # 查码测试
@@ -152,8 +152,7 @@ nix shell --impure --expr 'let f = builtins.getFlake (toString ./.); p = f.input
 
 | 修改内容 | 文件 |
 | --- | --- |
-| 通用自定义词 | [dictionaries/xhup.user.dict.yaml](dictionaries/xhup.user.dict.yaml) |
-| 聊天、编程、工作词库 | `dictionaries/xhup.user.{chat,coding,work}.dict.yaml` |
+| 通用、聊天、编程、工作词库 | 私有仓库 [xhup-dicts](https://github.com/lihaoze123/xhup-dicts)，本地为 `~/src/xhup-dicts/xhup.user*.dict.yaml` |
 | 计算机术语补充 | [dictionaries/computer-terms.txt](dictionaries/computer-terms.txt) |
 | 术语读音修正 | [dictionaries/computer-pinyin-overrides.txt](dictionaries/computer-pinyin-overrides.txt) |
 | Rime 方案列表 | [config/default.custom.yaml](config/default.custom.yaml) |
@@ -161,8 +160,10 @@ nix shell --impure --expr 'let f = builtins.getFlake (toString ./.); p = f.input
 | 查码前缀、glob 与排序逻辑 | [scripts/xhup-lookup.py](scripts/xhup-lookup.py) |
 | DMS 插件（启动器、加词语法、字根图） | 独立仓库 [dms-xhup](https://github.com/lihaoze123/dms-xhup)，经 flake 输入 `dms-xhup` 引入 |
 
-四份手工码表通过 `mkOutOfStoreSymlink` 链接到
-`~/.local/share/fcitx5/rime/xhup_dicts/`，直接编辑 `dictionaries/` 下的源文件。
+四份用户词库放在独立的私有仓库 `lihaoze123/xhup-dicts`，克隆在 `~/src/xhup-dicts`，通过
+`mkOutOfStoreSymlink` 链接到 `~/.local/share/fcitx5/rime/xhup_dicts/`。新机器激活 Home Manager 时自动克隆，
+失败（离线或还没有 SSH key）只给出警告，之后手动克隆并重新部署即可。加词或手工编辑不会改动本仓库，
+也不触发系统重建；在词库仓库中运行 `just sync` 提交、合并其他机器的改动并推送。
 修改后，Rime 需要重新部署；DMS 插件在下次查询时自动重新加载。
 计算机术语码表由 Nix 生成，修改术语源数据后需要重新构建。
 

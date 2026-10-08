@@ -1,6 +1,6 @@
 # 快速添加用户词
 
-`Mod+Ctrl+X` 打开 `xhup-add-word`。它维护仓库中的文本用户词库，保存后请求当前 Fcitx5/Rime 重新部署。日常加词不需要重建系统。
+`Mod+Ctrl+X` 打开 `xhup-add-word`。它维护独立私有仓库 `~/src/xhup-dicts` 中的文本用户词库，保存后请求当前 Fcitx5/Rime 重新部署。日常加词不需要重建系统，也不改动 nixos-config。
 
 ## 首次安装
 
@@ -85,9 +85,9 @@ xhup-add-word add '我的项目' --code wdxm --category work --yes --save-only
 
 ## 备份与恢复
 
-目标文件仍是 `dictionaries/xhup.user*.dict.yaml`。工具跟随 Home Manager 链接写真实源文件，保留链接和已有注释，每次写入更新 Rime 的词库版本。
+目标文件是 `~/src/xhup-dicts/xhup.user*.dict.yaml`。工具跟随 Home Manager 链接写真实源文件，保留链接和已有注释，每次写入更新 Rime 的词库版本。
 
-修改前备份保存在 `$XDG_STATE_HOME/xhup-add-word/backups/`，默认 `~/.local/state/xhup-add-word/backups/`；命令结果会给出具体备份路径。工具不会自动提交 Git。恢复时先比较源文件与备份，确认不会覆盖后来添加的词，再恢复源文件并重新部署。
+修改前备份保存在 `$XDG_STATE_HOME/xhup-add-word/backups/`，默认 `~/.local/state/xhup-add-word/backups/`；命令结果会给出具体备份路径。工具不会自动提交；需要同步时在 `~/src/xhup-dicts` 运行 `just sync`，它提交本机改动、`pull --rebase` 合并其他机器的词并推送，拉到新词后请求 Rime 重新部署。两台机器都在末尾加词时由 union 合并保留双方的行。恢复时先比较源文件与备份，确认不会覆盖后来添加的词，再恢复源文件并重新部署。
 
 ## 验证
 
@@ -104,6 +104,6 @@ nix shell --impure --expr '
 
 原有查码回归使用同一条命令，将末尾路径替换为 `home-manager/fcitx5/tests/test-xhup-lookup.py`。文件名包含连字符，直接运行脚本，避免 unittest discover 静默跳过它们。
 
-`tests/test-xhup-rime-integration.py` 还可在独立 `dbus-run-session` 中启动真实 Fcitx。通过 `--fcitx`、`--data-dir`、`--plugin` 指定同一次构建的路径，通过 `--probe` 指定使用 librime 编译的 `tests/rime-candidate-probe.c`。它复制词库至临时 HOME，添加测试词并发起真实部署，退出测试 Fcitx 后查询 Rime 候选，最后自动清理，不修改实际用户词库。
+`tests/test-xhup-rime-integration.py` 还可在独立 `dbus-run-session` 中启动真实 Fcitx。通过 `--fcitx`、`--data-dir`、`--plugin` 指定同一次构建的路径，通过 `--probe` 指定使用 librime 编译的 `tests/rime-candidate-probe.c`。它在临时 HOME 中创建同名的空用户词库，添加测试词并发起真实部署，退出测试 Fcitx 后查询 Rime 候选，最后自动清理，不修改实际用户词库。
 
 实际使用时，添加自己的词语后等待部署完成，切换到小鹤并输入其编码验证候选；wofi 查码能读到文本只说明保存成功。
