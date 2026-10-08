@@ -1,26 +1,15 @@
-{ config, pkgs, pkgs-stable, system, inputs, ... }:
-let
-  # try init invokes the inner script directly, bypassing the PATH wrapper.
-  tryPackage = inputs.try.packages.${system}.default.overrideAttrs (old: {
-    nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.ruby_3_3 ];
-    postFixup = (old.postFixup or "") + ''
-      patchShebangs "$out/bin/.try-wrapped"
-    '';
-  });
-in
+{ config, pkgs, system, inputs, osConfig, ... }:
 {
   imports = [
     ./fcitx5
     ./shell
     ./niri
     ./applications
+    ./applications/easyeffects.nix
     inputs.ragenix.homeManagerModules.default
-    inputs.try.homeModules.default
   ];
-  programs.try = {
-    enable = true;
-    package = tryPackage;
-  };
+  programs.dank-material-shell.enable = osConfig.my.features.dms.enable;
+  programs.vocotype.doubao.enable = osConfig.my.features.doubao.enable;
   home.enableNixpkgsReleaseCheck = false;
   age.identityPaths = [ "/home/chumeng/.ssh/id_rsa" ];
 
@@ -28,8 +17,6 @@ in
   home.homeDirectory = "/home/chumeng";
 
   home.packages = with pkgs;[
-    tryPackage
-
     # archives
     zip
     xz

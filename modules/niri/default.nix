@@ -11,7 +11,7 @@
     description = "Display manager used to start the Niri session.";
   };
 
-  config = {
+  config = lib.mkIf config.my.features.desktop.enable {
     programs.niri = {
       enable = true;
     };
@@ -25,6 +25,7 @@
     security.pam.services.swaylock = { };
 
     environment.systemPackages = with pkgs; [
+      wl-clipboard
       swaylock
       swayidle
     ];

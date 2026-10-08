@@ -2,9 +2,11 @@
 , lib
 , pkgs
 , inputs
+, osConfig
 , ...
 }:
 let
+  speechEnabled = osConfig.my.features.speech.enable;
   vocotypePackage = inputs.vocotype.packages.${pkgs.stdenv.hostPlatform.system}.vocotype-fcitx5;
   vocotypePkgs = import inputs.vocotype.inputs.nixpkgs {
     system = pkgs.stdenv.hostPlatform.system;
@@ -267,112 +269,115 @@ let
 in
 {
   imports = [ ./doubao.nix ./hotwords.nix ];
-  home.packages = [ xhup-lookup xhup-add-word vocotype doubaoWorker ];
-  # Also expose settings when activating Home Manager before a system switch.
-  home.file.".local/bin/vocotype-settings".source = "${vocotype}/bin/vocotype-settings";
 
-  home.activation.enableXhupDmsPlugin = lib.mkIf useDms (
-    lib.hm.dag.entryAfter [ "linkGeneration" ] ''
-      run ${lib.getExe enable-xhup-dms-plugin}
-    ''
-  );
+  config = lib.mkIf osConfig.my.features.desktop.enable {
+    home.packages = [ xhup-lookup xhup-add-word ] ++ lib.optionals speechEnabled [ vocotype doubaoWorker ];
+    # Also expose settings when activating Home Manager before a system switch.
+    home.file.".local/bin/vocotype-settings" = lib.mkIf speechEnabled { source = "${vocotype}/bin/vocotype-settings"; };
 
-  xdg.configFile = {
-    "DankMaterialShell/plugins/flypyXhup" = lib.mkIf useDms { source = xhup-dms-plugin; };
-    # The Home Manager service owns Fcitx5; an XDG autostart instance could
-    # otherwise acquire its D-Bus name first and survive package upgrades.
-    "autostart/org.fcitx.Fcitx5.desktop".text = ''
-      [Desktop Entry]
-      Type=Application
-      Name=Fcitx 5
-      Hidden=true
-    '';
-    "fcitx5/profile" = {
-      source = ./config/profile;
-      force = true;
-    };
-  };
-  home.file = {
-    ".local/share/fcitx5/rime/default.custom.yaml".source = ./config/default.custom.yaml;
-    ".local/share/fcitx5/rime/xhup.custom.yaml".source = ./config/xhup.custom.yaml;
+    home.activation.enableXhupDmsPlugin = lib.mkIf useDms (
+      lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+        run ${lib.getExe enable-xhup-dms-plugin}
+      ''
+    );
 
-    # Files in the Nix store have a fixed mtime, so Rime cannot notice that
-    # their contents changed. Invalidate only the generated deployment state
-    # when upstream data, generated dictionaries, or local customizations change.
-    ".local/share/fcitx5/rime/.rime-crane-config-id" = {
-      text = rime-crane-config-id;
-      onChange = ''
-        rime_user_data_dir=${lib.escapeShellArg rime-user-data-dir}
-        run rm -rf -- "$rime_user_data_dir/build"
-        run rm -f -- "$rime_user_data_dir/user.yaml"
-      '';
-    };
-  };
-
-  xdg.dataFile = lib.mapAttrs'
-    (
-      name: _:
-        lib.nameValuePair "fcitx5/rime/xhup_dicts/${name}" {
-          source = config.lib.file.mkOutOfStoreSymlink "${rime-user-dictionary-dir}/${name}";
-          force = true;
-        }
-    )
-    rime-user-dictionaries // {
-      "applications/vocotype-settings.desktop".text = ''
+    xdg.configFile = {
+      "DankMaterialShell/plugins/flypyXhup" = lib.mkIf useDms { source = xhup-dms-plugin; };
+      # The Home Manager service owns Fcitx5; an XDG autostart instance could
+      # otherwise acquire its D-Bus name first and survive package upgrades.
+      "autostart/org.fcitx.Fcitx5.desktop".text = ''
         [Desktop Entry]
         Type=Application
-        Name=VoCoType 设置
-        Exec=${vocotype}/bin/vocotype-settings
-        Icon=${vocotype}/share/icons/hicolor/192x192/apps/vocotype.png
-        Terminal=false
-        Categories=Settings;Utility;
+        Name=Fcitx 5
+        Hidden=true
       '';
+      "fcitx5/profile" = {
+        source = ./config/profile;
+        force = true;
+      };
+    };
+    home.file = {
+      ".local/share/fcitx5/rime/default.custom.yaml".source = ./config/default.custom.yaml;
+      ".local/share/fcitx5/rime/xhup.custom.yaml".source = ./config/xhup.custom.yaml;
+
+      # Files in the Nix store have a fixed mtime, so Rime cannot notice that
+      # their contents changed. Invalidate only the generated deployment state
+      # when upstream data, generated dictionaries, or local customizations change.
+      ".local/share/fcitx5/rime/.rime-crane-config-id" = {
+        text = rime-crane-config-id;
+        onChange = ''
+          rime_user_data_dir=${lib.escapeShellArg rime-user-data-dir}
+          run rm -rf -- "$rime_user_data_dir/build"
+          run rm -f -- "$rime_user_data_dir/user.yaml"
+        '';
+      };
     };
 
-  i18n.inputMethod = {
-    enable = true;
-    type = "fcitx5";
-    fcitx5.waylandFrontend = true;
-    fcitx5.addons = with pkgs; [
-      vocotype
-      fcitx5-rime-crane
-      qt6Packages.fcitx5-configtool
-      fcitx5-gtk
+    xdg.dataFile = lib.mapAttrs'
+      (
+        name: _:
+          lib.nameValuePair "fcitx5/rime/xhup_dicts/${name}" {
+            source = config.lib.file.mkOutOfStoreSymlink "${rime-user-dictionary-dir}/${name}";
+            force = true;
+          }
+      )
+      rime-user-dictionaries // {
+      "applications/vocotype-settings.desktop" = lib.mkIf speechEnabled {
+        text = ''
+          [Desktop Entry]
+          Type=Application
+          Name=VoCoType 设置
+          Exec=${vocotype}/bin/vocotype-settings
+          Icon=${vocotype}/share/icons/hicolor/192x192/apps/vocotype.png
+          Terminal=false
+          Categories=Settings;Utility;
+        '';
+      };
+    };
+
+    i18n.inputMethod = {
+      enable = true;
+      type = "fcitx5";
+      fcitx5.waylandFrontend = true;
+      fcitx5.addons = with pkgs; [
+        fcitx5-rime-crane
+        qt6Packages.fcitx5-configtool
+        fcitx5-gtk
+      ] ++ lib.optional speechEnabled vocotype;
+    };
+
+    # DMS launches applications through systemd-run, which inherits the user
+    # manager environment rather than niri's environment block. WeChat bundles
+    # its Qt Fcitx module and needs this selection in either launch path.
+    systemd.user.sessionVariables.QT_IM_MODULE = "fcitx";
+
+    # The upstream Nix package does not install the backend user unit. Keep the
+    # core alive independently of the settings window and Fcitx's launcher.
+    systemd.user.services.vocotype-fcitx5-backend = lib.mkIf speechEnabled {
+      Unit.Description = "VoCoType native speech recognition core";
+      Unit.After = lib.optional doubaoEnabled "agenix.service";
+      Unit.Requires = lib.optional doubaoEnabled "agenix.service";
+      Service = {
+        ExecStart = "${vocotype}/bin/vocotype-fcitx5-backend";
+        Restart = "on-failure";
+        RestartSec = 3;
+      };
+      Install.WantedBy = [ "default.target" ];
+    };
+
+    # Restart Fcitx5 after cache invalidation so Rime deploys the new schema
+    # before it handles the next input event.
+    systemd.user.services.fcitx5-daemon.Unit.X-Restart-Triggers = [ rime-crane-config-id ];
+    systemd.user.services.fcitx5-daemon.Service.Environment = lib.mkIf speechEnabled [
+      "ALSA_CONFIG_PATH=${vocotypeAlsaConfig}"
+      "ALSA_PLUGIN_DIR=${vocotypeAlsaPlugins}"
+      "VOCOTYPE_FCITX5_BACKEND=${lib.getExe vocotypeServiceLauncher}"
     ];
+    # Also handle an already-running desktop instance during the first handover.
+    systemd.user.services.fcitx5-daemon.Unit.Conflicts = [ "app-org.fcitx.Fcitx5@autostart.service" ];
+    systemd.user.services.fcitx5-daemon.Unit.After = [
+      "app-org.fcitx.Fcitx5@autostart.service"
+    ] ++ lib.optional speechEnabled "vocotype-fcitx5-backend.service";
+    systemd.user.services.fcitx5-daemon.Unit.Wants = lib.optional speechEnabled "vocotype-fcitx5-backend.service";
   };
-
-  # DMS launches applications through systemd-run, which inherits the user
-  # manager environment rather than niri's environment block. WeChat bundles
-  # its Qt Fcitx module and needs this selection in either launch path.
-  systemd.user.sessionVariables.QT_IM_MODULE = "fcitx";
-
-  # The upstream Nix package does not install the backend user unit. Keep the
-  # core alive independently of the settings window and Fcitx's launcher.
-  systemd.user.services.vocotype-fcitx5-backend = {
-    Unit.Description = "VoCoType native speech recognition core";
-    Unit.After = lib.optional doubaoEnabled "agenix.service";
-    Unit.Requires = lib.optional doubaoEnabled "agenix.service";
-    Service = {
-      ExecStart = "${vocotype}/bin/vocotype-fcitx5-backend";
-      Restart = "on-failure";
-      RestartSec = 3;
-    };
-    Install.WantedBy = [ "default.target" ];
-  };
-
-  # Restart Fcitx5 after cache invalidation so Rime deploys the new schema
-  # before it handles the next input event.
-  systemd.user.services.fcitx5-daemon.Unit.X-Restart-Triggers = [ rime-crane-config-id ];
-  systemd.user.services.fcitx5-daemon.Service.Environment = [
-    "ALSA_CONFIG_PATH=${vocotypeAlsaConfig}"
-    "ALSA_PLUGIN_DIR=${vocotypeAlsaPlugins}"
-    "VOCOTYPE_FCITX5_BACKEND=${lib.getExe vocotypeServiceLauncher}"
-  ];
-  # Also handle an already-running desktop instance during the first handover.
-  systemd.user.services.fcitx5-daemon.Unit.Conflicts = [ "app-org.fcitx.Fcitx5@autostart.service" ];
-  systemd.user.services.fcitx5-daemon.Unit.After = [
-    "app-org.fcitx.Fcitx5@autostart.service"
-    "vocotype-fcitx5-backend.service"
-  ];
-  systemd.user.services.fcitx5-daemon.Unit.Wants = [ "vocotype-fcitx5-backend.service" ];
 }

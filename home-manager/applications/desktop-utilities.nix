@@ -1,10 +1,7 @@
-{ pkgs, ... }:
-{
+{ lib, pkgs, osConfig, ... }:
+lib.mkIf osConfig.my.features.desktop.enable {
   home.packages = with pkgs; [
     loupe
-    gnome-disk-utility
-    baobab
-    kdePackages.filelight
   ];
 
   xdg.mimeApps.defaultApplications = {

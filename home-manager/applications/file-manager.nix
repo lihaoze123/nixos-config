@@ -1,5 +1,5 @@
-{ pkgs, ... }:
-{
+{ lib, pkgs, osConfig, ... }:
+lib.mkIf osConfig.my.features.desktop.enable {
   home.packages = with pkgs; [
     nautilus
     file-roller

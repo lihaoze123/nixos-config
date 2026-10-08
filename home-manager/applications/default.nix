@@ -1,32 +1,6 @@
-{ config, pkgs, inputs, ... }:
+{ ... }:
 {
-  imports = [
-    ./vscode.nix
-    ./file-manager.nix
-    ./desktop-utilities.nix
-  ];
-
-  home.packages = with pkgs;[
-    # browser
-    microsoft-edge
-
-    # tools
-    pavucontrol
-
-    # massage
-    qq
-    wechat
-
-    # learn
-    anki
-    obsidian
-
-    # typeset
-    pandoc
-    typst
-    tectonic
-
-    # develop
-    tmux
-  ];
+  # File management and image viewing belong to the optional desktop.
+  # Ordinary applications are installed independently with nix profile.
+  imports = [ ./file-manager.nix ./desktop-utilities.nix ];
 }

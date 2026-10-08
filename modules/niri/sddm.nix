@@ -9,7 +9,7 @@ let
     };
   };
 in
-lib.mkIf (config.my.niri.greeter == "sddm") {
+lib.mkIf (config.my.features.desktop.enable && config.my.niri.greeter == "sddm") {
   qt.enable = true;
   services.displayManager.sddm = {
     enable = true;

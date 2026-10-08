@@ -25,6 +25,9 @@ fcitx5/
 
 ### 离线语音输入
 
+先启用 `my.features.desktop.enable` 和 `my.features.speech.enable`。
+语音功能默认关闭，不会随普通中文输入法安装 worker 或后台服务。
+
 通过 flake 固定 VoCoType-linux `v5.0.1`，作为 Fcitx5 全局插件安装。
 在小鹤或英文输入模式下，聚焦文本框后按住 `F9` 说话，松开后提交文字。
 

@@ -1,4 +1,4 @@
-{ inputs, pkgs, ... }:
+{ config, lib, inputs, pkgs, ... }:
 let
   # Fixed dark palette from the DMS "purple" theme; it does not follow
   # wallpaper-driven colours at runtime.
@@ -61,44 +61,50 @@ let
   '';
 in
 {
-  nixpkgs.overlays = [ inputs.nix-cachyos-kernel.overlays.pinned ];
-  boot.kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-latest;
+  config = lib.mkMerge [
+    (lib.mkIf config.my.features.cachyosKernel.enable {
+      nixpkgs.overlays = [ inputs.nix-cachyos-kernel.overlays.pinned ];
+      boot.kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-latest;
 
-  nix.settings = {
-    substituters = [ "https://attic.xuyh0120.win/lantian" ];
-    trusted-public-keys = [ "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc=" ];
-  };
+      nix.settings = {
+        substituters = [ "https://attic.xuyh0120.win/lantian" ];
+        trusted-public-keys = [ "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc=" ];
+      };
 
-  boot.loader = {
-    # Boot straight through; press Esc during the 1s window for the menu.
-    timeout = 1;
-    grub = {
-      timeoutStyle = "hidden";
-      # Keep the firmware mode so Plymouth starts without a mode switch.
-      gfxpayloadEfi = "keep";
-    };
-  };
+    })
+    (lib.mkIf config.my.features.dms.enable {
+      boot.loader = {
+        # Boot straight through; press Esc during the 1s window for the menu.
+        timeout = 1;
+        grub = {
+          timeoutStyle = "hidden";
+          # Keep the firmware mode so Plymouth starts without a mode switch.
+          gfxpayloadEfi = "keep";
+        };
+      };
 
-  # Load i915 in the initrd so Plymouth starts on the final KMS device. Otherwise
-  # it draws on simpledrm and i915's takeover in stage 2 briefly restores the
-  # firmware (vendor) logo.
-  boot.initrd.kernelModules = [ "i915" ];
+      # Load i915 in the initrd so Plymouth starts on the final KMS device. Otherwise
+      # it draws on simpledrm and i915's takeover in stage 2 briefly restores the
+      # firmware (vendor) logo.
+      boot.initrd.kernelModules = [ "i915" ];
 
-  boot.plymouth = {
-    enable = true;
-    theme = "dms-nixos";
-    themePackages = [ dmsPlymouthTheme ];
-    # Assets above are already at native resolution; stop Plymouth upscaling them.
-    extraConfig = "DeviceScale=1";
-  };
+      boot.plymouth = {
+        enable = true;
+        theme = "dms-nixos";
+        themePackages = [ dmsPlymouthTheme ];
+        # Assets above are already at native resolution; stop Plymouth upscaling them.
+        extraConfig = "DeviceScale=1";
+      };
 
-  # Hide routine boot text; Esc in Plymouth and journalctl -b still show it.
-  boot.consoleLogLevel = 3;
-  boot.initrd.verbose = false;
-  boot.kernelParams = [
-    "quiet"
-    "udev.log_level=3"
-    "rd.udev.log_level=3"
-    "vt.global_cursor_default=0"
+      # Hide routine boot text; Esc in Plymouth and journalctl -b still show it.
+      boot.consoleLogLevel = 3;
+      boot.initrd.verbose = false;
+      boot.kernelParams = [
+        "quiet"
+        "udev.log_level=3"
+        "rd.udev.log_level=3"
+        "vt.global_cursor_default=0"
+      ];
+    })
   ];
 }

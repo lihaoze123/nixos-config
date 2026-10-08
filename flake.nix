@@ -69,19 +69,9 @@
   outputs = { self, nixpkgs, home-manager, ragenix, geodb, ... }@inputs:
     let
       system = "x86_64-linux";
-      mkRustToolchain = pkgs:
-        pkgs.rust-bin.stable."1.88.0".default.override {
-          extensions = [ "rust-src" "clippy" "rustfmt" ];
-        };
-      rustPkgs = import nixpkgs {
-        inherit system;
-        config.allowUnfree = true;
-        overlays = [ inputs.rust-overlay.overlays.default ];
-      };
-      rustToolchain = mkRustToolchain rustPkgs;
       mkHost = hostModule: nixpkgs.lib.nixosSystem {
         specialArgs = {
-          inherit inputs system mkRustToolchain;
+          inherit inputs system;
           pkgs-stable = import inputs.nixpkgs-stable {
             inherit system;
             config.allowUnfree = true;
@@ -95,27 +85,16 @@
       nixosConfigurations.class = mkHost ./hosts/class;
       nixosConfigurations.home = mkHost ./hosts/home;
       nixosConfigurations.nixos = self.nixosConfigurations.laptop;
+      # Minimal system for new machines; optional features stay off.
+      nixosConfigurations.base = mkHost ./hosts/base;
 
-      devShells.${system}.rust-rover = rustPkgs.mkShell {
-        nativeBuildInputs = [
-          rustToolchain
-        ];
-
-        buildInputs = with rustPkgs; [
-          openssl
-          pkg-config
-          rust-analyzer
-          jetbrains.rust-rover
-        ];
-
-        shellHook = ''
-          mkdir -p ~/.rust-rover/toolchain
-
-          ln -sfn ${rustToolchain}/lib ~/.rust-rover/toolchain
-          ln -sfn ${rustToolchain}/bin ~/.rust-rover/toolchain
-
-          export RUST_SRC_PATH="$HOME/.rust-rover/toolchain/lib/rustlib/src/rust/library"
-        '';
+      packages.${system} = import ./profiles/packages.nix {
+        inherit inputs system;
+        pkgs = import nixpkgs { inherit system; config.allowUnfree = true; };
+      };
+      templates.project = {
+        path = ./templates/project;
+        description = "Independent project devShells for Rust, C++, Node.js, Python and Java";
       };
 
       formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixpkgs-fmt;

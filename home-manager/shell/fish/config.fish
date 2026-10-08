@@ -10,7 +10,13 @@ alias ls="eza --git --icons --color=always --group-directories-first"
 alias la="ls -la"
 alias vim="nvim"
 alias grep="rg"
-alias lg="lazygit"
+if command -q lazygit
+    alias lg="lazygit"
+end
+# try is installed with nix profile; its cd needs this shell function.
+if command -q try
+    eval (try init ~/src/tries | string collect)
+end
 
 function yy
     set tmp (mktemp -t "yazi-cwd.XXXXXX")

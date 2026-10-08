@@ -1,7 +1,11 @@
-{ inputs, pkgs-stable, system, mkRustToolchain, config, ... }:
-
+{ inputs, pkgs-stable, system, config, lib, ... }:
+let
+  # GPU containers need the NVIDIA driver even without a graphical session.
+  useNvidia = config.my.features.desktop.enable || config.my.features.docker.enable;
+in
 {
   imports = [
+    ./features.nix
     ./hardware-configuration.nix
     ../base.nix
     inputs.ragenix.nixosModules.default
@@ -10,7 +14,7 @@
       home-manager.useGlobalPkgs = true;
       home-manager.useUserPackages = true;
       home-manager.users.chumeng = import ./home.nix;
-      home-manager.extraSpecialArgs = { inherit inputs pkgs-stable system mkRustToolchain; };
+      home-manager.extraSpecialArgs = { inherit inputs pkgs-stable system; };
     }
     (import ../../modules)
     (import ../../overlays)
@@ -20,12 +24,12 @@
 
   # Hardware configuration for home host
   hardware.graphics = {
-    enable = true;
+    enable = useNvidia;
   };
 
-  services.xserver.videoDrivers = [ "nvidia" ];
+  services.xserver.videoDrivers = lib.mkIf useNvidia [ "nvidia" ];
 
-  hardware.nvidia = {
+  hardware.nvidia = lib.mkIf useNvidia {
     modesetting.enable = true;
     powerManagement.enable = false;
     powerManagement.finegrained = false;
@@ -34,27 +38,27 @@
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
 
-  hardware.nvidia-container-toolkit.enable = true;
+  hardware.nvidia-container-toolkit.enable = config.my.features.docker.enable;
 
   # Printer configuration
-  users.users.chumeng.extraGroups = [ "lpadmin" ];
+  users.users.chumeng.extraGroups = lib.optional config.my.features.printing.enable "lpadmin";
 
-  services.printing = {
+  services.printing = lib.mkIf config.my.features.printing.enable {
     enable = true;
     drivers = with pkgs-stable; [ hplipWithPlugin ];
   };
 
-  services.avahi = {
+  services.avahi = lib.mkIf config.my.features.printing.enable {
     enable = true;
     nssmdns4 = true;
     openFirewall = true;
   };
 
   # Docker with NVIDIA support
-  virtualisation.docker.extraPackages = [ pkgs-stable.nvidia-container-toolkit ];
+  virtualisation.docker.extraPackages = lib.mkIf config.my.features.docker.enable [ pkgs-stable.nvidia-container-toolkit ];
 
   # Syncthing configuration
-  services.syncthing = {
+  services.syncthing = lib.mkIf config.my.features.syncthing.enable {
     enable = true;
     user = "chumeng";
     dataDir = "/home/chumeng/Documents";
@@ -74,7 +78,7 @@
     };
   };
 
-  systemd.tmpfiles.rules = [
+  systemd.tmpfiles.rules = lib.mkIf config.my.features.syncthing.enable [
     "d /home/chumeng/Documents/.obsidian/Notes/Tweets 0755 chumeng syncthing -"
   ];
 }

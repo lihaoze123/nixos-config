@@ -1,4 +1,4 @@
-{ config, pkgs, pkgs-stable, lib, ... }@inputs:
+{ config, pkgs, pkgs-stable, lib, osConfig, ... }@inputs:
 let
   niriConfigPath = "${config.home.homeDirectory}/nixos-config/hosts/home/config-home.kdl";
 in
@@ -10,5 +10,7 @@ in
   home.packages = with pkgs; [
   ];
 
-  xdg.configFile."niri/config.kdl".source = lib.mkForce (config.lib.file.mkOutOfStoreSymlink niriConfigPath);
+  xdg.configFile."niri/config.kdl" = lib.mkIf osConfig.my.features.desktop.enable {
+    source = lib.mkForce (config.lib.file.mkOutOfStoreSymlink niriConfigPath);
+  };
 }

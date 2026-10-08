@@ -1,4 +1,4 @@
-{ config, lib, pkgs, inputs, ... }:
+{ config, lib, pkgs, inputs, osConfig, ... }:
 let
   cfg = config.programs.dank-material-shell;
   jsonFormat = pkgs.formats.json { };
@@ -20,7 +20,7 @@ let
     configVersion = 4;
     isLightMode = false;
     wallpaperPath = "${config.home.homeDirectory}/.background/wallpaper.jpg";
-    terminalOverride = "ghostty";
+    terminalOverride = "kitty";
   };
   initialize = pkgs.writeShellApplication {
     name = "dms-initialize";
@@ -101,7 +101,11 @@ in
       "niri/config.kdl".source = ./niri.kdl;
       "niri/base.kdl".source = config.lib.file.mkOutOfStoreSymlink
         "${config.home.homeDirectory}/nixos-config/home-manager/niri/config.kdl";
-      "niri/dms-bindings.kdl".source = ./binds.kdl;
+      "niri/dms-bindings.kdl".text = lib.concatStringsSep "\n" (
+        builtins.filter
+          (line: osConfig.my.features.speech.enable || !(lib.hasInfix "vocotypeHotwords" line))
+          (lib.splitString "\n" (builtins.readFile ./binds.kdl))
+      );
     };
 
     home.activation.initializeDms = lib.hm.dag.entryAfter [ "writeBoundary" ] ''

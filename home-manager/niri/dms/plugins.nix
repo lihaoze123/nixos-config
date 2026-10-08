@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, osConfig, ... }:
 let
   fetchPlugin = owner: repo: rev: hash: pkgs.fetchFromGitHub {
     inherit owner repo rev hash;
@@ -48,11 +48,11 @@ in
     xdg.configFile = {
       "DankMaterialShell/plugins/calculator".source = calculator;
       "DankMaterialShell/plugins/dankTranslate".source = translate;
-      "DankMaterialShell/plugins/dankscale".source = dankscale;
+      "DankMaterialShell/plugins/dankscale" = lib.mkIf osConfig.my.features.tailscale.enable { source = dankscale; };
       "DankMaterialShell/plugins/dankPomodoroTimer".source = "${officialPlugins}/DankPomodoroTimer";
-      "DankMaterialShell/plugins/dankKDEConnect".source = "${officialPlugins}/DankKDEConnect";
+      "DankMaterialShell/plugins/dankKDEConnect" = lib.mkIf osConfig.my.features.phoneIntegration.enable { source = "${officialPlugins}/DankKDEConnect"; };
     };
-    systemd.user.services.valent = {
+    systemd.user.services.valent = lib.mkIf osConfig.my.features.phoneIntegration.enable {
       Unit = {
         Description = "Phone connectivity for DMS";
         After = [ "graphical-session.target" "gcr-ssh-agent.socket" ];

@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ lib, pkgs, osConfig, ... }:
 {
   programs.jujutsu = {
     enable = true;
@@ -16,32 +16,20 @@
   };
 
   home.packages = with pkgs; [
-    fastfetch
     yazi
-    lazygit
+    fd
     fzf
     ripgrep
     eza
     bat
-    (python313.withPackages (py-pkgs: with py-pkgs; [
-      pygments
-    ]))
-    uv
-    nodejs
-    bun
-    jdk
     gh
-    codex
-    zellij
-    opencode
     jq
     just
     difftastic
+    tmux
+  ] ++ lib.optionals osConfig.my.features.desktop.enable [
     satty
     grim
     slurp
-    tree-sitter
-    ghostty
-    tealdeer
   ];
 }

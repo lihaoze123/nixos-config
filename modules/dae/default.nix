@@ -4,28 +4,30 @@
     inputs.daeuniverse.nixosModules.dae
   ];
 
-  age.secrets.dae-config = {
-    file = ../../secrets/dae-config.age;
-    path = "/etc/dae/config.dae";
-    symlink = false;
-  };
-
-  services.dae = {
-    enable = true;
-
-    # Use the release maintained by nixpkgs; the upstream flake's default lags behind.
-    package = pkgs.dae;
-
-    openFirewall = {
-      enable = true;
-      port = 12345;
+  config = lib.mkIf config.my.features.dae.enable {
+    age.secrets.dae-config = {
+      file = ../../secrets/dae-config.age;
+      path = "/etc/dae/config.dae";
+      symlink = false;
     };
 
-    assetsPath = toString (pkgs.symlinkJoin {
-      name = "dae-assets";
-      paths = [ "${inputs.geodb}" ];
-    });
+    services.dae = {
+      enable = true;
 
-    configFile = config.age.secrets.dae-config.path;
+      # Use the release maintained by nixpkgs; the upstream flake's default lags behind.
+      package = pkgs.dae;
+
+      openFirewall = {
+        enable = true;
+        port = 12345;
+      };
+
+      assetsPath = toString (pkgs.symlinkJoin {
+        name = "dae-assets";
+        paths = [ "${inputs.geodb}" ];
+      });
+
+      configFile = config.age.secrets.dae-config.path;
+    };
   };
 }

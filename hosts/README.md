@@ -8,12 +8,15 @@ Each host has its own directory containing:
 
 - `default.nix` - Main host configuration that imports all necessary modules
 - `hardware-configuration.nix` - Hardware-specific configuration (auto-generated)
+- `features.nix` - Feature switches for this host (options default to off; existing hosts enable what they had before)
 - `optional files` - Additional host-specific configurations
 
 ## Current Hosts
 
 - `laptop/` - Laptop configuration with mobile-specific settings
 - `class/` - Classroom/office configuration with desktop-specific settings
+- `home/` - Home desktop with NVIDIA, printing and Syncthing
+- `base/` - Minimal configuration for installing a new machine
 
 ## Adding a New Host
 
@@ -28,5 +31,8 @@ Each host has its own directory containing:
 
 Build configuration for a specific host:
 ```bash
-sudo nixos-rebuild switch --flake .#hostname
+nixos-rebuild build --flake .#hostname
 ```
+
+`base` is a standalone minimal configuration for new machines, not a variant of another host. Replace `base/hardware-configuration.nix` (a placeholder) with the target machine's generated one before installing.
+See [分阶段安装指南](../docs/installation-profiles.md) for profile applications and project devShells.

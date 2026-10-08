@@ -1,5 +1,5 @@
-{ ... }:
-{
+{ lib, osConfig, ... }:
+lib.mkIf osConfig.my.features.easyeffects.enable {
   services.easyeffects = {
     enable = true;
     preset.input = "microphone-denoise";

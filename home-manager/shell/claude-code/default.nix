@@ -1,6 +1,7 @@
 { pkgs
 , lib
 , config
+, osConfig
 , ...
 }@inputs:
 let
@@ -32,7 +33,7 @@ let
       ''
     );
 in
-{
+lib.mkIf osConfig.my.features.aiCli.enable {
   age.secrets.glm-token = {
     file = ../../secrets/glm-token.age;
   };
@@ -51,6 +52,8 @@ in
 
   home.packages = with pkgs; [
     claude-code
+    codex
+    opencode
 
     (claude_alt_models_modified {
       name = "dscc";

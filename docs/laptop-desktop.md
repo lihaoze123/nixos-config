@@ -1,6 +1,6 @@
 # Laptop 桌面：启动、登录与锁屏
 
-仅适用于 `laptop` 主机。home、class 仍使用共享模块默认的 SDDM（`my.niri.greeter = "sddm"`）。
+仅适用于 `laptop` / `nixos` 主机。home、class 仍使用共享模块默认的 SDDM（`my.niri.greeter = "sddm"`）。
 
 | 环节 | 实现 | 配置位置 |
 | --- | --- | --- |
@@ -47,7 +47,7 @@ reboot
 - 启动 greetd 前，会从 `/home/chumeng` 复制 DMS 的 `settings.json`、`session.json` 与配色，因此主题和壁纸与桌面一致。
 - greeter 自己的 niri 配置写在 `compositor.customConfig` 中（eDP-1、2 倍缩放、触摸板轻触）。修改缩放时要同时改这里。
 - 登录只用密码：greetd 通过 `login` PAM substack 认证，`login.fprintAuth = false`。greetd 只有一个 PAM 会话，`pam_fprintd` 排在密码前面时，回车后要等指纹超时才验证密码，所以登录不启用指纹。用密码登录也能自动解锁 GNOME Keyring。
-- 指纹仍用于锁屏（DMS 自带的 `fprint` 会话，和密码并行）、sudo 和 polkit。TTY 登录同样只用密码。
+- 启用 `my.features.fingerprint.enable` 后，指纹用于锁屏（DMS 自带的 `fprint` 会话，和密码并行）、sudo 和 polkit。TTY 登录同样只用密码。
 
 ## 锁屏
 
@@ -73,7 +73,7 @@ reboot
 
 ## 麦克风处理与文件管理
 
-`laptop` 的 Home Manager 启用 EasyEffects，随图形会话启动并加载
+启用 `my.features.easyeffects.enable` 后，Home Manager 启用 EasyEffects，随图形会话启动并加载
 `microphone-denoise` 输入预设，使用内置 RNNoise 模型。默认不增加增益，
 不开启 VAD 门限，避免截断轻声和词尾。设置与预设见
 `home-manager/applications/easyeffects.nix`。
@@ -97,7 +97,9 @@ Nautilus 是默认的目录打开程序。udiskie 不显示独立托盘图标，
 `home-manager/applications/file-manager.nix`，系统后端在
 `modules/niri/default.nix`。
 
-## 验收记录
+## 历史验收记录
+
+功能分层后的安装入口见 [分阶段安装指南](installation-profiles.md)。
 
 以下为此前启动、登录和锁屏改动的验收记录，不包含新增的麦克风与文件管理功能。
 

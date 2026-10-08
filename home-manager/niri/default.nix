@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, osConfig, ... }:
 let
   niriConfigPath = "${config.home.homeDirectory}/nixos-config/home-manager/niri/config.kdl";
   useDms = config.programs.dank-material-shell.enable;
@@ -28,78 +28,81 @@ in
 {
   imports = [ ./dms ];
 
-  xdg.configFile."niri/config.kdl" = lib.mkIf (!useDms) {
-    source = config.lib.file.mkOutOfStoreSymlink niriConfigPath;
-  };
-  xdg.configFile."waybar" = lib.mkIf (!useDms) { source = ./waybar; };
-  xdg.configFile."wofi" = lib.mkIf (!useDms) { source = ./wofi; };
-  xdg.configFile."mako" = lib.mkIf (!useDms) { source = ./mako; };
-  home.file.".background/wallpaper.jpg".source = ./wallpaper.jpg;
-  home.file.".face.icon".source = ./.face.icon;
+  config = lib.mkIf osConfig.my.features.desktop.enable {
 
-  xresources.properties = {
-    "Xcursor.size" = lib.mkDefault 16;
-    "Xft.dpi" = 172;
-  };
+    xdg.configFile."niri/config.kdl" = lib.mkIf (!useDms) {
+      source = config.lib.file.mkOutOfStoreSymlink niriConfigPath;
+    };
+    xdg.configFile."waybar" = lib.mkIf (!useDms) { source = ./waybar; };
+    xdg.configFile."wofi" = lib.mkIf (!useDms) { source = ./wofi; };
+    xdg.configFile."mako" = lib.mkIf (!useDms) { source = ./mako; };
+    home.file.".background/wallpaper.jpg".source = ./wallpaper.jpg;
+    home.file.".face.icon".source = ./.face.icon;
 
-  # DMS runs its own clipboard history server.
-  services.cliphist = {
-    enable = !useDms;
-    systemdTargets = [ "graphical-session.target" ];
-  };
+    xresources.properties = {
+      "Xcursor.size" = lib.mkDefault 16;
+      "Xft.dpi" = 172;
+    };
 
-  programs.waybar = {
-    enable = !useDms;
-    systemd.enable = !useDms;
-  };
+    # DMS runs its own clipboard history server.
+    services.cliphist = {
+      enable = !useDms;
+      systemdTargets = [ "graphical-session.target" ];
+    };
 
-  systemd.user.services = {
-    mako = lib.mkIf (!useDms) {
-      Unit = {
-        After = [ "niri.service" ];
-        Requires = [ "niri.service" ];
+    programs.waybar = {
+      enable = !useDms;
+      systemd.enable = !useDms;
+    };
+
+    systemd.user.services = {
+      mako = lib.mkIf (!useDms) {
+        Unit = {
+          After = [ "niri.service" ];
+          Requires = [ "niri.service" ];
+        };
+      };
+
+      waybar = lib.mkIf (!useDms) {
+        Unit = {
+          After = [ "niri.service" ];
+          Requires = [ "niri.service" ];
+        };
+      };
+
+      swaybg = lib.mkIf (!useDms) {
+        Unit = {
+          After = [ "niri.service" ];
+          Requires = [ "niri.service" ];
+          PartOf = [ "graphical-session.target" ];
+        };
+        Install = {
+          WantedBy = [ "graphical-session.target" ];
+        };
+        Service = {
+          ExecStart = "${pkgs.swaybg}/bin/swaybg -i ${config.home.homeDirectory}/.background/wallpaper.jpg -m fill";
+          Restart = "on-failure";
+        };
+      };
+
+      xwayland-satellite = {
+        Unit = {
+          After = [ "niri.service" ];
+          Requires = [ "niri.service" ];
+          PartOf = [ "graphical-session.target" ];
+        };
+        Install = {
+          WantedBy = [ "graphical-session.target" ];
+        };
+        Service = {
+          ExecStart = "${pkgs.xwayland-satellite}/bin/xwayland-satellite :3";
+          Restart = "on-failure";
+        };
       };
     };
 
-    waybar = lib.mkIf (!useDms) {
-      Unit = {
-        After = [ "niri.service" ];
-        Requires = [ "niri.service" ];
-      };
-    };
-
-    swaybg = lib.mkIf (!useDms) {
-      Unit = {
-        After = [ "niri.service" ];
-        Requires = [ "niri.service" ];
-        PartOf = [ "graphical-session.target" ];
-      };
-      Install = {
-        WantedBy = [ "graphical-session.target" ];
-      };
-      Service = {
-        ExecStart = "${pkgs.swaybg}/bin/swaybg -i ${config.home.homeDirectory}/.background/wallpaper.jpg -m fill";
-        Restart = "on-failure";
-      };
-    };
-
-    xwayland-satellite = {
-      Unit = {
-        After = [ "niri.service" ];
-        Requires = [ "niri.service" ];
-        PartOf = [ "graphical-session.target" ];
-      };
-      Install = {
-        WantedBy = [ "graphical-session.target" ];
-      };
-      Service = {
-        ExecStart = "${pkgs.xwayland-satellite}/bin/xwayland-satellite :3";
-        Restart = "on-failure";
-      };
-    };
+    home.packages = with pkgs; [
+      xwayland-satellite
+    ] ++ lib.optionals (!useDms) [ wofi mako swaybg xhup-roots ];
   };
-
-  home.packages = with pkgs; [
-    xwayland-satellite
-  ] ++ lib.optionals (!useDms) [ wofi mako swaybg xhup-roots ];
 }
