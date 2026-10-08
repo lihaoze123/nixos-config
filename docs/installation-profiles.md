@@ -1,5 +1,8 @@
 # 安装入口、功能开关与用户应用
 
+> 当前 class 已基于 base 重建，启用桌面、常用工具、蓝牙、DAE 和校园网认证，旧硬件与专属桌面配置已移除。
+> 安装步骤见 [class 双系统安装指南](class-installation.md)。下文有关旧 class 桌面、已启用功能及迁移验证的记录仅描述此前的配置。
+
 各主机通过 `hosts/<主机>/features.nix` 选择功能，保持重构前的功能；普通应用和语言工具链移出了系统：应用由用户 profile 管理，工具链属于各项目的 devShell。home、class 的桌面已统一为 laptop 使用的 DMS。`base` 是独立的最小配置，供新机器首次安装使用。
 
 ## 安装入口
@@ -8,7 +11,7 @@
 | --- | --- |
 | `laptop`（别名 `nixos`） | 笔记本日常配置：桌面、Plymouth、语音、容器、虚拟化、指纹等原有功能 |
 | `home` | 桌面、NVIDIA、打印、Syncthing、Docker 等原有功能 |
-| `class` | 桌面、Docker 等原有功能 |
+| `class` | 基于 base，Btrfs + 独立 ESP，保留 Windows；桌面、常用工具、蓝牙、DAE、校园网认证 |
 | `base` | 最小系统：启动、网络、用户、SSH、防火墙、Shell、Git/Jujutsu、Neovim、direnv，无图形会话 |
 
 三台主机使用同一套桌面：Niri + DankMaterialShell，登录界面为 Dank Greeter（greetd）。各主机只在 niri 布局（`home-manager/niri/config.kdl`、`hosts/<主机>/config-<主机>.kdl`）和 greeter 的输出设置（`my.niri.greeterExtraConfig`）上不同。从 SDDM 切换过来时，用 `sudo nixos-rebuild boot` 后重启。

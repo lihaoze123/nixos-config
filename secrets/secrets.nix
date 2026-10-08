@@ -1,11 +1,11 @@
 let
   keys = import ./keys.nix;
-  users = [ keys.laptop keys.home ];
+  users = [ keys.laptop keys.home keys.class ];
 in
 {
     "dae-config.age".publicKeys = users;
     "hermes-env.age".publicKeys = users;
     "aria2-password.age".publicKeys = users;
     "edunet-env.age".publicKeys = users;
-    "doubao-asr.age".publicKeys = users;
+    "doubao-asr.age".publicKeys = users ++ [ keys.class-user ];
 }

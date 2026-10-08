@@ -1,6 +1,6 @@
 let
   keys = import ../../secrets/keys.nix;
-  users = [ keys.laptop keys.home ];
+  users = [ keys.laptop keys.home keys.class-user ];
 in
 {
   "glm-token.age".publicKeys = users;

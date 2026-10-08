@@ -14,9 +14,10 @@ Each host has its own directory containing:
 ## Current Hosts
 
 - `laptop/` - Laptop configuration with mobile-specific settings
-- `class/` - Classroom/office configuration with desktop-specific settings
+- `class/` - Minimal base-derived system with Btrfs partitions alongside Windows; see [installation guide](../docs/class-installation.md)
 - `home/` - Home desktop with NVIDIA, printing and Syncthing
 - `base/` - Minimal configuration for installing a new machine
+- `installer/` - Standalone minimal live ISO with root SSH access using the laptop public key
 
 ## Adding a New Host
 
@@ -36,3 +37,6 @@ nixos-rebuild build --flake .#hostname
 
 `base` is a standalone minimal configuration for new machines, not a variant of another host. Replace `base/hardware-configuration.nix` (a placeholder) with the target machine's generated one before installing.
 See [分阶段安装指南](../docs/installation-profiles.md) for profile applications and project devShells.
+
+`installer` imports the upstream installation CD module directly and needs no generated hardware configuration or feature switches.
+Build it with `nix build .#installer-iso --out-link result-installer`; see the [自定义安装镜像](../README.md#自定义安装镜像) instructions for writing and booting the ISO.

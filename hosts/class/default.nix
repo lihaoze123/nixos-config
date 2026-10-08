@@ -1,16 +1,30 @@
-{ inputs, pkgs-stable, system, ... }:
+{ config, inputs, pkgs, pkgs-stable, system, lib, ... }:
 
+# Base-derived host; select optional features in ./features.nix.
 {
   imports = [
     ./features.nix
     ./hardware-configuration.nix
+    ../../disko/btrfs-partitions.nix
     ../base.nix
     inputs.ragenix.nixosModules.default
     inputs.home-manager.nixosModules.home-manager
     {
       home-manager.useGlobalPkgs = true;
       home-manager.useUserPackages = true;
-      home-manager.users.chumeng = import ./class.nix;
+      home-manager.users.chumeng = {
+        imports = [ ../../home-manager/home.nix ];
+        age.identityPaths = lib.mkForce [ "/home/chumeng/.ssh/id_ed25519" ];
+        xresources.properties."Xft.dpi" = lib.mkForce 96;
+        # The new machine has no checkout at ~/nixos-config: ship these files.
+        xdg.configFile."nvim".source = lib.mkForce ../../home-manager/shell/neovim/nvim;
+        xdg.configFile."niri/base.kdl" = lib.mkIf config.my.features.desktop.enable {
+          source = lib.mkForce (pkgs.writeText "class-niri-base.kdl" (lib.replaceStrings
+            [ "mode \"3120x2080@120\"" "scale 2.0" "position x=1280 y=0" "window-rule {\n    match is-agent-driven=true" "include \"dms/layout.kdl\"" ]
+            [ "mode \"1920x1080\"" "scale 1.0" "position x=0 y=0" "/-window-rule {\n    match is-agent-driven=true" "include optional=true \"dms/layout.kdl\"" ]
+            (builtins.readFile ../../home-manager/niri/config.kdl)));
+        };
+      };
       home-manager.extraSpecialArgs = { inherit inputs pkgs-stable system; };
     }
     (import ../../modules)
@@ -18,12 +32,27 @@
   ];
 
   networking.hostName = "class";
-
-  # Dank Greeter output, matching config-class.kdl.
+  nixpkgs.hostPlatform = "x86_64-linux";
   my.niri.greeterExtraConfig = ''
     output "eDP-1" {
-        mode "1980x1080@60.0"
-        scale 1.2
+      mode "1920x1080"
+      scale 1.0
     }
   '';
+  age.identityPaths = lib.mkForce [ "/etc/ssh/ssh_host_ed25519_key" ];
+
+  users.users.root.openssh.authorizedKeys.keys = [
+    (import ../../secrets/keys.nix).laptop
+  ];
+  users.users.chumeng.openssh.authorizedKeys.keys = [
+    (import ../../secrets/keys.nix).laptop
+  ];
+
+  # Existing Windows ESP: mount only, outside disko's formatting scope.
+  fileSystems."/boot/windows" = {
+    device = "/dev/disk/by-uuid/B6E9-B042";
+    fsType = "vfat";
+    noCheck = true;
+    options = [ "ro" "umask=0077" "nofail" ];
+  };
 }

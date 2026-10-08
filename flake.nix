@@ -8,6 +8,10 @@
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     try = {
       url = "github:tobi/try";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -83,10 +87,17 @@
       nixosConfigurations.nixos = self.nixosConfigurations.laptop;
       # Minimal system for new machines; optional features stay off.
       nixosConfigurations.base = mkHost ./hosts/base;
+      # Live installer stays independent of the installed hosts' shared modules.
+      nixosConfigurations.installer = nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [ ./hosts/installer ];
+      };
 
-      packages.${system} = import ./profiles/packages.nix {
+      packages.${system} = (import ./profiles/packages.nix {
         inherit inputs system;
         pkgs = import nixpkgs { inherit system; config.allowUnfree = true; };
+      }) // {
+        installer-iso = self.nixosConfigurations.installer.config.system.build.isoImage;
       };
       templates.project = {
         path = ./templates/project;
