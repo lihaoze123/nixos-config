@@ -1,240 +1,50 @@
-# AGENTS.md
+# Repository Guidelines
 
-This file provides guidance to Codex (Codex.ai/code) when working with this NixOS configuration repository.
+## 项目结构与模块组织
 
-## User Environment
+本仓库管理 NixOS 与 Home Manager 配置，支持 `laptop`、`home`、`class` 和最小安装配置 `base`。
 
-**Operating System**: NixOS
-**Package Manager**: Nix with flakes enabled
-**Configuration Style**: Modular flake-based NixOS + Home Manager
+- `flake.nix`、`flake.lock`：主机入口、依赖锁定、应用包与项目模板。
+- `hosts/`：`base.nix` 提供共享配置；各主机的 `default.nix` 管理导入，`features.nix` 选择功能。
+- `modules/`：系统服务、`my.features.*.enable` 选项与依赖约束。
+- `home-manager/`：Shell、编辑器、Niri、DMS、输入法及脚本和配置资源；输入法测试位于 `home-manager/fcitx5/tests/`。
+- `profiles/packages.nix`：独立用户应用；`templates/project/`：项目开发环境模板。
+- `docs/`：安装与桌面说明；`secrets/`：加密凭据及规则。
 
-## Critical Requirements
+## 构建、检查与开发命令
 
-### Script Shebang Format
-
-When creating executable scripts in this NixOS environment:
-
-**❌ WRONG**:
-```bash
-#!/bin/bash
-#!/usr/bin/env python3
-```
-
-**✅ CORRECT**:
-```bash
-#!/usr/bin/env bash
-#!/usr/bin/env python3
-```
-
-**Why**: On NixOS, binaries are not in traditional Unix paths (`/bin`, `/usr/bin`). They are stored in the Nix store (`/nix/store/...`). Using `/usr/bin/env` ensures scripts work because:
-1. `env` is always available in the user's PATH
-2. PATH is properly set up by NixOS to include all package binaries
-3. Scripts remain portable across different systems
-
-**Examples of correct shebangs**:
-- `#!/usr/bin/env bash` - Bash scripts
-- `#!/usr/bin/env sh` - POSIX shell scripts
-- `#!/usr/bin/env python3` - Python scripts
-- `#!/usr/bin/env node` - Node.js scripts
-- `#!/usr/bin/env nix-shell` - Nix shell scripts
-
-## Configuration Structure
-
-### Directory Layout
-
-```
-nixos-config/
-├── flake.nix                    # Top-level flake with all inputs
-├── flake.lock                   # Pinned input versions
-├── hosts/                       # Host-specific configurations
-│   ├── home/
-│   │   ├── default.nix         # Host configuration
-│   │   ├── hardware-configuration.nix  # Generated (DO NOT EDIT)
-│   │   └── home.nix            # Home Manager user config
-│   ├── laptop/
-│   └── class/
-├── home-manager/                # Shared Home Manager configs
-│   ├── shell/
-│   ├── applications/
-│   └── common.nix
-├── modules/                     # Reusable NixOS modules
-├── overlays/                    # Custom package overlays
-└── secrets/                     # Age-encrypted secrets
-```
-
-### Key Configuration Files
-
-- **flake.nix**: Defines all flake inputs and outputs
-- **hosts/base.nix**: Shared NixOS configuration for all hosts
-- **home-manager/home.nix**: Home Manager imports and base config
-
-## Important Patterns
-
-### Overlay Scope with useGlobalPkgs
-
-This configuration uses `home-manager.useGlobalPkgs = true` for efficiency.
-
-**CRITICAL**: When `useGlobalPkgs = true`, overlays must be defined in the host's home-manager configuration block, NOT in `home.nix`:
-
-```nix
-# ✅ CORRECT: In hosts/home/default.nix
-{
-  home-manager.useGlobalPkgs = true;
-  home-manager.users.chumeng = import ./home.nix;
-  home-manager.nixpkgs.overlays = [ inputs.some-overlay.overlays.default ];
-}
-
-# ❌ WRONG: In home-manager/home.nix
-{
-  nixpkgs.overlays = [ inputs.some-overlay.overlays.default ];  # Ignored!
-}
-```
-
-### Flake Inputs Pattern
-
-All flake inputs are passed via `specialArgs`:
-
-```nix
-# flake.nix
-outputs = { self, nixpkgs, home-manager, ... }@inputs:
-{
-  nixosConfigurations.myhost = nixpkgs.lib.nixosSystem {
-    specialArgs = { inherit inputs; };
-    modules = [ ./hosts/myhost ];
-  };
-};
-```
-
-Then available in modules:
-```nix
-# hosts/myhost/default.nix
-{ inputs, pkgs, ... }:
-{
-  imports = [
-    inputs.home-manager.nixosModules.home-manager
-  ];
-}
-```
-
-### Package Installation Locations
-
-- **System packages**: `environment.systemPackages` in host config or base.nix
-- **User packages**: `home.packages` in Home Manager config
-- **System services**: `services.*` in NixOS config
-- **User services**: `services.*` in Home Manager config
-
-## Build Commands
+在仓库根目录执行：
 
 ```bash
-# Test configuration (build without activating)
-nixos-rebuild build --flake .#hostname
-
-# Apply configuration
-sudo nixos-rebuild switch --flake .#hostname
-
-# Test configuration (rollback on reboot)
-sudo nixos-rebuild test --flake .#hostname
-
-# Update flake inputs
-nix flake update
-
-# Check configuration
-nix flake check
+nix fmt                                # 使用 nixpkgs-fmt 格式化 Nix
+nix flake check --no-build              # 检查 Flake 与配置求值
+nix flake check                        # 执行 Flake 检查
+nixos-rebuild build --flake .#laptop    # 构建目标主机，不激活系统
+nix profile install .#anki             # 安装独立用户应用
 ```
 
-## Common Tasks
+将 `laptop` 替换为目标主机。编程环境使用项目自己的 devShell；在项目目录通过 `nix flake init -t /path/to/nixos-config#project` 初始化模板。仅在需要更新依赖时运行 `nix flake update`。
 
-### Adding a New Package
+## 编码风格与命名约定
 
-1. Determine if it's a system package or user package
-2. Add to appropriate location:
-   - System: `environment.systemPackages = with pkgs; [ package-name ];`
-   - User: `home.packages = with pkgs; [ package-name ];`
-3. Rebuild: `sudo nixos-rebuild switch --flake .#hostname`
+Nix 使用两空格缩进，以 `nix fmt` 输出为准。模块入口命名为 `default.nix`。功能开关集中声明、按主机启用；共享逻辑放入模块，设备差异保留在 `hosts/<主机>/`。普通应用优先放入 profile。新增脚本使用 `/usr/bin/env` shebang；Python 使用四空格缩进，并遵循相邻文件风格。
 
-### Adding a Flake Input
+## 测试指南
 
-1. Add to `inputs` in flake.nix
-2. Update flake.lock: `nix flake update`
-3. Use in configuration: reference via `inputs.input-name`
+修改配置后检查求值并构建受影响主机；修改共享模块时覆盖各相关主机。Python 回归测试主要使用 `unittest`，文件命名为 `test-*.py`，方法使用 `test_*`。直接运行脚本，避免默认 discovery 漏掉含连字符的文件名：
 
-### Creating a New Host
-
-1. Copy existing host directory
-2. Run `sudo nixos-generate-config --root /mnt --dir ./hosts/new-host`
-3. Update `hardware-configuration.nix`
-4. Customize `default.nix` for the host
-5. Add host to flake.nix outputs
-
-## Troubleshooting
-
-### Overlay Not Applied
-
-If a package from an overlay is "not found":
-1. Check if overlay is defined in correct location (host home-manager block)
-2. Verify `useGlobalPkgs` setting
-3. Check overlay syntax: `inputs.overlay.overlays.default`
-4. Rebuild system (not just home-manager)
-
-See also: `~/.Codex/skills/nixos-best-practices/` for detailed NixOS configuration best practices.
-
-### Configuration Changes Not Applying
-
-1. Ensure rebuild succeeded: check for "success" message
-2. Verify new generation is active: `nixos-version`
-3. Check if service needs restart: `systemctl restart service-name`
-
-### Shell Script Not Found
-
-If script fails with "command not found":
-1. Check shebang uses `/usr/bin/env` format
-2. Ensure script interpreter is installed (in PATH or environment.systemPackages)
-3. Verify script has execute permissions: `chmod +x script.sh`
-
-## Development Guidelines
-
-- Don't edit `hardware-configuration.nix` - it's regenerated by `nixos-generate-config`
-- Put custom hardware config in the host's `default.nix`
-- Use relative paths for local files
-- Follow the modular structure for maintainability
-- Test with `build` before `switch` to catch errors early
-
-## Critical Behavioral Lessons
-
-### Skill Usage Priority
-
-**LESSON LEARNED**: When a skill has just been loaded, ALWAYS check if it applies to the current task BEFORE trying other tools.
-
-**Real Example**:
 ```bash
-# User: "使用 /agent-browser"
-# [Skill loaded: agent-browser]
-
-# User: "读取这个网页 https://github.com/..."
-
-# ❌ WRONG - What I did:
-# 1. Try webReader MCP tool (fails)
-# 2. Try WebSearch tool (fails)
-# 3. Finally use agent-browser (works!)
-
-# ✅ CORRECT - What I should have done:
-# 1. Immediately use agent-browser (it was just loaded!)
-# 2. Skip webReader and WebSearch entirely
+python3 home-manager/fcitx5/tests/test-xhup-lookup.py
 ```
 
-**Root Cause**: I failed to connect the recently-loaded skill with the immediate task.
+该测试需要 Python 与 PyYAML；其他依赖和真实 Fcitx/Rime 集成测试步骤见输入法文档。仓库未设定覆盖率门槛。桌面、硬件与服务变更还需在目标机器验证。
 
-**Rule**: When a skill is invoked via `/skill-name` or `Skill` tool, that skill becomes the PRIMARY tool for related tasks in the current session. Do NOT fallback to generic tools when a specialized skill is available and loaded.
+## 提交与 Pull Request 指南
 
-**Checklist before using tools**:
-1. What skills have been loaded recently?
-2. Does any loaded skill match this task?
-3. If yes → use the skill FIRST
-4. Only use generic tools if no relevant skill exists
+优先使用 `jj status`、`jj diff`、`jj log` 和 `jj describe`，避免使用会改变仓库状态的 Git 命令。历史通常采用 `feat(scope): 描述`、`refactor(scope): 描述` 等格式；提交聚焦单项变更。
 
-## Related Documentation
+PR 说明变更目的、受影响主机或功能、验证命令与结果；有关联 issue 时链接，界面变更附截图。依赖更新说明原因，行为迁移同步更新文档。
 
-- NixOS Manual: https://nixos.org/manual/nixos/stable/
-- Home Manager Manual: https://nix-community.github.io/home-manager/
-- NixOS & Flakes: https://nixos.wiki/wiki/Flakes
-- Local skills: `~/.Codex/skills/nixos-best-practices/`
+## 配置安全与代理约定
+
+代理回复使用中文。不得提交明文凭据、私钥或解密内容；加密凭据按现有 ragenix 规则维护。不要手工编辑自动生成的硬件配置；`base` 安装前须替换为目标机器生成的文件。先构建再激活；图形登录变更按文档使用 `nixos-rebuild boot` 后重启，不自动清理旧系统代际。
