@@ -3,7 +3,9 @@
 { ... }:
 {
   my.features = {
+    extra.enable = true;
     desktop.enable = true;
+    extraDesktop.enable = true; # 需要 desktop
     bluetooth.enable = true;
     tailscale.enable = true;
     dae.enable = true;
@@ -20,7 +22,6 @@
     syncthing.enable = true;
 
     # 重构前未启用，可按需开启：
-    # dms.enable = true;
     # podman.enable = true;
     # virtualMachines.enable = true;
     # waydroid.enable = true;

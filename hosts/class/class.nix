@@ -10,7 +10,8 @@ in
   home.packages = with pkgs; [
   ];
 
-  xdg.configFile."niri/config.kdl" = lib.mkIf osConfig.my.features.desktop.enable {
+  # DMS loads niri/config.kdl and includes this host's layout as base.kdl.
+  xdg.configFile."niri/base.kdl" = lib.mkIf osConfig.my.features.desktop.enable {
     source = lib.mkForce (config.lib.file.mkOutOfStoreSymlink niriConfigPath);
   };
 }

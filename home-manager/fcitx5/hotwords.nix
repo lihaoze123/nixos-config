@@ -1,6 +1,5 @@
 { config, lib, pkgs, inputs, osConfig, ... }:
 let
-  useDms = lib.attrByPath [ "programs" "dank-material-shell" "enable" ] false config;
   parser = pkgs.stdenv.mkDerivation {
     pname = "vocotype-terms-parser";
     version = "1";
@@ -49,7 +48,7 @@ let
   };
 in
 {
-  config = lib.mkIf (useDms && osConfig.my.features.speech.enable) {
+  config = lib.mkIf (osConfig.my.features.desktop.enable && osConfig.my.features.speech.enable) {
     xdg.configFile."DankMaterialShell/plugins/vocotypeHotwords".source = plugin;
     home.activation.enableVocotypeHotwordsPlugin = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
       run ${lib.getExe enable}

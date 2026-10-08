@@ -3,7 +3,7 @@
 
 ---
 name: xhup.user
-version: "user-4abf3f1d10944559a7f9f2456cd7b694"
+version: "user-86f1824aee9b4def85d351aaadddc579"
 sort: by_weight
 use_preset_vocabulary: false
 ...
@@ -61,3 +61,4 @@ use_preset_vocabulary: false
 电音	dmyb	100
 彳亍	iiiu	100
 实用	uiys	100
+简易	jmyi	100

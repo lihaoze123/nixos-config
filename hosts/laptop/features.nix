@@ -3,7 +3,9 @@
 { ... }:
 {
   my.features = {
+    extra.enable = true;
     desktop.enable = true;
+    extraDesktop.enable = true; # 需要 desktop
     bluetooth.enable = true;
     tailscale.enable = true;
     dae.enable = true;
@@ -21,7 +23,6 @@
     speech.enable = true;
     doubao.enable = true; # 需要 speech
     easyeffects.enable = true;
-    dms.enable = true; # 需要 desktop
     codexDesktop.enable = true;
     fingerprint.enable = true;
     cachyosKernel.enable = true;

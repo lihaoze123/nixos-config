@@ -18,4 +18,12 @@
   ];
 
   networking.hostName = "class";
+
+  # Dank Greeter output, matching config-class.kdl.
+  my.niri.greeterExtraConfig = ''
+    output "eDP-1" {
+        mode "1980x1080@60.0"
+        scale 1.2
+    }
+  '';
 }

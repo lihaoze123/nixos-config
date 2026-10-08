@@ -15,7 +15,7 @@ fcitx5/
 ├── config/             # Fcitx5 profile 与 Rime 配置补丁
 ├── dictionaries/       # 手工码表、计算机术语源数据与许可证
 ├── scripts/            # 词库生成脚本与查码/加词程序
-├── patches/            # 非 DMS 主机查码用的 wofi 补丁
+├── patches/            # rime-crane 快捷键补丁
 ├── tests/              # 查码测试
 └── docs/               # 使用与维护说明
     └── archive/        # 已完成任务的计划和研究记录
@@ -163,13 +163,13 @@ nix shell --impure --expr 'let f = builtins.getFlake (toString ./.); p = f.input
 
 四份手工码表通过 `mkOutOfStoreSymlink` 链接到
 `~/.local/share/fcitx5/rime/xhup_dicts/`，直接编辑 `dictionaries/` 下的源文件。
-修改后，Rime 需要重新部署；wofi 查码窗口重新打开即可读取，DMS 插件在下次查询时自动重新加载。
+修改后，Rime 需要重新部署；DMS 插件在下次查询时自动重新加载。
 计算机术语码表由 Nix 生成，修改术语源数据后需要重新构建。
 
 ## 说明与验证
 
 - [计算机词库来源、生成规则与维护](docs/computer-dictionary.md)
-- [实时查码（DMS / wofi）、前缀与 glob 用法](docs/xhup-lookup.md)
+- [实时查码（DMS）、前缀与 glob 用法](docs/xhup-lookup.md)
 - [快速添加用户词：快捷键、部署与恢复](docs/add-user-word.md)
 - [加词实现计划及验证记录](docs/plans/add-user-word/implementation.md)
 - [历史研究记录](docs/archive/notes.md)与[已完成任务计划](docs/archive/task_plan.md)

@@ -33,10 +33,6 @@
     };
     ragenix.url = "github:yaxitech/ragenix";
     chinese-fonts-overlay.url = "github:lihaoze123/chinese-fonts-overlay/main";
-    silentSDDM = {
-      url = "github:uiriansan/SilentSDDM";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     browser-previews = {
       url = "github:nix-community/browser-previews";
       inputs.nixpkgs.follows = "nixpkgs";

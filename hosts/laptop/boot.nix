@@ -72,7 +72,7 @@ in
       };
 
     })
-    (lib.mkIf config.my.features.dms.enable {
+    (lib.mkIf config.my.features.desktop.enable {
       boot.loader = {
         # Boot straight through; press Esc during the 1s window for the menu.
         timeout = 1;

@@ -116,7 +116,6 @@ in
       Unit = {
         After = [ "niri.service" ];
         Requisite = [ "niri.service" ];
-        Conflicts = [ "waybar.service" "mako.service" "swaybg.service" ];
       };
       Service = {
         ExecStartPre = lib.getExe initialize;

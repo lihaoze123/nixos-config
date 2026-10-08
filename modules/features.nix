@@ -2,8 +2,9 @@
 let
   cfg = config.my.features;
   features = {
-    desktop = "Niri desktop, Chinese input, audio and desktop utilities";
-    dms = "DankMaterialShell (laptop also uses its greeter)";
+    extra = "commonly used command-line tools beyond the minimal system";
+    extraDesktop = "commonly used graphical tools: terminal, editor, audio and disk utilities";
+    desktop = "Niri with DankMaterialShell and Dank Greeter, Chinese input, audio and desktop utilities";
     bluetooth = "Bluetooth and its desktop applet";
     docker = "rootless Docker";
     podman = "Podman and Distrobox";
@@ -40,7 +41,7 @@ in
 
   config = {
     assertions = [
-      { assertion = !cfg.dms.enable || cfg.desktop.enable; message = "my.features.dms requires desktop"; }
+      { assertion = !cfg.extraDesktop.enable || cfg.desktop.enable; message = "my.features.extraDesktop requires desktop"; }
       { assertion = !cfg.speech.enable || cfg.desktop.enable; message = "my.features.speech requires desktop"; }
       { assertion = !cfg.doubao.enable || cfg.speech.enable; message = "my.features.doubao requires speech"; }
       { assertion = !cfg.easyeffects.enable || cfg.desktop.enable; message = "my.features.easyeffects requires desktop"; }
@@ -97,7 +98,12 @@ in
       enable = true;
       rootless = { enable = true; setSocketVariable = true; };
     };
-    services.tailscale = lib.mkIf cfg.tailscale.enable { enable = true; useRoutingFeatures = "both"; };
+    services.tailscale = lib.mkIf cfg.tailscale.enable {
+      enable = true;
+      useRoutingFeatures = "both";
+      # Dankscale manages Tailscale as the desktop user, without recurring prompts.
+      extraSetFlags = lib.optional cfg.desktop.enable "--operator=chumeng";
+    };
     networking.firewall.allowedUDPPorts = lib.optional cfg.tailscale.enable config.services.tailscale.port;
     networking.firewall.trustedInterfaces = lib.optional cfg.tailscale.enable "tailscale0";
   };

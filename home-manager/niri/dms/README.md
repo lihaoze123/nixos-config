@@ -1,15 +1,16 @@
 # DMS on Niri
 
-目前仅在 `hosts/laptop/laptop.nix` 启用：
-
-```nix
-programs.dank-material-shell.enable = true;
-```
+DMS 是唯一的桌面外壳，所有开启 `my.features.desktop.enable` 的主机都使用它
+（`home-manager/home.nix` 据此设置 `programs.dank-material-shell.enable`）。
 
 Home Manager 通过官方 DMS v1.6.2 模块管理 `dms.service`，运行包使用
 仓库锁定的 `pkgs.dms-shell` 和 `pkgs.quickshell`。DMS 随 Niri 图形会话启动，
-接管状态栏、通知和壁纸；启用时不再安装或启动 Waybar、Mako、swaybg。
-`hosts/laptop/default.nix` 提供 UPower、电源模式、AccountsService 和锁屏 PAM。
+负责状态栏、通知、壁纸、启动器、剪贴板和锁屏。
+`modules/niri/default.nix` 提供 Dank Greeter、UPower、电源模式、AccountsService 和 dsearch；
+laptop 的指纹 PAM 在 `hosts/laptop/default.nix`。
+
+`niri/config.kdl` 来自本目录的 `niri.kdl`，它包含 `base.kdl`：laptop 指向
+`home-manager/niri/config.kdl`，home、class 分别指向 `hosts/<主机>/config-<主机>.kdl`。
 
 ## 配置归属
 
@@ -67,8 +68,7 @@ Niri 的固定默认值可写入仓库的 KDL，DMS 生成的片段拥有更后�
 | `Alt+Ctrl+X` | 小鹤加词：打开启动器并填入 `;+` |
 | `Alt+Ctrl+T` | 语音加热词：打开启动器并填入 `热+` |
 
-剪贴板历史由 DMS 自带的服务记录，启用 DMS 时不再运行 cliphist；
-其他主机通过 Home Manager 的 `services.cliphist` 记录。
+剪贴板历史由 DMS 自带的服务记录。
 截图快捷键通过 IPC 调用已安装并启用的 `quickCapture` 插件，与状态栏部件
 使用同一套截图和编辑功能，覆盖基础配置中的 Niri 原生截图快捷键。
 小鹤功能由独立仓库 [dms-xhup](https://github.com/lihaoze123/dms-xhup) 的 DMS 插件提供，在 fcitx5 模块中部署，
@@ -126,5 +126,3 @@ sudo nixos-rebuild switch --flake .#laptop
 
 可用 `systemctl --user status dms.service` 检查启动结果，
 用 `journalctl --user -u dms.service -b` 查看日志。
-其他主机仍使用原有 Waybar 配置；要让 laptop 恢复 Waybar，移除它的 DMS
-启用选项，重新构建、切换并登录。

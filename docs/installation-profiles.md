@@ -1,15 +1,17 @@
 # 安装入口、功能开关与用户应用
 
-各主机通过 `hosts/<主机>/features.nix` 选择功能，保持重构前的行为；只有普通应用和语言工具链移出了系统：应用由用户 profile 管理，工具链属于各项目的 devShell。`base` 是独立的最小配置，供新机器首次安装使用。
+各主机通过 `hosts/<主机>/features.nix` 选择功能，保持重构前的功能；普通应用和语言工具链移出了系统：应用由用户 profile 管理，工具链属于各项目的 devShell。home、class 的桌面已统一为 laptop 使用的 DMS。`base` 是独立的最小配置，供新机器首次安装使用。
 
 ## 安装入口
 
 | Flake 入口 | 内容 |
 | --- | --- |
-| `laptop`（别名 `nixos`） | 笔记本日常配置：Niri + DMS、Dank Greeter、语音、容器、虚拟化、指纹等原有功能 |
-| `home` | 原有桌面（Niri + SDDM）、NVIDIA、打印、Syncthing、Docker 等功能 |
-| `class` | 原有桌面（Niri + SDDM）、Docker 等功能 |
+| `laptop`（别名 `nixos`） | 笔记本日常配置：桌面、Plymouth、语音、容器、虚拟化、指纹等原有功能 |
+| `home` | 桌面、NVIDIA、打印、Syncthing、Docker 等原有功能 |
+| `class` | 桌面、Docker 等原有功能 |
 | `base` | 最小系统：启动、网络、用户、SSH、防火墙、Shell、Git/Jujutsu、Neovim、direnv，无图形会话 |
+
+三台主机使用同一套桌面：Niri + DankMaterialShell，登录界面为 Dank Greeter（greetd）。各主机只在 niri 布局（`home-manager/niri/config.kdl`、`hosts/<主机>/config-<主机>.kdl`）和 greeter 的输出设置（`my.niri.greeterExtraConfig`）上不同。从 SDDM 切换过来时，用 `sudo nixos-rebuild boot` 后重启。
 
 `base` 不属于任何现有主机，有自己的 `hosts/base/`。新机器上安装前，先用目标机器的硬件配置替换占位文件：
 
@@ -48,8 +50,9 @@ sudo nixos-rebuild boot --flake .#laptop
 
 | 功能开关 | 管理的内容 |
 | --- | --- |
-| `desktop` | Niri、登录管理器、中文输入法、PipeWire、基础字体、Kitty、文件管理、截图 |
-| `dms` | DMS、文件搜索；laptop 同时启用 Dank Greeter 和 Plymouth |
+| `extra` | base 之外的常用命令行工具：lazygit、zellij、tealdeer、fastfetch、try；不依赖桌面 |
+| `extraDesktop` | 常用图形工具：ghostty、neovide、pavucontrol、GNOME 磁盘、baobab、Filelight、Microsoft Edge |
+| `desktop` | Niri + DankMaterialShell（状态栏、通知、启动器、锁屏、剪贴板、文件搜索）、Dank Greeter、中文输入法、PipeWire、基础字体、Kitty、文件管理；laptop 另启用 Plymouth |
 | `bluetooth`、`tailscale`、`dae`、`edunet` | 蓝牙、VPN、代理、校园网认证，各自独立 |
 | `docker`、`podman` | Docker rootless；Podman + Distrobox，各自独立 |
 | `virtualMachines`、`waydroid` | QEMU/libvirt/virt-manager；Waydroid，各自独立 |
@@ -62,7 +65,7 @@ sudo nixos-rebuild boot --flake .#laptop
 | `phoneIntegration`、`screenCast` | laptop：Valent/KDE Connect；Wi-Fi 投屏及配套端口，各自独立 |
 | `printing`、`syncthing` | home：打印及驱动；已有 Syncthing 同步配置，各自独立 |
 
-DMS、语音识别、EasyEffects、Codex 桌面、手机集成和投屏要求 desktop；doubao 要求 speech。不满足依赖时求值会给出错误。开关只控制安装与服务，关闭不会删除原有用户数据。
+extraDesktop、语音识别、EasyEffects、Codex 桌面、手机集成和投屏要求 desktop；doubao 要求 speech。不满足依赖时求值会给出错误。开关只控制安装与服务，关闭不会删除原有用户数据。
 
 没有启用 cachyosKernel 时使用 NixOS 默认内核。没有启用 fingerprint 时不安装第三方指纹驱动，也不引入其内核开发闭包。
 
@@ -70,19 +73,20 @@ DMS、语音识别、EasyEffects、Codex 桌面、手机集成和投屏要求 de
 
 > **切换到新配置前，先在每台机器上装好需要的应用。** 功能开关保持了原有行为，但下面这些软件已经不随系统安装，laptop、home、class 切换后都会消失：
 >
-> - 应用：VS Code（含原来的六个扩展）、Microsoft Edge、QQ、微信、Anki、Obsidian、pavucontrol、GNOME 磁盘、baobab、Filelight
+> - 应用：VS Code（含原来的六个扩展）、Microsoft Edge、QQ、微信、Anki、Obsidian
 > - 排版：typst、pandoc、tectonic
-> - 终端与命令行：ghostty、neovide、try、fastfetch、lazygit、zellij、tealdeer
 > - 工具链：GCC、Clang、Rust（含 `~/.rust-rover/toolchain` 链接与 `RUST_SRC_PATH`）、JDK、Node.js、Bun、Python、uv，改由项目 devShell 提供
+>
+> lazygit、zellij、tealdeer、fastfetch、try 由 `extra` 开关安装；ghostty、neovide、pavucontrol、GNOME 磁盘、baobab、Filelight 由 `extraDesktop` 开关安装。laptop、home、class 都已开启，切换后不会消失；base 默认不装。
 >
 > 依赖这些软件的配置也要留意：
 >
 > - 默认终端由 ghostty 改为 kitty（niri `Mod+Return`、DMS `terminalOverride`）。
 > - niri 的 `Mod+C` 仍绑定 `microsoft-edge`，未安装 `.#microsoft-edge` 时该快捷键无效。
-> - Fish 中的 `lg`（lazygit）和 `try` 集成只在安装对应程序后生效。
+> - Fish 中的 `lg`（lazygit）和 `try` 集成只在安装对应程序后生效（开启 `extra`，或用 profile 安装）。
 > - Neovim 自身需要的 tree-sitter、gcc、Node.js 和 clangd 仍随 Home Manager 安装，只在 nvim 内可见。
 
-包定义位于 `profiles/packages.nix`，沿用仓库的 nixpkgs 锁定版本，但不被 NixOS 系统引用。以普通用户在仓库根目录执行，选择需要的包，不必全部安装：
+包定义位于 `profiles/packages.nix`，沿用仓库的 nixpkgs 锁定版本；除 `extra` 复用的 `try` 外，不被 NixOS 系统引用。以普通用户在仓库根目录执行，选择需要的包，不必全部安装：
 
 ```bash
 nix profile install .#wechat
@@ -92,7 +96,7 @@ nix profile install .#microsoft-edge
 nix profile install .#typst .#pandoc
 ```
 
-VS Code 保留原来的六个扩展。其他可安装输出包括 `qq`、`tectonic`、`pavucontrol`、`gnome-disk-utility`、`baobab`、`filelight`、`ghostty`、`neovide`、`fastfetch`、`lazygit`、`zellij`、`tealdeer`、`try`。`try` 保留此前针对 NixOS shebang 的修补；安装后 Fish 会自动加载其 shell 集成（目录为 `~/src/tries`）。
+VS Code 保留原来的六个扩展。其他可安装输出包括 `qq`、`tectonic`；没有开启 `extra`、`extraDesktop` 的机器（如 base）也可以单独安装 `fastfetch`、`lazygit`、`zellij`、`tealdeer`、`try`，以及 `ghostty`、`neovide`、`pavucontrol`、`gnome-disk-utility`、`baobab`、`filelight`。`try` 保留此前针对 NixOS shebang 的修补，`extra` 使用同一个包；安装后 Fish 会自动加载其 shell 集成（目录为 `~/src/tries`）。
 
 你已有 profile 中的 QQ Wayland 修复版，可以继续使用，无需再装 `.#qq`。重建系统不会自动补装或更新 profile 中的应用。
 
@@ -125,7 +129,9 @@ direnv 示例：项目 `.envrc` 写 `use flake .#rust`，再执行 `direnv allow
 
 ## 本次验证
 
-与重构前（`1a85601`）逐项对比 laptop、home、class 的求值结果：系统包、启用的 systemd 服务、用户组、字体、Home Manager 的 xdg 配置文件和用户服务完全一致。差异只有上面列出的移到 profile/devShell 的软件（以及相应的 VS Code 扩展、`~/.rust-rover` 链接），另外新增了 `fd`。
+功能拆分时，与重构前（`1a85601`）逐项对比 laptop、home、class 的求值结果：系统包、启用的 systemd 服务、用户组、字体、Home Manager 的 xdg 配置文件和用户服务完全一致，差异只有上面列出的移到 profile/devShell 的软件（以及相应的 VS Code 扩展、`~/.rust-rover` 链接），另外新增了 `fd`。
+
+统一桌面后：laptop 只少了不再使用的 swaylock/swayidle；home、class 的 SDDM、Waybar、Mako、wofi、swaybg、cliphist 换成了 DMS、Dank Greeter 及其系统后端（UPower、电源模式、AccountsService、dsearch），Tailscale 增加 `--operator=chumeng` 供 Dankscale 使用。
 
 基于当前 `flake.lock` 的构建闭包大小（NAR 大小，非下载量），为重构过程中的测量：
 

@@ -16,7 +16,7 @@ systemctl --user restart fcitx5-daemon.service
 
 ## 日常使用（DMS）
 
-启用 DMS 的主机上，`Mod+Ctrl+X` 打开 DMS 启动器并填入 `;+`，接着在同一行输入（插件来自 [dms-xhup](https://github.com/lihaoze123/dms-xhup)）：
+`Mod+Ctrl+X` 打开 DMS 启动器并填入 `;+`，接着在同一行输入（插件来自 [dms-xhup](https://github.com/lihaoze123/dms-xhup)）：
 
 ```text
 ;+词语 [编码] [common|work|coding|chat] [=读 音]
@@ -30,11 +30,11 @@ systemctl --user restart fcitx5-daemon.service
 
 保存前同样核对确认期间词库是否变化，变化时提示重新确认。
 
-## 日常使用（wofi）
+## 命令行交互（wofi）
 
-其他主机仍使用 wofi 多步窗口：
+在终端直接运行 `xhup-add-word`（不带 `--yes` 或 `--dry-run`）时，进入 wofi 多步窗口：
 
-1. 按 `Mod+Ctrl+X`，在空白输入框中输入词语，也可以手动粘贴。窗口不读取剪贴板进行预填。
+1. 在空白输入框中输入词语，也可以手动粘贴。窗口不读取剪贴板进行预填。
 2. 回车进入编码页，检查建议读音与编码，编码可以直接编辑。
 3. 回车进入确认页。标题显示词语、编码、分类及重码数量；列表包含保存操作、已有词条、重码候选及来源。选择“保存并部署”或“仅保存”。
 

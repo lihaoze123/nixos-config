@@ -1,4 +1,4 @@
-{ lib, pkgs, osConfig, ... }:
+{ lib, pkgs, osConfig, inputs, system, ... }:
 {
   programs.jujutsu = {
     enable = true;
@@ -27,6 +27,13 @@
     just
     difftastic
     tmux
+  ] ++ lib.optionals osConfig.my.features.extra.enable [
+    lazygit
+    zellij
+    tealdeer
+    fastfetch
+    # Shares the NixOS shebang fix with the nix profile output.
+    inputs.self.packages.${system}.try
   ] ++ lib.optionals osConfig.my.features.desktop.enable [
     satty
     grim

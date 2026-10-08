@@ -22,6 +22,14 @@ in
 
   networking.hostName = "home";
 
+  # Dank Greeter output, matching config-home.kdl.
+  my.niri.greeterExtraConfig = ''
+    output "DP-1" {
+        mode "3440x1440@144.0"
+        scale 1.2
+    }
+  '';
+
   # Hardware configuration for home host
   hardware.graphics = {
     enable = useNvidia;

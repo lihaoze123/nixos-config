@@ -13,7 +13,7 @@ alias grep="rg"
 if command -q lazygit
     alias lg="lazygit"
 end
-# try is installed with nix profile; its cd needs this shell function.
+# try comes from the extra feature or nix profile; its cd needs this shell function.
 if command -q try
     eval (try init ~/src/tries | string collect)
 end

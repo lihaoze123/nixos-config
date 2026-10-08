@@ -52,51 +52,19 @@ in
       hardware.gxfp5130Chicago.enable = config.my.features.fingerprint.enable;
 
     }
-    (lib.mkIf config.my.features.dms.enable {
-      # Dank Greeter on greetd instead of the shared SDDM default. Switching display
-      # managers stops the running session: apply with `nixos-rebuild boot` and reboot.
-      my.niri.greeter = "dms";
-      services.displayManager.dms-greeter = {
-        enable = true;
-        compositor = {
-          name = "niri";
-          # Replaces the greeter's built-in niri config, so its defaults are kept here.
-          customConfig = ''
-            hotkey-overlay {
-                skip-at-startup
-            }
+    (lib.mkIf config.my.features.desktop.enable {
+      # The shared Dank Greeter (modules/niri) with this panel's output.
+      my.niri.greeterExtraConfig = ''
+        // Match the Plymouth background to avoid a flash between them.
+        layout {
+            background-color "#141218"
+        }
 
-            environment {
-                DMS_RUN_GREETER "1"
-            }
-
-            gestures {
-                hot-corners {
-                    off
-                }
-            }
-
-            // Match the Plymouth background to avoid a flash between them.
-            layout {
-                background-color "#141218"
-            }
-
-            output "eDP-1" {
-                mode "3120x2080@120"
-                scale 2
-            }
-
-            input {
-                touchpad {
-                    tap
-                    natural-scroll
-                }
-            }
-          '';
-        };
-        # Copies the DMS theme and wallpaper into the greeter before each start.
-        configHome = "/home/chumeng";
-      };
+        output "eDP-1" {
+            mode "3120x2080@120"
+            scale 2
+        }
+      '';
 
       # Hand the display from Plymouth straight to the greeter. By default Plymouth
       # quits before greetd starts; the DRM device is then left to i915's fbdev
@@ -140,7 +108,6 @@ in
         # the password one. pam_fprintd here would make both claim the reader and
         # block typed passwords until it times out.
         dankshell.fprintAuth = false;
-        swaylock.fprintAuth = true;
       };
 
       # Codex Desktop Computer Use on niri, including agent input that does not take the
@@ -155,23 +122,10 @@ in
         enable = config.my.features.steam.enable;
       };
 
-      # System backends used by the Home Manager DMS session.
-      services.upower.enable = config.my.features.desktop.enable;
-      services.power-profiles-daemon.enable = config.my.features.desktop.enable;
-      services.accounts-daemon.enable = config.my.features.desktop.enable;
-      programs.dconf.enable = config.my.features.desktop.enable;
-      # Dankscale manages Tailscale as the desktop user, without recurring prompts.
-      services.tailscale.extraSetFlags = lib.mkIf config.my.features.tailscale.enable [ "--operator=chumeng" ];
       # Valent speaks KDE Connect and browses phone files through Nautilus/GVfs.
       programs.kdeconnect = {
         enable = config.my.features.phoneIntegration.enable;
         package = pkgs.valent;
-      };
-
-      # Use the pinned nixpkgs module and its user service for DMS file search.
-      programs.dsearch = {
-        enable = config.my.features.dms.enable;
-        systemd.target = "graphical-session.target";
       };
 
     }

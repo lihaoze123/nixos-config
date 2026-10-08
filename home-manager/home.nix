@@ -8,7 +8,7 @@
     ./applications/easyeffects.nix
     inputs.ragenix.homeManagerModules.default
   ];
-  programs.dank-material-shell.enable = osConfig.my.features.dms.enable;
+  programs.dank-material-shell.enable = osConfig.my.features.desktop.enable;
   programs.vocotype.doubao.enable = osConfig.my.features.doubao.enable;
   home.enableNixpkgsReleaseCheck = false;
   age.identityPaths = [ "/home/chumeng/.ssh/id_rsa" ];

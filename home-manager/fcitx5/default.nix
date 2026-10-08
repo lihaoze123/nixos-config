@@ -76,7 +76,6 @@ let
   xhup-encoder-scripts = xhup-script-bundle "xhup-encoder-scripts" [ "generate-xhup-computer-dict.py" ];
   xhup-lookup-scripts = xhup-script-bundle "xhup-lookup-scripts" [ "xhup-lookup.py" ];
   xhup-add-scripts = xhup-script-bundle "xhup-add-scripts" [ "xhup-add-word.py" ];
-  useDms = lib.attrByPath [ "programs" "dank-material-shell" "enable" ] false config;
   rime-crane-rev = "71f3add6a39d58a8e8b35abc7ca9c998d766b274";
   thuocl-it-rev = "a30ce79d895d01ab5132a5c74c29703ff7efb4cc";
   rime-user-dictionaries = {
@@ -197,17 +196,13 @@ let
 
   rime-user-data-dir = "${config.home.homeDirectory}/.local/share/fcitx5/rime";
   rime-user-dictionary-dir = "${config.home.homeDirectory}/nixos-config/home-manager/fcitx5/dictionaries";
-  # Only the wofi lookup frontend uses this live-dmenu extension; DMS hosts
-  # use the launcher plugin instead and keep just the command-line query.
-  xhup-wofi = pkgs.wofi.overrideAttrs (old: {
-    patches = (old.patches or [ ]) ++ [ ./patches/wofi-live.patch ];
-  });
+  # The DMS launcher plugin is the lookup UI; this keeps the command-line query.
   xhup-lookup = pkgs.writeShellApplication {
     name = "xhup-lookup";
     runtimeInputs = [
       (pkgs.python3.withPackages (ps: [ ps.pyyaml ]))
       pkgs.wl-clipboard
-    ] ++ lib.optional (!useDms) xhup-wofi;
+    ];
     text = ''
       exec python3 ${xhup-lookup-scripts}/xhup-lookup.py \
         --data-dir ${rime-crane}/share/rime-data \
@@ -275,14 +270,12 @@ in
     # Also expose settings when activating Home Manager before a system switch.
     home.file.".local/bin/vocotype-settings" = lib.mkIf speechEnabled { source = "${vocotype}/bin/vocotype-settings"; };
 
-    home.activation.enableXhupDmsPlugin = lib.mkIf useDms (
-      lib.hm.dag.entryAfter [ "linkGeneration" ] ''
-        run ${lib.getExe enable-xhup-dms-plugin}
-      ''
-    );
+    home.activation.enableXhupDmsPlugin = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+      run ${lib.getExe enable-xhup-dms-plugin}
+    '';
 
     xdg.configFile = {
-      "DankMaterialShell/plugins/flypyXhup" = lib.mkIf useDms { source = xhup-dms-plugin; };
+      "DankMaterialShell/plugins/flypyXhup".source = xhup-dms-plugin;
       # The Home Manager service owns Fcitx5; an XDG autostart instance could
       # otherwise acquire its D-Bus name first and survive package upgrades.
       "autostart/org.fcitx.Fcitx5.desktop".text = ''

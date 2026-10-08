@@ -3,8 +3,9 @@
 { ... }:
 {
   my.features = {
+    # extra.enable = true;
     # desktop.enable = true;
-    # dms.enable = true; # 需要 desktop
+    # extraDesktop.enable = true; # 需要 desktop
     # bluetooth.enable = true;
     # tailscale.enable = true;
     # dae.enable = true;

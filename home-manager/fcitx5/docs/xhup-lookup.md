@@ -3,12 +3,11 @@
 `Mod+Shift+X` 打开实时查码；输入后自动更新，回车复制选中的编码，Esc 关闭。
 `Mod+X` 打开字根图。
 
-- **启用 DMS 的主机**（laptop）：快捷键打开 DMS 启动器并填入触发前缀 `;`，
-  结果由 [dms-xhup](https://github.com/lihaoze123/dms-xhup) 插件提供；在启动器中直接输入 `;he` 也一样。
-  右键结果可单独复制词语或某个编码。字根图是 DMS 覆盖层，按 Esc 或点击外侧关闭。
-- **其他主机**：使用下文的 wofi 实时窗口和 swayimg 字根图。
+快捷键打开 DMS 启动器并填入触发前缀 `;`，结果由 [dms-xhup](https://github.com/lihaoze123/dms-xhup)
+插件提供；在启动器中直接输入 `;he` 也一样。右键结果可单独复制词语或某个编码。
+字根图是 DMS 覆盖层，按 Esc 或点击外侧关闭。
 
-两种前端共用同一套匹配规则：
+DMS 插件与命令行 `xhup-lookup --query` 共用同一套匹配规则：
 
 - 普通文本按**字段前缀**匹配汉字/词语、单字全拼和小鹤编码。
   `he` 可以匹配 `he`、`hei`、`hen`、`heng`，不会因为 `she` 中间含有 `he` 而命中。
@@ -33,13 +32,8 @@ DMS 前端是独立仓库 [dms-xhup](https://github.com/lihaoze123/dms-xhup)，�
 预期的 librime 插件；在 DMS 插件设置中填写的目录会覆盖这些参数，因此这里应保持留空。
 升级插件：`nix flake update dms-xhup`。
 
-[xhup-lookup.py](../scripts/xhup-lookup.py) 加载词库并保持运行。私有的 wofi 构建通过
-[wofi-live.patch](../patches/wofi-live.patch) 增加实时 dmenu 通道：约每 60 ms 检查输入变化，
-用继承的 Unix socket 发送查询，以请求序号丢弃过期响应。
-查询字段和响应以 Base64 分帧，不经过 shell。只为最多 200 条结果创建 GTK 控件。
-普通启动器、剪贴板菜单仍使用未修改的 wofi。
-
-升级 nixpkgs/wofi 后需要验证补丁仍能应用，并检查实时输入、空结果、Esc、选择复制。
+[xhup-lookup.py](../scripts/xhup-lookup.py) 提供命令行查询。脚本中原有的 wofi 实时窗口依赖已删除的
+私有 wofi 补丁，统一使用 DMS 后不再打包这一前端。
 [test-xhup-lookup.py](../tests/test-xhup-lookup.py) 用 Python + PyYAML 运行，覆盖前缀、glob、排序、
 本地词库覆盖、结果截断和多轮通道通信。
 

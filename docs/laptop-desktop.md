@@ -1,12 +1,12 @@
 # Laptop 桌面：启动、登录与锁屏
 
-仅适用于 `laptop` / `nixos` 主机。home、class 仍使用共享模块默认的 SDDM（`my.niri.greeter = "sddm"`）。
+仅适用于 `laptop` / `nixos` 主机。Dank Greeter 与 DMS 本身是所有桌面主机共用的（`modules/niri/default.nix`），这里记录 laptop 特有的 Plymouth 衔接、面板输出和指纹设置。
 
 | 环节 | 实现 | 配置位置 |
 | --- | --- | --- |
 | GRUB | 隐藏菜单，1 秒窗口 | `hosts/laptop/boot.nix` |
 | 启动/关机画面 | Plymouth `dms-nixos` 主题（spinner 改色，居中 NixOS 标志） | `hosts/laptop/boot.nix` |
-| 登录 | Dank Greeter（greetd + niri） | `hosts/laptop/default.nix` |
+| 登录 | Dank Greeter（greetd + niri） | `modules/niri/default.nix`；laptop 的输出与 Plymouth 衔接在 `hosts/laptop/default.nix` |
 | 锁屏与空闲 | DMS 自带锁屏与 IdleService | `home-manager/niri/dms/binds.kdl`，空闲策略在 DMS 设置界面 |
 
 `i915` 放在 initrd 中，Plymouth 一开始就画在最终的显卡设备上。否则它会先画在固件帧缓冲（simpledrm）上，第二阶段 i915 接管时会短暂露出厂商 logo。固件自己显示的厂商 logo（Plymouth 启动前约 2 秒）不受系统控制。
@@ -45,7 +45,7 @@ reboot
 ## 登录（Dank Greeter）
 
 - 启动 greetd 前，会从 `/home/chumeng` 复制 DMS 的 `settings.json`、`session.json` 与配色，因此主题和壁纸与桌面一致。
-- greeter 自己的 niri 配置写在 `compositor.customConfig` 中（eDP-1、2 倍缩放、触摸板轻触）。修改缩放时要同时改这里。
+- greeter 的 niri 配置由 `modules/niri/default.nix` 的 `compositor.customConfig` 提供通用部分（触摸板轻触等），laptop 通过 `my.niri.greeterExtraConfig` 追加 eDP-1、2 倍缩放和与 Plymouth 一致的背景色。修改缩放时要同时改这里。
 - 登录只用密码：greetd 通过 `login` PAM substack 认证，`login.fprintAuth = false`。greetd 只有一个 PAM 会话，`pam_fprintd` 排在密码前面时，回车后要等指纹超时才验证密码，所以登录不启用指纹。用密码登录也能自动解锁 GNOME Keyring。
 - 启用 `my.features.fingerprint.enable` 后，指纹用于锁屏（DMS 自带的 `fprint` 会话，和密码并行）、sudo 和 polkit。TTY 登录同样只用密码。
 
@@ -106,7 +106,7 @@ Nautilus 是默认的目录打开程序。udiskie 不显示独立托盘图标，
 | 项目 | 状态 |
 | --- | --- |
 | laptop 构建 | 已通过 |
-| home/class 的系统 drv 与改动前一致（仍为 SDDM） | 已验证 |
+| home/class 的系统 drv 与改动前一致（当时仍为 SDDM，现已统一为 Dank Greeter） | 已验证 |
 | laptop 只有 greetd，无 sddm；无 swayidle 等空闲服务 | 已验证 |
 | GRUB 隐藏/Esc 调出、Plymouth 开关机画面 | 已实机验证 |
 | Plymouth → greeter 无厂商 logo 闪回（greeter 9.1s 起，Plymouth 10.6s 保留画面退出） | 已实机验证 |
