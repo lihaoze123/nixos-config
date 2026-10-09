@@ -1,9 +1,14 @@
 { config, inputs, pkgs, pkgs-stable, system, lib, ... }:
 
+let
+  # Use the panel's preferred EDID timing for both greeter and desktop.
+  panelMode = "1920x1080@60.000";
+in
 # Base-derived host; select optional features in ./features.nix.
 {
   imports = [
     ./features.nix
+    ./display.nix
     ./hardware-configuration.nix
     ../../disko/btrfs-partitions.nix
     ../base.nix
@@ -18,11 +23,11 @@
         xresources.properties."Xft.dpi" = lib.mkForce 96;
         # The new machine has no checkout at ~/nixos-config: ship these files.
         xdg.configFile."nvim".source = lib.mkForce ../../home-manager/shell/neovim/nvim;
-        # Pin the panel's fractional EDID mode instead of auto-selecting 60 Hz.
+        # Keep the desktop and greeter on the same preferred panel mode.
         xdg.configFile."niri/base.kdl" = lib.mkIf config.my.features.desktop.enable {
           source = lib.mkForce (pkgs.writeText "class-niri-base.kdl" (lib.replaceStrings
             [ "mode \"3120x2080@120\"" "scale 2.0" "position x=1280 y=0" "window-rule {\n    match is-agent-driven=true" "include \"dms/layout.kdl\"" ]
-            [ "mode \"1920x1080@50.002\"" "scale 1.0" "position x=0 y=0" "${lib.optionalString (!config.my.features.codexDesktop.enable) "/-"}window-rule {\n    match is-agent-driven=true" "include optional=true \"dms/layout.kdl\"" ]
+            [ "mode \"${panelMode}\"" "scale 1.0" "position x=0 y=0" "${lib.optionalString (!config.my.features.codexDesktop.enable) "/-"}window-rule {\n    match is-agent-driven=true" "include optional=true \"dms/layout.kdl\"" ]
             (builtins.readFile ../../home-manager/niri/config.kdl)));
         };
       };
@@ -40,9 +45,12 @@
   nixpkgs.hostPlatform = "x86_64-linux";
   # Start Plymouth on the Intel KMS device, before the greeter takes over.
   boot.initrd.kernelModules = lib.mkIf config.my.features.graphicalBoot.enable [ "i915" ];
+  # Keep FBC disabled during validation of the DRRS fix in ./display.nix.
+  # Disabling FBC alone did not stop the static-image blackouts.
+  boot.kernelParams = lib.mkIf config.my.features.desktop.enable [ "i915.enable_fbc=0" ];
   my.niri.greeterExtraConfig = ''
     output "eDP-1" {
-      mode "1920x1080@50.002"
+      mode "${panelMode}"
       scale 1.0
     }
   '';

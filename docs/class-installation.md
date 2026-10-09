@@ -119,10 +119,44 @@ nixos-rebuild switch --flake .#class --target-host root@<IP>
 ## 桌面配置
 
 `hosts/class/features.nix` 开启 desktop、graphicalBoot、extra、extraDesktop、bluetooth、dae、edunet、aiCli、codexDesktop。
-内屏 eDP-1 固定使用 `1920x1080@50.002`、100% 缩放，greeter 与桌面一致。
-这是屏幕 EDID 提供的非整数刷新率模式；是否解决静止画面黑屏仍需实机观察。
+内屏 eDP-1 固定使用 `1920x1080@60.000`、100% 缩放，greeter 与桌面一致。
+这是屏幕 EDID 的首选模式。此前固定为 50.002 Hz 的配置在开机黑屏排查中
+已恢复为 60 Hz；50 Hz 暂不作为黑屏的修复方案。
 DMS 的显示设置会覆盖 Niri 基础配置；已有配置的机器还须在 DMS 设置 → 显示中
-选择 eDP-1、1920×1080、50.002 Hz 并应用，避免继续使用其保存的 60.000 Hz。
+选择 eDP-1、1920×1080、60.000 Hz 并应用。
+
+2026-10-10 实机排查：面板不支持 PSR 或 Panel Replay。关闭 FBC 并重启后，
+静止画面仍然闪黑；采样显示 DRRS 处于活动状态，刷新率在 high/low 之间切换。
+连续临时关闭 DRRS 后，用户观察到接下来的 20 秒不再闪黑。这确认了 DRRS
+切换这一触发路径；仅在 Niri 中固定 60 Hz 无法阻止内核在静止画面时降刷新率。
+
+`hosts/class/display.nix` 从本机实测的 `panel-edid.hex` 生成 EDID 覆盖文件，
+保留原始 1920×1080@60 Hz 时序、屏幕标识及其他属性，仅移除 50.002 Hz 时序，
+并重新计算校验和。通过
+`drm.edid_firmware=eDP-1:edid/tongfang-a7000-60hz.bin` 在内核中加载；
+文件同时打包进 initrd，确保提前加载的 i915、Plymouth、greeter 与桌面都使用它。
+没有可降频的第二组时序时，i915 不会启用 DRRS。此 EDID 仅用于这台机器的面板，
+换屏或迁移主机前必须重新检查，不能直接推广到所有 A7000。
+FBC 暂时继续保持关闭，以便在已经验证的条件下单独验证 DRRS 的持久修复；
+确认稳定后可移除 `i915.enable_fbc=0`，另行观察。
+这些启动设置需要重启；`nixos-rebuild switch` 无法替代此次启动验证。
+
+先构建，再安装到下一次启动；重启由用户在保存工作后执行：
+
+```bash
+nixos-rebuild build --flake .#class
+sudo nixos-rebuild boot --flake .#class
+```
+
+重启后，`cat /proc/cmdline` 应包含上述 `drm.edid_firmware` 参数，
+`niri msg outputs` 应只提供 `1920x1080@60.000`，不再列出 50.002 Hz。
+使用 `sudo cat /sys/kernel/debug/dri/0000:00:02.0/crtc-0/i915_drrs_status`
+确认 `DRRS enabled: no`、`DRRS active: no`。
+分别观察登录界面和没有动画的桌面静止至少 30 秒，再测试屏幕关闭/唤醒。
+持久配置的实际开机及唤醒效果仍须重启后实机确认。如果仍提供 50 Hz，先检查
+`journalctl -b -k` 中 EDID 固件加载的日志，确认覆盖文件是否生效。
+如果新配置无法显示，在开机时按 Esc 显示 GRUB 菜单，选择此前可用的系统代际。
+
 Niri 与 Neovim 的配置直接随系统部署，不依赖目标机上的 `~/nixos-config` checkout。
 class 与 laptop 共用 Codex Desktop 和 computer use 集成，使用带 agent input 补丁的 Niri，
 启用 is-agent-driven 窗口规则；关闭 codexDesktop 时恢复标准 Niri 并禁用该规则。
