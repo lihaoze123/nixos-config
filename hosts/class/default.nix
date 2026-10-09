@@ -33,6 +33,10 @@
   ];
 
   networking.hostName = "class";
+  networking.firewall = {
+    allowedTCPPorts = [ 9100 ];
+    allowedUDPPorts = [ 7778 ];
+  };
   nixpkgs.hostPlatform = "x86_64-linux";
   # Start Plymouth on the Intel KMS device, before the greeter takes over.
   boot.initrd.kernelModules = lib.mkIf config.my.features.graphicalBoot.enable [ "i915" ];
