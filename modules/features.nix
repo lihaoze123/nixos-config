@@ -21,7 +21,8 @@ let
     cachyosKernel = "CachyOS kernel and binary cache";
     extraFonts = "additional Chinese and typesetting fonts";
     tailscale = "Tailscale networking";
-    dae = "DAE proxy with encrypted configuration";
+    dae = "DAE proxy with encrypted nodes";
+    honk = "honk proxy with encrypted nodes and local doona dashboard";
     edunet = "campus network authentication";
     aria2 = "aria2 RPC and local AriaNg web interface";
     wireshark = "Wireshark with capture permissions";
@@ -42,6 +43,7 @@ in
 
   config = {
     assertions = [
+      { assertion = !(cfg.honk.enable && (cfg.dae.enable || config.services.dae.enable)); message = "my.features.honk and dae are mutually exclusive"; }
       { assertion = !cfg.extraDesktop.enable || cfg.desktop.enable; message = "my.features.extraDesktop requires desktop"; }
       { assertion = !cfg.graphicalBoot.enable || cfg.desktop.enable; message = "my.features.graphicalBoot requires desktop"; }
       { assertion = !cfg.speech.enable || cfg.desktop.enable; message = "my.features.speech requires desktop"; }

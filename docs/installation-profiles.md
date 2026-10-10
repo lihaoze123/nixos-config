@@ -56,7 +56,7 @@ sudo nixos-rebuild boot --flake .#laptop
 | `extra` | base 之外的常用命令行工具：lazygit、zellij、tealdeer、fastfetch、try；不依赖桌面 |
 | `extraDesktop` | 常用图形工具：ghostty、neovide、pavucontrol、GNOME 磁盘、baobab、Filelight、Microsoft Edge |
 | `desktop` | Niri + DankMaterialShell（状态栏、通知、启动器、锁屏、剪贴板、文件搜索）、Dank Greeter、中文输入法、PipeWire、基础字体、Kitty、文件管理；laptop 另启用 Plymouth |
-| `bluetooth`、`tailscale`、`dae`、`edunet` | 蓝牙、VPN、代理、校园网认证，各自独立 |
+| `bluetooth`、`tailscale`、`dae`、`honk`、`edunet` | 蓝牙、VPN、代理、校园网认证；dae 与 honk 互斥，代理配置见 [代理说明](proxy.md) |
 | `docker`、`podman` | Docker rootless；Podman + Distrobox，各自独立 |
 | `virtualMachines`、`waydroid` | QEMU/libvirt/virt-manager；Waydroid，各自独立 |
 | `speech`、`doubao`、`easyeffects` | VoCoType；豆包凭据与 worker 集成；麦克风降噪，各自独立 |

@@ -1,0 +1,51 @@
+include {
+    nodes.dae
+}
+
+global {
+    wan_interface: auto
+    log_level: info
+    allow_insecure: false
+    dial_mode: domain
+    auto_config_kernel_parameter: true
+}
+
+dns {
+    upstream {
+        alidns: 'tcp+udp://223.5.5.5:53'
+        google: 'https://dns.google/dns-query'
+    }
+    routing {
+        request {
+            qname(suffix: gstatic.com, geosite:google, geosite:google@cn, geosite:category-ai-!cn, geosite:github) -> google
+            qname(geosite:cn) -> alidns
+            fallback: google
+        }
+    }
+}
+
+group {
+    proxy {
+        policy: fixed(0)
+        filter: name(DMIT)
+    }
+    hk {
+        policy: fixed(0)
+        filter: name(HK)
+    }
+}
+
+routing {
+    pname(NetworkManager) -> direct
+    dip(224.0.0.0/3, 'ff00::/8') -> direct
+    dip(geoip:private) -> direct
+    l4proto(udp) && dport(443) -> block
+    domain(geosite:category-ai-!cn) -> proxy
+    domain(gstatic.com) -> hk
+    domain(geosite:google) -> hk
+    domain(geosite:google@cn) -> hk
+    domain(geosite:github) -> proxy
+    dip(geoip:cn) -> direct
+    domain(geosite:cn) -> direct
+    fallback: hk
+}

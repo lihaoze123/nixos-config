@@ -4,14 +4,14 @@
     inputs.daeuniverse.nixosModules.dae
   ];
 
-  config = lib.mkIf config.my.features.dae.enable {
-    age.secrets.dae-config = {
-      file = ../../secrets/dae-config.age;
-      path = "/etc/dae/config.dae";
+  config = {
+    age.secrets.dae-nodes = lib.mkIf (config.my.features.dae.enable || config.my.features.honk.enable) {
+      file = ../../secrets/dae-nodes.age;
+      path = "/etc/dae/nodes.dae";
       symlink = false;
     };
 
-    services.dae = {
+    services.dae = lib.mkIf config.my.features.dae.enable {
       enable = true;
 
       # Use the release maintained by nixpkgs; the upstream flake's default lags behind.
@@ -27,7 +27,14 @@
         paths = [ "${inputs.geodb}" ];
       });
 
-      configFile = config.age.secrets.dae-config.path;
+      config = import ./render-config.nix { inherit config lib; };
+    };
+
+    systemd.services.dae = lib.mkIf config.my.features.dae.enable {
+      after = [ "agenix.service" ];
+      requires = [ "agenix.service" ];
+      conflicts = [ "honk.service" ];
+      restartTriggers = [ config.age.secrets.dae-nodes.file ];
     };
   };
 }

@@ -97,6 +97,7 @@
         inherit inputs system;
         pkgs = import nixpkgs { inherit system; config.allowUnfree = true; };
       }) // {
+        honk = (import nixpkgs { inherit system; }).callPackage ./modules/honk/package.nix { };
         installer-iso = self.nixosConfigurations.installer.config.system.build.isoImage;
       };
       templates.project = {
