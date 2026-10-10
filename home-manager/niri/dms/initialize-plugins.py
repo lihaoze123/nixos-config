@@ -31,7 +31,7 @@ def main():
     root = Path(sys.argv[1]) / "DankMaterialShell"
     plugins_path = root / "plugin_settings.json"
     plugins = read_json(plugins_path)
-    ids = ("calculator", "dankTranslate", "dankscale", "dankPomodoroTimer", "dankKDEConnect")
+    ids = ("calculator", "dankTranslate", "dankscale", "dankPomodoroTimer", "dankKDEConnect", "linuxWallpaperEngine")
     ids = tuple(plugin_id for plugin_id in ids if (root / "plugins" / plugin_id).is_dir())
     new_widgets = []
     changed = False

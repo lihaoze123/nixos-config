@@ -24,6 +24,19 @@ let
   officialPlugins = fetchPlugin "AvengeMedia" "dms-plugins"
     "a8a508bc371e7c3f2c7862d8840b88cf5c63978f"
     "sha256-3nHfkGzmmq8JpN7bmO8Z5zIumvx8dzwS1GtQ6V0XgMg=";
+  wallpaperEngineSrc = fetchPlugin "sgtaziz" "dms-wallpaperengine"
+    "e96718f5038f54546311a239ef0f6622f15c515a"
+    "sha256-SSNXZl7DFA7cKaSt4FaXcQ58IjcHxvyi/zVKMwvHXdQ=";
+  wallpaperEngine = pkgs.runCommand "dms-wallpaperengine" { } ''
+    cp -r ${wallpaperEngineSrc} $out
+    chmod -R u+w $out
+    # Use store paths even when DMS still has the previous session's PATH.
+    substituteInPlace $out/js/CommandBuilder.js $out/ui/ScenePropertiesModal.qml \
+      --replace-fail '["linux-wallpaperengine"' '["${pkgs.linux-wallpaperengine}/bin/linux-wallpaperengine"'
+    substituteInPlace $out/LinuxWallpaperEnginePlugin.qml \
+      --replace-fail '["magick",' '["${pkgs.imagemagick}/bin/magick",' \
+      --replace-fail 'command -v magick' 'test -x ${pkgs.imagemagick}/bin/magick'
+  '';
   valent = pkgs.valent.overrideAttrs (old: {
     patches = (old.patches or [ ]) ++ [ ./valent-wl-clipboard.patch ];
     postPatch = (old.postPatch or "") + ''
@@ -42,12 +55,13 @@ let
 in
 {
   config = lib.mkIf config.programs.dank-material-shell.enable {
-    home.packages = [ pkgs.translate-shell ];
+    home.packages = [ pkgs.translate-shell pkgs.linux-wallpaperengine pkgs.imagemagick ];
     # Mutter's adapter has higher priority, but its service is absent in Niri.
     dconf.settings."ca/andyholmes/valent/clipboard/plugin/gnome".enabled = false;
     xdg.configFile = {
       "DankMaterialShell/plugins/calculator".source = calculator;
       "DankMaterialShell/plugins/dankTranslate".source = translate;
+      "DankMaterialShell/plugins/linuxWallpaperEngine".source = wallpaperEngine;
       "DankMaterialShell/plugins/dankscale" = lib.mkIf osConfig.my.features.tailscale.enable { source = dankscale; };
       "DankMaterialShell/plugins/dankPomodoroTimer".source = "${officialPlugins}/DankPomodoroTimer";
       "DankMaterialShell/plugins/dankKDEConnect" = lib.mkIf osConfig.my.features.phoneIntegration.enable { source = "${officialPlugins}/DankKDEConnect"; };

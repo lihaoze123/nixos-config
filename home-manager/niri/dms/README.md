@@ -88,6 +88,26 @@ Niri 的固定默认值可写入仓库的 KDL，DMS 生成的片段拥有更后�
 | Dankscale | 状态栏与控制中心查看 Tailscale 设备、连接状态及出口节点 |
 | Dank Pomodoro Timer | 状态栏启动番茄钟，默认工作 25 分钟、短休息 5 分钟 |
 | Phone Connect | 状态栏查看手机、配对、传文件与响铃；后端使用 Valent |
+| Linux Wallpaper Engine | 插件设置中选择动态壁纸，支持单屏、播放列表与跨屏 |
+
+Linux Wallpaper Engine 插件、`linux-wallpaperengine` 引擎与 ImageMagick 由
+Home Manager 安装，首次初始化启用插件，之后保留界面中的开关与设置。
+Niri 的 `layer-rule` 将动态壁纸放入概览背景，`layout.background-color`
+设为 `transparent`，让普通桌面也能显示该背景；插件使用引擎与 ImageMagick
+的 Nix store 路径，无需等待重新登录后更新 PATH。
+
+需要手动在 Steam 中购买并安装 Wallpaper Engine，并订阅、下载创意工坊壁纸。
+应用系统配置后执行 `systemctl --user restart dms.service`，在 DMS 设置的
+Plugins → Linux Wallpaper Engine 中选择壁纸。默认 Steam 路径会自动发现；
+其他安装位置在 Custom Paths 中指定 Assets Folder（Wallpaper Engine 的
+`assets` 目录）和 Backgrounds Folder（包含各壁纸目录的父目录）。
+可用 `dms ipc call linuxWallpaperEngine picker` 打开壁纸选择器。
+若引擎已运行却仍显示静态壁纸，在 DMS 的显示器设置中关闭内置壁纸显示：
+`settings.json` 的 `screenPreferences.wallpaper` 应为 `[]`，避免静态壁纸
+与引擎争用背景层。修改后重启 `dms.service`。切回静态壁纸时先禁用插件，
+再恢复壁纸显示器选择（所有显示器为 `["all"]`）；原壁纸路径仍会保留。
+上游说明见 [插件仓库](https://github.com/sgtaziz/dms-wallpaperengine) 与
+[引擎仓库](https://github.com/Almamu/linux-wallpaperengine)。
 
 翻译依赖 translate-shell 在线服务，翻译文本会发往所选服务。
 默认目标语言只在首次初始化时设置，可在插件设置中修改。
