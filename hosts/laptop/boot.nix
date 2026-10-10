@@ -3,7 +3,7 @@
   config = lib.mkMerge [
     (lib.mkIf config.my.features.cachyosKernel.enable {
       nixpkgs.overlays = [ inputs.nix-cachyos-kernel.overlays.pinned ];
-      boot.kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-latest;
+      boot.kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-bore;
 
       nix.settings = {
         substituters = [ "https://attic.xuyh0120.win/lantian" ];
