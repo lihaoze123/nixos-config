@@ -66,10 +66,11 @@ sudo nixos-rebuild boot --flake .#laptop
 | `extraFonts` | 基础桌面字体之外的中文及排版字体 |
 | `codexDesktop` | Codex Desktop 和 Niri computer use 集成；laptop、class 已启用 |
 | `fingerprint`、`cachyosKernel`、`steam` | laptop：指纹驱动；CachyOS 内核；Steam，各自独立 |
+| `wallpaperEngine` | DMS 动态壁纸插件、linux-wallpaperengine、ImageMagick 与 Niri 背景规则；各主机默认关闭 |
 | `phoneIntegration`、`screenCast` | laptop：Valent/KDE Connect；Wi-Fi 投屏及配套端口，各自独立 |
 | `printing`、`syncthing` | home：打印及驱动；已有 Syncthing 同步配置，各自独立 |
 
-extraDesktop、语音识别、EasyEffects、Codex 桌面、手机集成和投屏要求 desktop；doubao 要求 speech。不满足依赖时求值会给出错误。开关只控制安装与服务，关闭不会删除原有用户数据。
+extraDesktop、语音识别、EasyEffects、Codex 桌面、动态壁纸、手机集成和投屏要求 desktop；doubao 要求 speech。不满足依赖时求值会给出错误。开关只控制安装与服务，关闭不会删除原有用户数据。
 
 没有启用 cachyosKernel 时使用 NixOS 默认内核。没有启用 fingerprint 时不安装第三方指纹驱动，也不引入其内核开发闭包。
 

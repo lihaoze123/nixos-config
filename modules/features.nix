@@ -12,6 +12,7 @@ let
     virtualMachines = "libvirt, QEMU and virt-manager";
     waydroid = "Waydroid";
     steam = "Steam and its system integration";
+    wallpaperEngine = "Wallpaper Engine animated wallpapers with the DMS plugin";
     speech = "VoCoType speech recognition";
     doubao = "Doubao speech credentials and worker integration";
     easyeffects = "EasyEffects microphone denoising";
@@ -46,6 +47,7 @@ in
       { assertion = !(cfg.honk.enable && (cfg.dae.enable || config.services.dae.enable)); message = "my.features.honk and dae are mutually exclusive"; }
       { assertion = !cfg.extraDesktop.enable || cfg.desktop.enable; message = "my.features.extraDesktop requires desktop"; }
       { assertion = !cfg.graphicalBoot.enable || cfg.desktop.enable; message = "my.features.graphicalBoot requires desktop"; }
+      { assertion = !cfg.wallpaperEngine.enable || cfg.desktop.enable; message = "my.features.wallpaperEngine requires desktop"; }
       { assertion = !cfg.speech.enable || cfg.desktop.enable; message = "my.features.speech requires desktop"; }
       { assertion = !cfg.doubao.enable || cfg.speech.enable; message = "my.features.doubao requires speech"; }
       { assertion = !cfg.easyeffects.enable || cfg.desktop.enable; message = "my.features.easyeffects requires desktop"; }

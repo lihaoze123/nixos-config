@@ -55,13 +55,14 @@ let
 in
 {
   config = lib.mkIf config.programs.dank-material-shell.enable {
-    home.packages = [ pkgs.translate-shell pkgs.linux-wallpaperengine pkgs.imagemagick ];
+    home.packages = [ pkgs.translate-shell ]
+      ++ lib.optionals osConfig.my.features.wallpaperEngine.enable [ pkgs.linux-wallpaperengine pkgs.imagemagick ];
     # Mutter's adapter has higher priority, but its service is absent in Niri.
     dconf.settings."ca/andyholmes/valent/clipboard/plugin/gnome".enabled = false;
     xdg.configFile = {
       "DankMaterialShell/plugins/calculator".source = calculator;
       "DankMaterialShell/plugins/dankTranslate".source = translate;
-      "DankMaterialShell/plugins/linuxWallpaperEngine".source = wallpaperEngine;
+      "DankMaterialShell/plugins/linuxWallpaperEngine" = lib.mkIf osConfig.my.features.wallpaperEngine.enable { source = wallpaperEngine; };
       "DankMaterialShell/plugins/dankscale" = lib.mkIf osConfig.my.features.tailscale.enable { source = dankscale; };
       "DankMaterialShell/plugins/dankPomodoroTimer".source = "${officialPlugins}/DankPomodoroTimer";
       "DankMaterialShell/plugins/dankKDEConnect" = lib.mkIf osConfig.my.features.phoneIntegration.enable { source = "${officialPlugins}/DankKDEConnect"; };

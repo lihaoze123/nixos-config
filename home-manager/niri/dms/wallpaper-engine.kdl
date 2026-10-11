@@ -1,0 +1,9 @@
+// Show animated wallpapers on the desktop and within the overview backdrop.
+layout {
+    background-color "transparent"
+}
+
+layer-rule {
+    match namespace="^linux-wallpaperengine$"
+    place-within-backdrop true
+}

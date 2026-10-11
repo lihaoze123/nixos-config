@@ -29,6 +29,7 @@
     fingerprint.enable = true;
     cachyosKernel.enable = true;
     steam.enable = true;
+    # wallpaperEngine.enable = true; # 需要 desktop，按需开启
     phoneIntegration.enable = true;
     screenCast.enable = true;
   };

@@ -112,9 +112,6 @@ output "eDP-1" {
 // Find more information on the wiki:
 // https://yalter.github.io/niri/Configuration:-Layout
 layout {
-    // Reveal wallpapers placed within the overview backdrop on the desktop too.
-    background-color "transparent"
-
     // Set gaps around windows in logical pixels.
     gaps 16
 
@@ -675,12 +672,6 @@ window-rule {
         offset x=0 y=0
         color "#a78bfa70"
     }
-}
-
-// Keep animated wallpapers within the overview backdrop.
-layer-rule {
-    match namespace="^linux-wallpaperengine$"
-    place-within-backdrop true
 }
 
 // DMS Include Configs

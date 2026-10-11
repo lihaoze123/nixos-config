@@ -90,10 +90,13 @@ Niri 的固定默认值可写入仓库的 KDL，DMS 生成的片段拥有更后�
 | Phone Connect | 状态栏查看手机、配对、传文件与响铃；后端使用 Valent |
 | Linux Wallpaper Engine | 插件设置中选择动态壁纸，支持单屏、播放列表与跨屏 |
 
-Linux Wallpaper Engine 插件、`linux-wallpaperengine` 引擎与 ImageMagick 由
-Home Manager 安装，首次初始化启用插件，之后保留界面中的开关与设置。
-Niri 的 `layer-rule` 将动态壁纸放入概览背景，`layout.background-color`
-设为 `transparent`，让普通桌面也能显示该背景；插件使用引擎与 ImageMagick
+Linux Wallpaper Engine 是可选功能，各主机默认关闭。在目标主机的
+`hosts/<主机>/features.nix` 中设置 `my.features.wallpaperEngine.enable = true;`
+（需要 `my.features.desktop.enable = true;`），才会由 Home Manager 安装插件、
+`linux-wallpaperengine` 引擎与 ImageMagick。首次初始化启用插件，之后保留
+界面中的开关与设置；关闭 feature 会移除插件及其专用 Niri 配置，保留用户设置。
+启用时，`wallpaper-engine.kdl` 的 `layer-rule` 将动态壁纸放入概览背景，
+`layout.background-color` 设为 `transparent`，让普通桌面也能显示该背景；插件使用引擎与 ImageMagick
 的 Nix store 路径，无需等待重新登录后更新 PATH。
 
 需要手动在 Steam 中购买并安装 Wallpaper Engine，并订阅、下载创意工坊壁纸。

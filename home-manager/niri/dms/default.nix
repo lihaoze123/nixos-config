@@ -99,6 +99,9 @@ in
 
     xdg.configFile = {
       "niri/config.kdl".source = ./niri.kdl;
+      "niri/wallpaper-engine.kdl" = lib.mkIf osConfig.my.features.wallpaperEngine.enable {
+        source = ./wallpaper-engine.kdl;
+      };
       "niri/base.kdl".source = config.lib.file.mkOutOfStoreSymlink
         "${config.home.homeDirectory}/nixos-config/home-manager/niri/config.kdl";
       "niri/dms-bindings.kdl".text = lib.concatStringsSep "\n" (

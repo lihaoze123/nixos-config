@@ -23,5 +23,6 @@
     # speech.enable = true; # 需要 desktop
     # doubao.enable = true; # 需要 speech
     # easyeffects.enable = true; # 需要 desktop
+    # wallpaperEngine.enable = true; # 需要 desktop
   };
 }

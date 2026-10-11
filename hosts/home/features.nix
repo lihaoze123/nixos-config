@@ -22,6 +22,7 @@
     syncthing.enable = true;
 
     # 重构前未启用，可按需开启：
+    # wallpaperEngine.enable = true; # 需要 desktop
     # podman.enable = true;
     # virtualMachines.enable = true;
     # waydroid.enable = true;
