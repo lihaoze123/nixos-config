@@ -52,13 +52,8 @@
     };
     claude-code.url = "github:sadjow/claude-code-nix";
     codex-code.url = "github:sadjow/codex-cli-nix";
+    # Upstream updates Desktop independently of the tested niri backend.
     computer-use.url = "github:lihaoze123/niri-computer-use";
-    # Update the desktop independently of the niri backend's compatibility pins.
-    codex-desktop = {
-      url = "github:ilysenko/codex-desktop-linux";
-      inputs.nixpkgs.follows = "computer-use/codex-desktop-linux/nixpkgs";
-      inputs.flake-utils.follows = "computer-use/codex-desktop-linux/flake-utils";
-    };
     edunet.url = "github:lihaoze123/hhu-edunet-cli";
     gxfp5130Chicago = {
       url = "github:lihaoze123/gxfp5130-chicago";

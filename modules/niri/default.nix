@@ -20,7 +20,7 @@ in
     programs.codexComputerUse = {
       enable = config.my.features.codexDesktop.enable;
       users = [ "chumeng" ];
-      package = import ./codex-desktop.nix { inherit inputs system; };
+      package = inputs.computer-use.packages.${system}.codex-desktop;
     };
 
     # Dank Greeter on greetd. Switching display managers stops the running
