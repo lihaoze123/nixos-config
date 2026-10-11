@@ -14,6 +14,15 @@
 | `class` | 基于 base，Btrfs + 独立 ESP，保留 Windows；桌面、常用工具、蓝牙、DAE、校园网认证、AI CLI、Codex Desktop / computer use |
 | `base` | 最小系统：启动、网络、用户、SSH、防火墙、Shell、Git/Jujutsu、Neovim、direnv，无图形会话 |
 
+laptop、home、class、base 共用 `modules/nix-cache/` 的私有 R2 下载缓存配置，
+使用 `secrets/r2-cache-credentials.age` 和同一份缓存签名公钥；installer 保持独立。
+凭据由 agenix 解密为 root 可读文件，nix-daemon 在配置激活后使用它，上传仍手动执行。
+新机器须先将解密公钥加入 `secrets/keys.nix` 与凭据收件人规则，重新加密，并配置
+`age.identityPaths` 指向对应私钥；base 的旧 id_rsa 路径也应按目标机器调整。
+首次构建使用的是机器当前的缓存配置；需要下载 Windows 字体的设备可先关闭
+`windowsFonts`，部署缓存配置后再开启字体并构建。
+日常上传其他输出、校验、密钥轮换与清理见 [私有 R2 缓存维护](nix-cache.md)。
+
 三台主机使用同一套桌面：Niri + DankMaterialShell，登录界面为 Dank Greeter（greetd）。各主机只在 niri 布局（`home-manager/niri/config.kdl`、`hosts/<主机>/config-<主机>.kdl`）和 greeter 的输出设置（`my.niri.greeterExtraConfig`）上不同。从 SDDM 切换过来时，用 `sudo nixos-rebuild boot` 后重启。
 
 `base` 不属于任何现有主机，有自己的 `hosts/base/`。新机器上安装前，先用目标机器的硬件配置替换占位文件：
@@ -64,6 +73,7 @@ sudo nixos-rebuild boot --flake .#laptop
 | `aria2` | aria2 RPC、AriaNg 和本地 Caddy 服务 |
 | `wireshark`、`appimage`、`nixLd` | 抓包权限；AppImage；外部程序兼容加载器，各自独立 |
 | `extraFonts` | 基础桌面字体之外的中文及排版字体 |
+| `windowsFonts` | chinese-fonts-overlay 的 Windows 字体，需要 desktop 和 extraFonts |
 | `codexDesktop` | Codex Desktop 和 Niri computer use 集成；laptop、class 已启用 |
 | `fingerprint`、`cachyosKernel`、`steam` | laptop：指纹驱动；CachyOS 内核；Steam，各自独立 |
 | `wallpaperEngine` | DMS 动态壁纸插件、linux-wallpaperengine、ImageMagick 与 Niri 背景规则；各主机默认关闭 |

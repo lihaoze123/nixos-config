@@ -53,13 +53,13 @@
       "locked": {
         "lastModified": 1783394282,
         "narHash": "sha256-aHKHSvTLProiVzyMKOo+nbRff9Ts3dTX9PpxlYcc084=",
-        "owner": "lihaoze123",
+        "owner": "brsvh",
         "repo": "chinese-fonts-overlay",
         "rev": "da90d47fa1a6f8fbfcc5795bc9351c98142f37ea",
         "type": "github"
       },
       "original": {
-        "owner": "lihaoze123",
+        "owner": "brsvh",
         "ref": "main",
         "repo": "chinese-fonts-overlay",
         "type": "github"

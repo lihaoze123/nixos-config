@@ -19,6 +19,9 @@ Plymouth 运行在 `DeviceScale=1`，主题素材直接按屏幕 2 倍分辨率�
 
 ## 应用配置
 
+Windows 字体通过 `chinese-fonts-overlay` 声明式安装，构建结果由 Nix 缓存，
+说明见 [Windows 字体](windows-fonts.md)。
+
 切换显示管理器时，`switch` 会停止正在运行的图形会话，所以这次改动要用 `boot` 并重启：
 
 ```bash

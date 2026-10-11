@@ -20,7 +20,8 @@
     # wireshark.enable = true;
     # appimage.enable = true;
     nixLd.enable = true;
-    # extraFonts.enable = true;
+    extraFonts.enable = true;
+    windowsFonts.enable = true;
     aiCli.enable = true;
     codexDesktop.enable = true; # 需要 desktop
     # speech.enable = true; # 需要 desktop

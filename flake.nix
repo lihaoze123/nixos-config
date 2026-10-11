@@ -36,7 +36,7 @@
       flake = false;
     };
     ragenix.url = "github:yaxitech/ragenix";
-    chinese-fonts-overlay.url = "github:lihaoze123/chinese-fonts-overlay/main";
+    chinese-fonts-overlay.url = "github:brsvh/chinese-fonts-overlay/main";
     browser-previews = {
       url = "github:nix-community/browser-previews";
       inputs.nixpkgs.follows = "nixpkgs";

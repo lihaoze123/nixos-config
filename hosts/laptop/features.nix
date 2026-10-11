@@ -21,6 +21,7 @@
     appimage.enable = true;
     nixLd.enable = true;
     extraFonts.enable = true;
+    windowsFonts.enable = true; # 需要 desktop 和 extraFonts，使用上游 Windows 字体包
     aiCli.enable = true;
     speech.enable = true;
     doubao.enable = true; # 需要 speech

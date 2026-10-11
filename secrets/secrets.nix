@@ -8,4 +8,5 @@ in
     "aria2-password.age".publicKeys = users;
     "edunet-env.age".publicKeys = users;
     "doubao-asr.age".publicKeys = users;
+    "r2-cache-credentials.age".publicKeys = users;
 }

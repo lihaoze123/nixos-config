@@ -21,6 +21,7 @@ let
     fingerprint = "Chicago fingerprint driver and authentication";
     cachyosKernel = "CachyOS kernel and binary cache";
     extraFonts = "additional Chinese and typesetting fonts";
+    windowsFonts = "Windows fonts from chinese-fonts-overlay";
     tailscale = "Tailscale networking";
     dae = "DAE proxy with encrypted nodes";
     honk = "honk proxy with encrypted nodes and local doona dashboard";
@@ -54,6 +55,7 @@ in
       { assertion = !cfg.codexDesktop.enable || cfg.desktop.enable; message = "my.features.codexDesktop requires desktop"; }
       { assertion = !cfg.phoneIntegration.enable || cfg.desktop.enable; message = "my.features.phoneIntegration requires desktop"; }
       { assertion = !cfg.screenCast.enable || cfg.desktop.enable; message = "my.features.screenCast requires desktop"; }
+      { assertion = !cfg.windowsFonts.enable || (cfg.desktop.enable && cfg.extraFonts.enable); message = "my.features.windowsFonts requires desktop and extraFonts"; }
     ];
 
     hardware.bluetooth = lib.mkIf cfg.bluetooth.enable {
@@ -85,7 +87,7 @@ in
         foundertype-fonts
         lxgw-wenkai
         cm_unicode
-      ];
+      ] ++ lib.optionals cfg.windowsFonts.enable [ windows-fonts ];
       enableDefaultPackages = false;
       fontconfig.defaultFonts = {
         serif = [ "Noto Serif CJK SC" ];
