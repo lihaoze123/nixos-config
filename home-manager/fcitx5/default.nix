@@ -6,6 +6,15 @@
 , ...
 }:
 let
+  mellowThemes = pkgs.fetchFromGitHub {
+    owner = "sanweiya";
+    repo = "fcitx5-mellow-themes";
+    rev = "2c93b0ea3418a55c03f526d963c84a7ccde2c1e9";
+    hash = "sha256-y7Q7BgObG99l0+8UVn24TibmUK3Xdq+/1N/G4o9eYAY=";
+  };
+  mellowThemeNames = lib.concatMap
+    (color: [ "mellow-${color}" "mellow-${color}-dark" ])
+    [ "graphite" "sakura" "vermilion" "wechat" "youlan" ];
   speechEnabled = osConfig.my.features.speech.enable;
   vocotypePackage = inputs.vocotype.packages.${pkgs.stdenv.hostPlatform.system}.vocotype-fcitx5;
   vocotypePkgs = import inputs.vocotype.inputs.nixpkgs {
@@ -287,6 +296,10 @@ in
         source = ./config/profile;
         force = true;
       };
+      "fcitx5/conf/classicui.conf" = {
+        source = ./config/classicui.conf;
+        force = true;
+      };
     };
     home.file = {
       ".local/share/fcitx5/rime/default.custom.yaml".source = ./config/default.custom.yaml;
@@ -325,7 +338,9 @@ in
             source = config.lib.file.mkOutOfStoreSymlink "${rime-user-dictionary-dir}/${name}";
             force = true;
           })
-        rime-user-dictionaries) // {
+        rime-user-dictionaries)
+      // lib.genAttrs (map (name: "fcitx5/themes/${name}") mellowThemeNames)
+        (path: { source = "${mellowThemes}/${builtins.baseNameOf path}"; }) // {
       "applications/vocotype-settings.desktop" = lib.mkIf speechEnabled {
         text = ''
           [Desktop Entry]

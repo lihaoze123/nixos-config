@@ -23,6 +23,15 @@ fcitx5/
 
 ## 常用修改入口
 
+### 候选框主题
+
+安装 [Mellow 主题](https://github.com/sanweiya/fcitx5-mellow-themes) 的全部五种配色，
+默认使用釉蓝（`mellow-youlan` / `mellow-youlan-dark`），随桌面浅色／深色切换。
+上游版本与校验和固定在 `default.nix`；配色、字体、候选列表方向和缩放设置
+由 `config/classicui.conf` 管理。修改该文件的 `Theme` 和 `DarkTheme` 后重新应用配置，
+再运行 `systemctl --user restart fcitx5-daemon.service` 重启输入法。
+配置工具中的临时修改会在下一次应用配置时被覆盖。
+
 ### 离线语音输入
 
 先启用 `my.features.desktop.enable` 和 `my.features.speech.enable`。
