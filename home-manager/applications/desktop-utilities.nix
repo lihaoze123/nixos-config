@@ -2,7 +2,10 @@
 lib.mkIf osConfig.my.features.desktop.enable {
   home.packages = with pkgs; [
     loupe
+    zathura
   ];
+
+  xdg.configFile."zathura/zathurarc".source = ./zathura/zathurarc;
 
   xdg.mimeApps.defaultApplications = {
     "image/jpeg" = [ "org.gnome.Loupe.desktop" ];

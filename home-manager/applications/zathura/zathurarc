@@ -1,0 +1,45 @@
+# DMS purple: dark surfaces, lavender accents and comfortable spacing.
+set font "FiraCode Nerd Font 11"
+set default-bg "#141218"
+set default-fg "#e6e0e9"
+set statusbar-bg "#211f26"
+set statusbar-fg "#d0bcff"
+set statusbar-h-padding 12
+set statusbar-v-padding 6
+set inputbar-bg "#211f26"
+set inputbar-fg "#e6e0e9"
+
+set completion-bg "#211f26"
+set completion-fg "#e6e0e9"
+set completion-group-bg "#2b2930"
+set completion-group-fg "#d0bcff"
+set completion-highlight-bg "#4f378b"
+set completion-highlight-fg "#eaddff"
+set index-bg "#141218"
+set index-fg "#e6e0e9"
+set index-active-bg "#4f378b"
+set index-active-fg "#eaddff"
+
+set notification-bg "#211f26"
+set notification-fg "#e6e0e9"
+set notification-error-bg "#601410"
+set notification-error-fg "#ffdad6"
+set notification-warning-bg "#4a3800"
+set notification-warning-fg "#ffdea0"
+set highlight-color "rgba(208,188,255,0.35)"
+set highlight-active-color "rgba(208,188,255,0.65)"
+set render-loading-bg "#141218"
+set render-loading-fg "#d0bcff"
+
+# Preserve document colors by default; Ctrl+r toggles night reading.
+set recolor false
+set recolor-darkcolor "#e6e0e9"
+set recolor-lightcolor "#141218"
+set recolor-keephue true
+set recolor-reverse-video true
+
+set adjust-open width
+set page-h-padding 12
+set page-v-padding 12
+set scroll-step 60
+set selection-clipboard clipboard
