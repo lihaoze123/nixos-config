@@ -22,6 +22,11 @@ let
     wallpaperPath = "${config.home.homeDirectory}/.background/wallpaper.jpg";
     terminalOverride = "kitty";
   };
+  initialQtSettings = pkgs.writeText "qtct.conf" ''
+    [Appearance]
+    icon_theme=Papirus-Dark
+    style=Fusion
+  '';
   initialize = pkgs.writeShellApplication {
     name = "dms-initialize";
     runtimeInputs = [ pkgs.coreutils ];
@@ -36,6 +41,15 @@ let
       if [ ! -e "$state_dir/session.json" ]; then
         install -m 600 ${initialSession} "$state_dir/session.json"
       fi
+      # Qt6 cannot resolve tray/menu icons without an explicit icon theme.
+      # Seed both control tools, preserving later edits by the user or DMS.
+      for tool in qt5ct qt6ct; do
+        qt_dir=${lib.escapeShellArg config.xdg.configHome}/"$tool"
+        install -d -m 700 "$qt_dir"
+        if [ ! -e "$qt_dir/$tool.conf" ]; then
+          install -m 600 ${initialQtSettings} "$qt_dir/$tool.conf"
+        fi
+      done
       # DMS owns these files and rewrites them from its GUI. Never link them
       # into the read-only Nix store or truncate an existing configuration.
       for name in colors layout alttab binds cursor outputs windowrules wpblur input; do
