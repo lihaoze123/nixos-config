@@ -21,6 +21,11 @@ in
     (lib.mkIf cfg.waydroid.enable { virtualisation.waydroid.enable = true; })
     (lib.mkIf cfg.podman.enable {
       virtualisation.podman.enable = true;
+      virtualisation.containers.registries.settings.unqualified-search-registries = [
+        "docker.io"
+        "quay.io"
+        "ghcr.io"
+      ];
       environment.systemPackages = [ pkgs.distrobox ];
     })
   ];

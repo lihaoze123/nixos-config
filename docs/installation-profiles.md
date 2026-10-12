@@ -82,6 +82,8 @@ sudo nixos-rebuild boot --flake .#laptop
 
 extraDesktop、语音识别、EasyEffects、Codex 桌面、动态壁纸、手机集成和投屏要求 desktop；doubao 要求 speech。不满足依赖时求值会给出错误。开关只控制安装与服务，关闭不会删除原有用户数据。
 
+启用 `podman` 时，未指定仓库域名的镜像名按 `docker.io`、`quay.io`、`ghcr.io` 的顺序搜索，配置由 NixOS 写入 `/etc/containers/registries.conf`。例如 `podman pull alpine` 使用此搜索列表；`podman pull docker.io/library/alpine` 则直接使用指定仓库。Podman 可能提示选择仓库并记住选择；用户自己的 `~/.config/containers/registries.conf` 会覆盖系统配置。
+
 没有启用 cachyosKernel 时使用 NixOS 默认内核。没有启用 fingerprint 时不安装第三方指纹驱动，也不引入其内核开发闭包。
 
 ## 用户 profile：逐个安装应用

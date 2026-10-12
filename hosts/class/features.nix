@@ -14,7 +14,7 @@
     edunet.enable = true;
     # aria2.enable = true;
     # docker.enable = true;
-    # podman.enable = true;
+    podman.enable = true;
     # virtualMachines.enable = true;
     # waydroid.enable = true;
     # wireshark.enable = true;
