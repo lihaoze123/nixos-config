@@ -19,7 +19,7 @@ let
     codexDesktop = "Codex Desktop Computer Use integration";
     aiCli = "Claude Code, Codex and OpenCode CLI tools";
     fingerprint = "Chicago fingerprint driver and authentication";
-    cachyosKernel = "CachyOS kernel and binary cache";
+    cachyosKernel = "CachyOS BORE kernel and binary cache";
     extraFonts = "additional Chinese and typesetting fonts";
     windowsFonts = "Windows fonts from chinese-fonts-overlay";
     tailscale = "Tailscale networking";

@@ -1,11 +1,12 @@
 # class 的功能选择：桌面、常用工具、蓝牙、代理和校园网认证。
-# 这里只列出共享模块实现的功能；指纹、CachyOS 内核、Steam 等属于具体主机。
+# 这里只列出共享模块实现的功能；指纹、Steam 等属于具体主机。
 { ... }:
 {
   my.features = {
     extra.enable = true;
     desktop.enable = true;
     graphicalBoot.enable = true; # 需要 desktop
+    cachyosKernel.enable = true; # CachyOS BORE 调度内核
     extraDesktop.enable = true; # 需要 desktop
     bluetooth.enable = true;
     # tailscale.enable = true;

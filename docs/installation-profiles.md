@@ -75,7 +75,8 @@ sudo nixos-rebuild boot --flake .#laptop
 | `extraFonts` | 基础桌面字体之外的中文及排版字体 |
 | `windowsFonts` | chinese-fonts-overlay 的 Windows 字体，需要 desktop 和 extraFonts |
 | `codexDesktop` | Codex Desktop 和 Niri computer use 集成；laptop、class 已启用 |
-| `fingerprint`、`cachyosKernel`、`steam` | laptop：指纹驱动；CachyOS 内核；Steam，各自独立 |
+| `cachyosKernel` | CachyOS BORE 调度内核及二进制缓存；laptop、class 已启用 |
+| `fingerprint`、`steam` | laptop：指纹驱动；Steam，各自独立 |
 | `wallpaperEngine` | DMS 动态壁纸插件、linux-wallpaperengine、ImageMagick 与 Niri 背景规则；各主机默认关闭 |
 | `phoneIntegration`、`screenCast` | laptop：Valent/KDE Connect；Wi-Fi 投屏及配套端口，各自独立 |
 | `printing`、`syncthing` | home：打印及驱动；已有 Syncthing 同步配置，各自独立 |
@@ -84,7 +85,15 @@ extraDesktop、语音识别、EasyEffects、Codex 桌面、动态壁纸、手机
 
 启用 `podman` 时，未指定仓库域名的镜像名按 `docker.io`、`quay.io`、`ghcr.io` 的顺序搜索，配置由 NixOS 写入 `/etc/containers/registries.conf`。例如 `podman pull alpine` 使用此搜索列表；`podman pull docker.io/library/alpine` 则直接使用指定仓库。Podman 可能提示选择仓库并记住选择；用户自己的 `~/.config/containers/registries.conf` 会覆盖系统配置。
 
-没有启用 cachyosKernel 时使用 NixOS 默认内核。没有启用 fingerprint 时不安装第三方指纹驱动，也不引入其内核开发闭包。
+没有启用 cachyosKernel 时使用 NixOS 默认内核。启用后先运行 `nixos-rebuild build --flake .#class` 验证构建，再运行 `sudo nixos-rebuild boot --flake .#class` 并重启（其他主机替换 `class`）；新内核在重启后生效。没有启用 fingerprint 时不安装第三方指纹驱动，也不引入其内核开发闭包。
+
+首次启用时，当前系统尚未信任 CachyOS 缓存，可先使用以下命令构建，避免本地编译内核；写入启动配置后，缓存设置会在新系统启动时生效：
+
+```bash
+sudo nix build .#nixosConfigurations.class.config.system.build.toplevel --no-link \
+  --extra-substituters https://attic.xuyh0120.win/lantian \
+  --extra-trusted-public-keys 'lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc='
+```
 
 ## 用户 profile：逐个安装应用
 
