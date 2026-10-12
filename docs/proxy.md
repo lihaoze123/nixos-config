@@ -37,7 +37,9 @@ my.features = {
 
 ## honk 与 doona
 
-固定使用 doona beta.19 发布附件中的 `honk debug.2026.10.9.native-api.2`，下载由 SHA-256 校验。它包含 eBPF、原生 API 和内嵌 doona；版本更新需同时核对引擎与前端契约。
+固定使用 [doona beta.20 发布附件](https://github.com/Zakkaus/doona/releases/tag/v0.1.0-beta.20)中的 `honk debug.2026.10.12.native-api.1`，下载由 SHA-256 校验。它包含 eBPF、原生 API 和内嵌 doona beta.20；版本更新需同时核对引擎与前端契约。
+
+honk 的附加配置启用 `tls_implementation: utls` 和 `utls_imitate: chrome_auto`，使用 Chrome 风格的 ClientHello 模拟。节点链接中的 `fp` 不控制 honk 的握手指纹；模拟也不保证与真实浏览器完全一致。构建并激活配置后，用 `journalctl -u honk -b --no-pager | rg 'TLS mode:'` 确认日志显示 `Chrome fingerprint=true`。REALITY 节点若改用 443，须先调整服务端监听或转发，再同步客户端端口；仅修改客户端不能完成迁移。
 
 本机访问 `http://127.0.0.1:9527/ui/`，首次创建管理员账号；9527 不开放到局域网。账号与运行状态位于 `/var/lib/honk/state/honk.db`。配置由 Nix 管理，因此 `config_write: false`，在仓库修改规则后重建；界面用于查看流量、DNS 和节点状态。
 

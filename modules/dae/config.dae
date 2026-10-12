@@ -12,9 +12,8 @@ global {
 
 dns {
     upstream {
-        # Use DoH by IP so resolving this upstream does not depend on port 53.
         alidns: 'https://223.5.5.5/dns-query'
-        google: 'https://dns.google/dns-query'
+        google: 'https://8.8.8.8/dns-query'
     }
     routing {
         request {
@@ -30,10 +29,6 @@ group {
         policy: fixed(0)
         filter: name(DMIT)
     }
-    hk {
-        policy: fixed(0)
-        filter: name(HK)
-    }
 }
 
 routing {
@@ -42,11 +37,11 @@ routing {
     dip(geoip:private) -> direct
     l4proto(udp) && dport(443) -> block
     domain(geosite:category-ai-!cn) -> proxy
-    domain(gstatic.com) -> hk
-    domain(geosite:google) -> hk
-    domain(geosite:google@cn) -> hk
+    domain(gstatic.com) -> proxy
+    domain(geosite:google) -> proxy
+    domain(geosite:google@cn) -> proxy
     domain(geosite:github) -> proxy
     dip(geoip:cn) -> direct
     domain(geosite:cn) -> direct
-    fallback: hk
+    fallback: proxy
 }
