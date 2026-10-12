@@ -26,7 +26,8 @@ Zathura 由桌面主机的 Home Manager 声明式安装，并管理
 `home-manager/applications/zathura/zathurarc`，使用与 DMS purple
 协调的深色界面与紫色高亮；文档默认保留原始颜色。`Ctrl+r` 切换夜间阅读配色，
 `s` 适应宽度，`a` 适应整页，`Tab` 打开目录，`/` 搜索，`q` 退出。
-选中文本后复制到系统剪贴板。此配置不更改默认 PDF 应用。
+选中文本后复制到系统剪贴板。PDF 默认关联到 Zathura 的 MuPDF 桌面入口，
+应用配置后可通过 `xdg-open 文件.pdf` 打开。
 
 切换显示管理器时，`switch` 会停止正在运行的图形会话，所以这次改动要用 `boot` 并重启：
 

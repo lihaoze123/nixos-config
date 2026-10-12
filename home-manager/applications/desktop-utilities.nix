@@ -8,6 +8,7 @@ lib.mkIf osConfig.my.features.desktop.enable {
   xdg.configFile."zathura/zathurarc".source = ./zathura/zathurarc;
 
   xdg.mimeApps.defaultApplications = {
+    "application/pdf" = [ "org.pwmt.zathura-pdf-mupdf.desktop" ];
     "image/jpeg" = [ "org.gnome.Loupe.desktop" ];
     "image/png" = [ "org.gnome.Loupe.desktop" ];
     "image/gif" = [ "org.gnome.Loupe.desktop" ];
