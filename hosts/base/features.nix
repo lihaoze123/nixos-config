@@ -20,7 +20,7 @@
     # nixLd.enable = true;
     # extraFonts.enable = true;
     # aiCli.enable = true;
-    # speech.enable = true; # 需要 desktop
+    # speech.enable = true; # 需要 desktop 和 doubao（Lite 仅支持云端）
     # doubao.enable = true; # 需要 speech
     # easyeffects.enable = true; # 需要 desktop
     # wallpaperEngine.enable = true; # 需要 desktop

@@ -15,66 +15,6 @@ let
   mellowThemeNames = lib.concatMap
     (color: [ "mellow-${color}" "mellow-${color}-dark" ])
     [ "graphite" "sakura" "vermilion" "wechat" "youlan" ];
-  speechEnabled = osConfig.my.features.speech.enable;
-  vocotypePackage = inputs.vocotype.packages.${pkgs.stdenv.hostPlatform.system}.vocotype-fcitx5;
-  vocotypePkgs = import inputs.vocotype.inputs.nixpkgs {
-    system = pkgs.stdenv.hostPlatform.system;
-  };
-  # Route capture and playback through PipeWire's PulseAudio compatibility
-  # server. Opening DMIC Raw directly caused distorted recordings here.
-  # Match the ALSA plugin to VoCoType's pinned libc rather than the host's.
-  vocotypeAlsaPlugins = "${vocotypePkgs.alsa-plugins}/lib/alsa-lib";
-  vocotypeAlsaConfig = pkgs.writeText "vocotype-asound.conf" ''
-    pcm.!default { type pulse }
-    ctl.!default { type pulse }
-  '';
-  doubaoEnabled = config.programs.vocotype.doubao.enable;
-  doubaoCredentials = if doubaoEnabled then config.age.secrets.doubao-asr.path else "/dev/null";
-  vocotypeWorkers = inputs.vocotype.packages.${pkgs.stdenv.hostPlatform.system}.vocotype-funasr-workers;
-  doubaoWorker = pkgs.writeShellApplication {
-    name = "vocotype-doubao-worker";
-    runtimeInputs = [
-      (pkgs.python3.withPackages (ps: [ ps.websockets ]))
-      pkgs.ffmpeg-headless
-    ];
-    text = ''
-      exec python3 ${./scripts/doubao-asr-worker.py} \
-        ${lib.optionalString doubaoEnabled "--enabled"} \
-        --credentials "${doubaoCredentials}" \
-        --local-worker ${vocotypeWorkers}/bin/vocotype-offline-worker "$@"
-    '';
-  };
-  # The addon looks for systemctl only under /usr/bin and /bin, then falls
-  # back to its compiled upstream backend path. Give that fallback a NixOS
-  # launcher that starts our managed unit instead of a second local core.
-  vocotypeServiceLauncher = pkgs.writeShellApplication {
-    name = "vocotype-start-backend-service";
-    runtimeInputs = [ pkgs.systemd ];
-    text = ''
-      exec systemctl --user start vocotype-fcitx5-backend.service
-    '';
-  };
-  vocotype = pkgs.symlinkJoin {
-    name = "vocotype-fcitx5-pipewire";
-    paths = [ vocotypePackage ];
-    nativeBuildInputs = [ pkgs.makeWrapper ];
-    inherit (vocotypePackage) meta;
-    postBuild = ''
-      # Upstream wrappers hard-code their original store paths. Replace the
-      # systemd launch chain; frontends connect to this already-running core.
-      rm "$out/bin/vocotype-core" "$out/bin/vocotype-fcitx5-backend"
-      makeWrapper ${vocotypePackage}/libexec/vocotype-core "$out/bin/vocotype-core" \
-        --set VOCOTYPE_OFFLINE_WORKER ${lib.getExe doubaoWorker} \
-        --set VOCOTYPE_STREAMING_WORKER ${vocotypeWorkers}/bin/vocotype-streaming-worker
-      makeWrapper "$out/bin/vocotype-core" "$out/bin/vocotype-fcitx5-backend" \
-        --add-flags --enable-final-asr
-      for program in vocotype-settings vocotype-fcitx5-recorder; do
-        wrapProgram "$out/bin/$program" \
-          --set ALSA_CONFIG_PATH ${vocotypeAlsaConfig} \
-          --set ALSA_PLUGIN_DIR ${vocotypeAlsaPlugins}
-      done
-    '';
-  };
   # Keep Python entry points beside their shared module in the store.
   xhup-script-bundle = name: files: pkgs.runCommand name { } ''
     mkdir -p $out
@@ -271,12 +211,10 @@ let
   };
 in
 {
-  imports = [ ./doubao.nix ./hotwords.nix ];
+  imports = [ ./doubao.nix ./hotwords.nix ./vinput.nix ];
 
   config = lib.mkIf osConfig.my.features.desktop.enable {
-    home.packages = [ xhup-lookup xhup-add-word ] ++ lib.optionals speechEnabled [ vocotype doubaoWorker ];
-    # Also expose settings when activating Home Manager before a system switch.
-    home.file.".local/bin/vocotype-settings" = lib.mkIf speechEnabled { source = "${vocotype}/bin/vocotype-settings"; };
+    home.packages = [ xhup-lookup xhup-add-word ];
 
     home.activation.enableXhupDmsPlugin = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
       run ${lib.getExe enable-xhup-dms-plugin}
@@ -339,20 +277,8 @@ in
             force = true;
           })
         rime-user-dictionaries)
-      // lib.genAttrs (map (name: "fcitx5/themes/${name}") mellowThemeNames)
-        (path: { source = "${mellowThemes}/${builtins.baseNameOf path}"; }) // {
-      "applications/vocotype-settings.desktop" = lib.mkIf speechEnabled {
-        text = ''
-          [Desktop Entry]
-          Type=Application
-          Name=VoCoType 设置
-          Exec=${vocotype}/bin/vocotype-settings
-          Icon=${vocotype}/share/icons/hicolor/192x192/apps/vocotype.png
-          Terminal=false
-          Categories=Settings;Utility;
-        '';
-      };
-    };
+    // lib.genAttrs (map (name: "fcitx5/themes/${name}") mellowThemeNames)
+      (path: { source = "${mellowThemes}/${builtins.baseNameOf path}"; });
 
     i18n.inputMethod = {
       enable = true;
@@ -362,7 +288,7 @@ in
         fcitx5-rime-crane
         qt6Packages.fcitx5-configtool
         fcitx5-gtk
-      ] ++ lib.optional speechEnabled vocotype;
+      ];
     };
 
     # DMS launches applications through systemd-run, which inherits the user
@@ -370,33 +296,13 @@ in
     # its Qt Fcitx module and needs this selection in either launch path.
     systemd.user.sessionVariables.QT_IM_MODULE = "fcitx";
 
-    # The upstream Nix package does not install the backend user unit. Keep the
-    # core alive independently of the settings window and Fcitx's launcher.
-    systemd.user.services.vocotype-fcitx5-backend = lib.mkIf speechEnabled {
-      Unit.Description = "VoCoType native speech recognition core";
-      Unit.After = lib.optional doubaoEnabled "agenix.service";
-      Unit.Requires = lib.optional doubaoEnabled "agenix.service";
-      Service = {
-        ExecStart = "${vocotype}/bin/vocotype-fcitx5-backend";
-        Restart = "on-failure";
-        RestartSec = 3;
-      };
-      Install.WantedBy = [ "default.target" ];
-    };
-
     # Restart Fcitx5 after cache invalidation so Rime deploys the new schema
     # before it handles the next input event.
     systemd.user.services.fcitx5-daemon.Unit.X-Restart-Triggers = [ rime-crane-config-id ];
-    systemd.user.services.fcitx5-daemon.Service.Environment = lib.mkIf speechEnabled [
-      "ALSA_CONFIG_PATH=${vocotypeAlsaConfig}"
-      "ALSA_PLUGIN_DIR=${vocotypeAlsaPlugins}"
-      "VOCOTYPE_FCITX5_BACKEND=${lib.getExe vocotypeServiceLauncher}"
-    ];
     # Also handle an already-running desktop instance during the first handover.
     systemd.user.services.fcitx5-daemon.Unit.Conflicts = [ "app-org.fcitx.Fcitx5@autostart.service" ];
     systemd.user.services.fcitx5-daemon.Unit.After = [
       "app-org.fcitx.Fcitx5@autostart.service"
-    ] ++ lib.optional speechEnabled "vocotype-fcitx5-backend.service";
-    systemd.user.services.fcitx5-daemon.Unit.Wants = lib.optional speechEnabled "vocotype-fcitx5-backend.service";
+    ];
   };
 }

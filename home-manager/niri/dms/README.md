@@ -73,7 +73,7 @@ Niri 的固定默认值可写入仓库的 KDL，DMS 生成的片段拥有更后�
 使用同一套截图和编辑功能，覆盖基础配置中的 Niri 原生截图快捷键。
 小鹤功能由独立仓库 [dms-xhup](https://github.com/lihaoze123/dms-xhup) 的 DMS 插件提供，在 fcitx5 模块中部署，
 用法见 [反查](../../fcitx5/docs/xhup-lookup.md) 与 [加词](../../fcitx5/docs/add-user-word.md)。
-语音热词使用本仓库的 [VoCoType 热词插件](../../fcitx5/dms-hotwords/README.md)，
+语音热词使用本仓库的 [语音热词插件](../../fcitx5/dms-hotwords/README.md)，
 直接维护原来的语音词库，支持 `热+NixOS = 尼克斯 | nix os` 添加热词及纠错别名。
 
 ## 扩展插件

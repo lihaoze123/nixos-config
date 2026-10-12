@@ -12,10 +12,10 @@ let
   };
 in
 {
-  options.programs.vocotype.doubao.enable =
+  options.programs.vinput.doubao.enable =
     lib.mkEnableOption "Doubao ASR 2.0 with agenix-managed credentials";
 
-  config = lib.mkIf config.programs.vocotype.doubao.enable {
+  config = lib.mkIf config.programs.vinput.doubao.enable {
     age.secrets.doubao-asr.file = ../../secrets/doubao-asr.age;
     # Home Manager's agenix decrypts in a user unit. Clean up only after the
     # decrypted credentials are available and match the legacy plaintext.

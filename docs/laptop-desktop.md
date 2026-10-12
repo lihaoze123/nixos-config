@@ -87,11 +87,10 @@ reboot
 不开启 VAD 门限，避免截断轻声和词尾。设置与预设见
 `home-manager/applications/easyeffects.nix`。
 
-EasyEffects 自动将录音应用移到处理后的虚拟输入，VoCoType 的
-PulseAudio 兼容录音流也在其中。系统默认输入仍应选择真实麦克风，
-不要改成 EasyEffects Source。打开 EasyEffects 的输入页面可查看
-应用是否已接入；可用全局旁路对比原声与降噪效果。若 VoCoType 被手动
-指定为直接访问硬件的 ALSA 设备，请在其设置中改回 `default` 或 `pulse`。
+EasyEffects 自动将录音应用移到处理后的虚拟输入。Vinput 直接使用 PipeWire，
+配置中选择默认麦克风；首次听写时应在 EasyEffects 输入页面确认其录音流已接入。
+系统默认输入仍应选择真实麦克风，不要改成 EasyEffects Source。
+可用全局旁路对比原声与降噪效果。
 识别率变化仍需用同一段语音实测。
 
 所有 Niri 主机的 Nautilus 配套启用 GVfs、UDisks2、udiskie 与 Sushi：
