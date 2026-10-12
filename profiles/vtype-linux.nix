@@ -1,28 +1,56 @@
-{ lib, stdenv, fetchFromGitHub, fetchurl, cmake, fcitx5, pkgsStatic, python3, unzip, patchelf, zlib, openssl, snappy, writeShellScript, callPackage }:
+{ lib, stdenv, fetchurl, cmake, fcitx5, pkgsStatic, python3, unzip, patchelf, zlib, openssl, snappy, writeShellScript, e2fsprogs, curl, fetchFromGitHub, applyPatches, callPackage }:
 
 let
+  # PR #4 的完整安装链路；保留本仓库的小鹤双拼与云延迟补丁。
   wxc = callPackage ./vtype-linux/wxc.nix { };
+  upstreamSrc = fetchFromGitHub {
+    owner = "lihaoze123";
+    repo = "vtype-linux";
+    rev = "c2320aca40325f62a4a0eabec4c7f4b22190681d";
+    hash = "sha256-05d0oq6gQtrLoRNkNsyu9ymJp/vtu5ZZgbA5pXArE9s=";
+  };
+  src = applyPatches {
+    name = "vtype-linux-source";
+    src = upstreamSrc;
+    patches = [ ./vtype-linux/double-pinyin.patch ./vtype-linux/cloud-latency.patch ];
+  };
   python = python3.withPackages (ps: [ ps.cryptography ps.python-snappy ]);
   cloudPython = writeShellScript "wetype-cloud-python" ''
     export PATH="${lib.makeBinPath [ openssl wxc ]}:$PATH"
     export WETYPE_WXC="''${WETYPE_WXC:-${wxc}/bin/wxc}"
+    export WETYPE_SNAPPY_LIBRARY="${lib.getLib snappy}/lib/libsnappy.so"
     exec ${python}/bin/python3 "$@"
   '';
   version = "0-unstable-2026-10-13";
-  src = fetchFromGitHub {
-    owner = "zhl-HFUT";
-    repo = "vtype-linux";
-    rev = "f73fc9a4942dcbc5cfe270b716ae892895da173d";
-    hash = "sha256-+uhZY65F4tj+py2qLmZ+RbseAUmBfOLrL4OpMSkftVo=";
-  };
-  patches = [ ./vtype-linux/double-pinyin.patch ./vtype-linux/nix-runtime.patch ./vtype-linux/cloud-latency.patch ];
   ndk = fetchurl {
     url = "https://dl.google.com/android/repository/android-ndk-r27c-linux.zip";
     hash = "sha256-WcL23JZ0O12vXRYmaEZAsgpr0rHYWxMVa5AzN0G61cw=";
   };
+  aospImage = fetchurl {
+    url = "https://dl.google.com/android/repository/sys-img/android/arm64-v8a-28_r02.zip";
+    hash = "sha256-hoRNLt9rp8fxEmH2vj+zd4jJhc/PO4kkz+n1ehzLwKk=";
+  };
+  bionic = stdenv.mkDerivation {
+    pname = "vtype-linux-bionic";
+    version = "android-9";
+    inherit src;
+    nativeBuildInputs = [ unzip e2fsprogs curl ];
+    dontConfigure = true;
+    dontFixup = true;
+    buildPhase = ''
+      runHook preBuild
+      WETYPE_AOSP_IMAGE=${aospImage} bash scripts/prepare_bionic.sh "$PWD/sysroot"
+      runHook postBuild
+    '';
+    installPhase = ''
+      runHook preInstall
+      cp -a sysroot "$out"
+      runHook postInstall
+    '';
+  };
   harness = stdenv.mkDerivation {
     pname = "vtype-linux-harness";
-    inherit version src patches;
+    inherit version src;
     nativeBuildInputs = [ unzip patchelf ];
     dontConfigure = true;
     # 宿主程序面向 Android/bionic，不能用本机的 strip 和 ELF 修复钩子处理。
@@ -38,18 +66,24 @@ let
       done
       "$toolchain/bin/clang" --target=aarch64-linux-android28 -O0 -g \
         -o wetype-harness harness/jinterop.c -ldl
+      "$toolchain/bin/clang" --target=aarch64-linux-android28 -shared -fPIC -O2 \
+        -Wl,-soname,libandroid.so -o libandroid.so shim/libandroid.c
+      "$toolchain/bin/clang" --target=aarch64-linux-android28 -shared -fPIC -O2 -Wall \
+        -o libwetype-cloud.so cloud/cloud_net.c
       runHook postBuild
     '';
     installPhase = ''
       runHook preInstall
       install -Dm755 wetype-harness "$out/libexec/wetype-harness"
+      install -Dm755 libandroid.so "$out/lib/libandroid.so"
+      install -Dm755 libwetype-cloud.so "$out/lib/libwetype-cloud.so"
       runHook postInstall
     '';
   };
 in
 stdenv.mkDerivation {
   pname = "vtype-linux";
-  inherit version src patches;
+  inherit version src;
 
   nativeBuildInputs = [ cmake ];
   buildInputs = [ fcitx5 ];
@@ -58,6 +92,8 @@ stdenv.mkDerivation {
   checkPhase = ''
     runHook preCheck
     ctest --output-on-failure
+    (cd .. && ${cloudPython} -m unittest discover -s tests -p 'test_*.py')
+    (cd .. && ${cloudPython} tests/test_snapshot_transport.py)
     runHook postCheck
   '';
 
@@ -66,14 +102,10 @@ stdenv.mkDerivation {
     substituteInPlace fcitx5-wetype/src/wetype.cpp \
       --replace-fail '"/usr/bin/python3"' '"${cloudPython}"' \
       --replace-fail '(eng + "/wetype-harness").c_str()' '"${harness}/libexec/wetype-harness"' \
-      --replace-fail '(eng+"/wetype-harness").c_str()' '"${harness}/libexec/wetype-harness"'
-    # ctypes.find_library 无法可靠查找 Nix store 中的库；显式链接宿主 Snappy。
-    substituteInPlace cloud/官方同步探针.py \
-      --replace-fail 'ctypes.util.find_library("snappy")' '"${lib.getLib snappy}/lib/libsnappy.so"'
-    # 云代理通过配置中的 protocol_dir 加载同一份已修复的协议脚本。
-    substituteInPlace cloud/配置与配对.py \
-      --replace-fail "'protocol_dir': str(runtime / 'cloud')" \
-        "'protocol_dir': str(Path(__file__).resolve().parent)"
+      --replace-fail '(eng+"/wetype-harness").c_str()' '"${harness}/libexec/wetype-harness"' \
+      --replace-fail 'qemu = eng + "/qemu-aarch64-static";' 'qemu = "${pkgsStatic.qemu-user}/bin/qemu-aarch64";' \
+      --replace-fail 'qemu = "qemu-aarch64-static";' 'qemu = "${pkgsStatic.qemu-user}/bin/qemu-aarch64";' \
+      --replace-fail 'sr : eng + "/sysroot"' 'sr : "${bionic}"'
   '';
 
   postInstall = ''
@@ -83,31 +115,66 @@ stdenv.mkDerivation {
     mkdir -p "$out/libexec"
     ln -s ${pkgsStatic.qemu-user}/bin/qemu-aarch64 "$out/libexec/qemu-aarch64-static"
     ln -s ${harness}/libexec/wetype-harness "$out/libexec/wetype-harness"
+    ln -s ${harness}/lib/libandroid.so "$out/libexec/libandroid.so"
+    ln -s ${harness}/lib/libwetype-cloud.so "$out/libexec/libwetype-cloud.so"
+    ln -s ${bionic} "$out/libexec/sysroot"
     install -Dm644 ../src/wetype-ime-demo.sh "$out/share/vtype-linux/wetype-ime-demo.sh"
     cp -r ../cloud "$out/share/vtype-linux/cloud"
-    install -Dm644 ${./vtype-linux/test-bundled-wxc.py} "$out/share/vtype-linux/test-bundled-wxc.py"
     install -Dm644 ../scripts/wetype-cloud.py "$out/share/vtype-linux/wetype-cloud.py"
+    install -Dm644 ../cloud/实时云桥接.py "$out/libexec/cloud_proxy.py"
+    mkdir -p "$out/share/vtype-linux/scripts"
+    for script in fetch_apk.py 17_disable_scan_sig.py 21_fake_appender.py test_bionic_daemon.py; do
+      install -m644 "../scripts/$script" "$out/share/vtype-linux/scripts/$script"
+    done
+    install -m644 ../nix/setup.py "$out/share/vtype-linux/setup.py"
+    install -Dm644 ../assets/wetype-ime.png "$out/share/icons/hicolor/256x256/apps/wetype-ime.png"
     mkdir -p "$out/bin"
     ln -s ${wxc}/bin/wxc "$out/bin/wxc"
     cat > "$out/bin/wetype-demo" <<'EOF'
     #!${stdenv.shell}
     export WETYPE_ENGINE_DIR="''${WETYPE_ENGINE_DIR:-$HOME/.local/lib/wetype-ime/arm64}"
     export WETYPE_HARNESS="${harness}/libexec/wetype-harness"
+    export QEMU_AARCH64="''${QEMU_AARCH64:-${pkgsStatic.qemu-user}/bin/qemu-aarch64}"
+    export WETYPE_SYSROOT="''${WETYPE_SYSROOT:-${bionic}}"
     exec ${stdenv.shell} "@out@/share/vtype-linux/wetype-ime-demo.sh" "$@"
     EOF
     cat > "$out/bin/wetype-cloud" <<'EOF'
     #!${stdenv.shell}
     exec ${cloudPython} "@out@/share/vtype-linux/wetype-cloud.py" "$@"
     EOF
-    chmod +x "$out/bin/wetype-demo" "$out/bin/wetype-cloud"
+    cat > "$out/bin/wetype-setup" <<'EOF'
+    #!${stdenv.shell}
+    exec ${cloudPython} "@out@/share/vtype-linux/setup.py" --package "@out@" "$@"
+    EOF
+    cat > "$out/bin/wetype-check" <<'EOF'
+    #!${stdenv.shell}
+    exec ${cloudPython} "@out@/share/vtype-linux/scripts/test_bionic_daemon.py" \
+      --engine-dir "''${WETYPE_ENGINE_DIR:-$HOME/.local/lib/wetype-ime/arm64}" \
+      --harness "@out@/libexec/wetype-harness" --qemu "@out@/libexec/qemu-aarch64-static" "$@"
+    EOF
+    chmod +x "$out/bin/"wetype-{demo,cloud,setup,check}
     substituteInPlace "$out/bin/wetype-demo" --replace-fail '@out@' "$out"
     substituteInPlace "$out/bin/wetype-cloud" --replace-fail '@out@' "$out"
+    substituteInPlace "$out/bin/wetype-setup" --replace-fail '@out@' "$out"
+    substituteInPlace "$out/bin/wetype-check" --replace-fail '@out@' "$out"
+    mkdir -p "$out/share/applications"
+    cat > "$out/share/applications/wetype-ime.desktop" <<EOF
+    [Desktop Entry]
+    Type=Application
+    Name=VType 初始化
+    Comment=准备微信拼音引擎和词库
+    Exec=$out/bin/wetype-setup
+    Icon=wetype-ime
+    Terminal=true
+    Categories=Utility;
+    EOF
   '';
 
   doInstallCheck = true;
   installCheckPhase = ''
     runHook preInstallCheck
-    ${cloudPython} "$out/share/vtype-linux/test-bundled-wxc.py" --package "$out" --wxc ${wxc}/bin/wxc
+    ${cloudPython} ../nix/check-wxc.py --package "$out" --wxc ${wxc}/bin/wxc
+    ${cloudPython} ../nix/check-runtime.py --package "$out"
     runHook postInstallCheck
   '';
 

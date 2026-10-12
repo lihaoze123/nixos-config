@@ -191,7 +191,7 @@ diff --git a/src/wetype-ime-demo.sh b/src/wetype-ime-demo.sh
 +++ b/src/wetype-ime-demo.sh
 @@ -16,6 +16,18 @@
  fi
- HARNESS="$ENG/harness/jinterop"
+ HARNESS="${WETYPE_HARNESS:-$ENG/harness/jinterop}"
  [ -x "$HARNESS" ] || HARNESS="$ENG/wetype-harness"
 +if [ -z "${WETYPE_DOUBLE_PIN+x}" ]; then
 +  WETYPE_DOUBLE_PIN=0
