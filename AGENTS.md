@@ -13,13 +13,15 @@
 
 ## 构建、检查与开发命令
 
+**除非用户明确要求，否则永远不要运行完整构建。** 修改配置、修复问题或一般验证请求不构成完整构建授权。此限制包括 `nixos-rebuild build/boot/switch/test`、构建 `system.build.toplevel` 的 `nix build` 及其他会构建完整系统的等价命令；也不要自动运行会执行构建的 `nix flake check`。
+
 在仓库根目录执行：
 
 ```bash
 nix fmt                                # 使用 nixpkgs-fmt 格式化 Nix
 nix flake check --no-build              # 检查 Flake 与配置求值
-nix flake check                        # 执行 Flake 检查
-nixos-rebuild build --flake .#laptop    # 构建目标主机，不激活系统
+nix flake check                        # 仅用户明确要求时执行含构建的 Flake 检查
+nixos-rebuild build --flake .#laptop    # 仅用户明确要求时构建目标主机，不激活系统
 nix profile install .#anki             # 安装独立用户应用
 ```
 
@@ -31,7 +33,7 @@ Nix 使用两空格缩进，以 `nix fmt` 输出为准。模块入口命名为 `
 
 ## 测试指南
 
-修改配置后检查求值并构建受影响主机；修改共享模块时覆盖各相关主机。Python 回归测试主要使用 `unittest`，文件命名为 `test-*.py`，方法使用 `test_*`。直接运行脚本，避免默认 discovery 漏掉含连字符的文件名：
+修改配置后优先使用针对改动的轻量检查和局部求值；修改共享模块时检查各相关主机的受影响选项。未经用户明确要求，不构建受影响主机。`nix flake check --no-build` 仍会求值多个完整配置，不能视为轻量检查；避免并行运行完整配置求值或构建，以免耗尽内存。Python 回归测试主要使用 `unittest`，文件命名为 `test-*.py`，方法使用 `test_*`。直接运行脚本，避免默认 discovery 漏掉含连字符的文件名：
 
 ```bash
 python3 home-manager/fcitx5/tests/test-xhup-lookup.py
@@ -47,4 +49,4 @@ PR 说明变更目的、受影响主机或功能、验证命令与结果；有�
 
 ## 配置安全与代理约定
 
-代理回复使用中文。不得提交明文凭据、私钥或解密内容；加密凭据按现有 ragenix 规则维护。不要手工编辑自动生成的硬件配置；`base` 安装前须替换为目标机器生成的文件。先构建再激活；图形登录变更按文档使用 `nixos-rebuild boot` 后重启，不自动清理旧系统代际。
+代理回复使用中文。不得提交明文凭据、私钥或解密内容；加密凭据按现有 ragenix 规则维护。不要手工编辑自动生成的硬件配置；`base` 安装前须替换为目标机器生成的文件。只有用户明确要求构建或部署时才执行相应操作，且先构建再激活；图形登录变更按文档使用 `nixos-rebuild boot` 后重启，不自动清理旧系统代际。
