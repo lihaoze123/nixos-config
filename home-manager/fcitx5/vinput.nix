@@ -4,7 +4,8 @@ let
   vinput = inputs.fcitx5-vinput.packages.${pkgs.stdenv.hostPlatform.system}.fcitx5-vinput-lite;
   daemon = pkgs.writeShellScript "vinput-daemon-with-deepseek" ''
     set -euo pipefail
-    VINPUT_DEEPSEEK_API_KEY="$(< ${lib.escapeShellArg config.age.secrets.deepseek-token.path})"
+    # agenix uses an XDG_RUNTIME_DIR placeholder; expand it at runtime.
+    VINPUT_DEEPSEEK_API_KEY="$(< "${config.age.secrets.deepseek-token.path}")"
     export VINPUT_DEEPSEEK_API_KEY
     if [ -z "$VINPUT_DEEPSEEK_API_KEY" ]; then
       echo "DeepSeek token is empty" >&2
