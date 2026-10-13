@@ -5,7 +5,7 @@
   inherit (pkgs)
     microsoft-edge qq wechat anki obsidian pandoc typst tectonic
     pavucontrol gnome-disk-utility baobab neovide ghostty
-    fastfetch lazygit zellij tealdeer;
+    fastfetch lazygit zellij tealdeer delta;
   try = inputs.try.packages.${system}.default.overrideAttrs (old: {
     nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.ruby_3_3 ];
     postFixup = (old.postFixup or "") + ''
@@ -13,6 +13,7 @@
     '';
   });
   filelight = pkgs.kdePackages.filelight;
+  vtype-linux = pkgs.callPackage ./vtype-linux.nix { };
   vscode = pkgs.vscode-with-extensions.override {
     vscodeExtensions = with pkgs.vscode-extensions; [
       dracula-theme.theme-dracula

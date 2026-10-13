@@ -1,5 +1,11 @@
 { lib, pkgs, osConfig, inputs, system, ... }:
 {
+  programs.delta = {
+    enable = true;
+    enableGitIntegration = true;
+    enableJujutsuIntegration = true;
+  };
+
   programs.jujutsu = {
     enable = true;
     settings = {
@@ -9,7 +15,6 @@
       };
       ui = {
         default-command = "log";
-        diff-formatter = "difft";
       };
       merge-tools.difft.diff-invocation-mode = "file-by-file";
     };

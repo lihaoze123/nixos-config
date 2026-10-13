@@ -1,0 +1,90 @@
+--- a/harness/jinterop.c
++++ b/harness/jinterop.c
+@@ -489,7 +489,15 @@
+ }
+ static void *F_CallObjectMethod(void *env, void *obj, JIDToken *id, ...) {
+     LOG("CallObjectMethod(%s.%s) -> null\n", obj ? ((JObj *)obj)->cls : "null", id ? id->name : "?");
+-    /* 常见 getter 罐头：对 InitInfo 的方法一律回 null；后续按日志补充 */
++    /* InitInfo.exptInfo 的单项 Map，只实现官方转换器调用的无参数方法。 */
++    if (obj && id) {
++        JField *marker = obj_get((JObj *)obj, ".cloud_timeout_map");
++        JField *value = marker ? obj_get((JObj *)obj, id->name) : NULL;
++        if (value && value->type == 'o') {
++            if (!strcmp(id->name, "next")) obj_set((JObj *)obj, "hasNext", 'i', NULL);
++            return (void *)value->val;
++        }
++    }
+     return NULL;
+ }
+ static void F_CallVoidMethod(void *env, void *obj, JIDToken *id, ...) {
+@@ -498,6 +506,12 @@
+ static long F_CallIntMethod(void *env, void *obj, JIDToken *id, ...) {
+     LOG("CallIntMethod(%s.%s) -> 0\n", obj ? ((JObj *)obj)->cls : "null", id ? id->name : "?");
+     return 0;
++}
++static unsigned char F_CallBooleanMethod(void *env, void *obj, JIDToken *id, ...) {
++    if (!obj || !id || strcmp(id->name, "hasNext")) return 0;
++    JField *marker = obj_get((JObj *)obj, ".cloud_timeout_map");
++    JField *value = marker ? obj_get((JObj *)obj, "hasNext") : NULL;
++    return value && value->val ? 1 : 0;
+ }
+ static void *F_NewGlobalRef(void *env, void *o) { reg_pin(o, 1); return o; }
+ /* 判断是否为模拟 jobject。不要依赖 g_objs：那只是有界诊断目录。 */
+@@ -827,6 +841,9 @@
+     tab(ENV_SLOT(CallObjectMethod), F_CallObjectMethod);
+     tab(ENV_SLOT(CallObjectMethodV), F_CallObjectMethod);
+     tab(ENV_SLOT(CallObjectMethodA), F_CallObjectMethod);
++    tab(ENV_SLOT(CallBooleanMethod), F_CallBooleanMethod);
++    tab(ENV_SLOT(CallBooleanMethodV), F_CallBooleanMethod);
++    tab(ENV_SLOT(CallBooleanMethodA), F_CallBooleanMethod);
+     tab(ENV_SLOT(CallIntMethod), F_CallIntMethod);
+     tab(ENV_SLOT(CallIntMethodV), F_CallIntMethod);
+     tab(ENV_SLOT(CallIntMethodA), F_CallIntMethod);
+@@ -1547,6 +1564,31 @@
+     obj_set(&g_initinfo, "logLevel", 'i', (void *)(long)0);
+     obj_set(&g_initinfo, "packageType", 'i', (void *)(long)0);
+     obj_set(&g_initinfo, "debugLogConfig", 's', "{}");
++    /* 安卓引擎默认 200ms，宿主 HTTPS 与 QEMU 的响应常超过这个时间。
++     * 使用官方 InitInfo.exptInfo 参数入口；仅启用云桥时改为 1500ms，
++     * 本地候选仍立即返回，迟到候选继续由会话/版本和覆盖长度校验。 */
++    if (getenv("WETYPE_CLOUD_NATIVE") && getenv("WETYPE_CLOUD_FD")) {
++        static JObj ab, item, params;
++        static JArr items;
++        static void *elements[1];
++        ab.cls = "com/tencent/wxhld/info/AbTestExptInfo";
++        item.cls = "com/tencent/wxhld/info/AbTestExptInfo$Item";
++        params.cls = "java/util/HashMap";
++        JObj *set = obj_new("java/util/Set"), *iterator = obj_new("java/util/Iterator");
++        JObj *entry = obj_new("java/util/Map$Entry");
++        JObj *objects[] = {&params, set, iterator, entry};
++        for (int i = 0; i < 4; i++) obj_set(objects[i], ".cloud_timeout_map", 'i', (void *)1);
++        obj_set(&params, "entrySet", 'o', set);
++        obj_set(set, "iterator", 'o', iterator);
++        obj_set(iterator, "hasNext", 'i', (void *)1);
++        obj_set(iterator, "next", 'o', entry);
++        obj_set(entry, "getKey", 'o', str_obj("mmkb_cli_engine_cloud_time_out_ms"));
++        obj_set(entry, "getValue", 'o', str_obj("1500"));
++        elements[0] = &item; items.len = 1; items.elem = elements;
++        obj_set(&ab, "items", 'o', &items);
++        obj_set(&item, "params", 'o', &params);
++        obj_set(&g_initinfo, "exptInfo", 'o', &ab);
++    }
+     /* WevisDeviceScoreInfo：浮点分数不能为 0，否则 BLAS 零尺寸崩溃 */
+     {
+         static JObj wevis; static float cpu_s = 1.0f, gpu_s = 1.0f;
+--- a/cloud/实时云桥接.py
++++ b/cloud/实时云桥接.py
+@@ -216,7 +216,12 @@
+         return safe
+     def query_cloud(task,raw):
+         with (p.STATE/'identity.lock').open('a+') as lock:
+-            fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
++            deadline=time.monotonic()+.3
++            while True:
++                try:fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB);break
++                except BlockingIOError:
++                    if time.monotonic()>=deadline:raise
++                    time.sleep(.01)
+             client=p.Probe(json.loads((p.STATE/'identity.json').read_text()));client.timeout=1.2
+             response=client.request('/api_v2',raw,2,service_command=4329)
+         rows=candidates(response)
