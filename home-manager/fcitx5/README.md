@@ -23,6 +23,12 @@ fcitx5/
 
 ## 常用修改入口
 
+### 输入法列表
+
+[config/profile](config/profile) 默认包含英文键盘、Rime 和微信拼音，默认中文输入法为 Rime。
+微信拼音需另外安装并初始化 [VType 独立包](../../profiles/vtype-linux/README.md)。
+输入法列表由 Home Manager 管理；修改此文件并应用配置后，重启 Fcitx5 生效。
+
 ### 候选框主题
 
 安装 [Mellow 主题](https://github.com/sanweiya/fcitx5-mellow-themes) 的全部五种配色，

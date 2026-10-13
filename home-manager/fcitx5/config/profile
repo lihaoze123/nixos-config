@@ -18,5 +18,11 @@ Name=rime
 # Layout
 Layout=
 
+[Groups/0/Items/2]
+# Name
+Name=wetype-im
+# Layout
+Layout=
+
 [GroupOrder]
 0=Default
