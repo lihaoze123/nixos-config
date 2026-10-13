@@ -9,6 +9,7 @@ in
   imports = [
     ./features.nix
     ./display.nix
+    ./virtualisation.nix
     ./hardware-configuration.nix
     ../../disko/btrfs-partitions.nix
     ../base.nix

@@ -33,7 +33,30 @@ my.features = {
 };
 ```
 
-两个引擎共用 `modules/dae/render-config.nix` 生成配置，保留 `wan_interface: auto`。LAN 接口按最终系统配置选择：启用 `virtualisation.docker.enable` 时加入 `docker0`，启用 `virtualisation.libvirtd.enable` 时加入 `virbr0`；两者均关闭时不生成 `lan_interface`，仅代理本机流量。仓库的 `my.features.docker.enable` 和 `my.features.virtualMachines.enable` 分别控制这两个服务。
+两个引擎共用 `modules/dae/render-config.nix` 生成配置，保留 `wan_interface: auto`。`my.proxy.lanInterfaces` 默认为空列表，不生成 `lan_interface`，仅代理本机流量。启用 Docker 或 libvirt 不会自动加入 `docker0`、`virbr0`，因为服务启用并不保证这些网桥已经存在；例如 libvirt 的默认网络可能尚未启动，否则 honk 会因绑定不存在的接口而启动失败。
+
+需要代理虚拟机或局域网转发流量时，在主机配置中显式指定接口：
+
+```nix
+my.proxy.lanInterfaces = [ "virbr0" ];
+```
+
+显式配置的接口必须在代理启动前存在。对于 libvirt 的默认网络，先用 `sudo virsh -c qemu:///system net-start default` 启动网络，并用 `sudo virsh -c qemu:///system net-autostart default` 设置自动启动；自动启动仍不保证网桥先于代理就绪，若需要开机即代理虚拟机流量，还应配置相应的服务启动依赖。
+
+### class 的虚拟机代理
+
+`hosts/class/virtualisation.nix` 在启用虚拟机功能时将 `virbr0` 加入代理接口。`libvirt-default-network.service` 为 libvirt 的 `default` 网络设置自动启动，按需启动网络并确认 `virbr0` 已存在；dae 或 honk 都必须等待这个服务完成后才能启动。网桥上的 DNS TCP/UDP 53 与 DHCP UDP 67 已放行。
+
+在 virt-manager 中使用 `QEMU/KVM` 系统连接（`qemu:///system`），将虚拟机网卡的网络源选为 `Virtual network 'default': NAT`，网卡型号建议为 `virtio`。虚拟机通过 DHCP 获取 `192.168.122.0/24` 内的地址、网关和 DNS，即可沿用宿主机的代理分流规则，无需在虚拟机内另设 HTTP/SOCKS 代理。其他虚拟网络不包含在这项配置中。
+
+构建并激活 `class` 后可检查：
+
+```bash
+systemctl is-active libvirt-default-network dae
+virsh -c qemu:///system net-list --all
+ip link show virbr0
+journalctl -u dae -b --no-pager | rg 'Bind to LAN'
+```
 
 ## honk 与 doona
 

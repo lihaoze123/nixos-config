@@ -10,13 +10,13 @@
     extraDesktop.enable = true; # 需要 desktop
     bluetooth.enable = true;
     # tailscale.enable = true;
-    honk.enable = true;
-    # dae.enable = true;
+    # honk.enable = true;
+    dae.enable = true;
     edunet.enable = true;
     # aria2.enable = true;
     # docker.enable = true;
     podman.enable = true;
-    # virtualMachines.enable = true;
+    virtualMachines.enable = true;
     # waydroid.enable = true;
     # wireshark.enable = true;
     # appimage.enable = true;

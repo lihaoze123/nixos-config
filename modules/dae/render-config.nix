@@ -1,7 +1,7 @@
 { config, lib }:
 let
-  lanInterfaces = lib.optional config.virtualisation.docker.enable "docker0"
-    ++ lib.optional config.virtualisation.libvirtd.enable "virbr0";
+  # Service enablement does not guarantee that a bridge exists at proxy startup.
+  lanInterfaces = config.my.proxy.lanInterfaces;
   lanConfig = lib.optionalString (lanInterfaces != [ ])
     "    lan_interface: ${lib.concatStringsSep "," lanInterfaces}\n";
 in
