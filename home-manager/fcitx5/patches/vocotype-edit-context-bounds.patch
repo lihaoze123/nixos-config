@@ -1,0 +1,18 @@
+--- a/src/integrations/fcitx5/module/vocotype_module.cpp
++++ b/src/integrations/fcitx5/module/vocotype_module.cpp
+@@ -590,6 +590,15 @@
+     snapshot.cursor = surrounding.cursor();
+     snapshot.anchor = surrounding.anchor();
+     snapshot.selected_text = surrounding.selectedText();
++    // A paragraph-only surrounding snapshot cannot safely replace a selection
++    // spanning the whole document. Reject it before recording or editing.
++    const auto length = fcitx::utf8::length(snapshot.text);
++    if (snapshot.cursor > length || snapshot.anchor > length ||
++        fcitx::utf8::length(snapshot.selected_text) > length) {
++        snapshot = VoiceEditSnapshot();
++        error = "输入法无法读取完整选区，请缩小选区或换用支持全文的编辑器";
++        return false;
++    }
+     return true;
+ }
+ 

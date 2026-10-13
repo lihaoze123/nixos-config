@@ -13,8 +13,8 @@ let
     waydroid = "Waydroid";
     steam = "Steam and its system integration";
     wallpaperEngine = "Wallpaper Engine animated wallpapers with the DMS plugin";
-    speech = "Fcitx5 Vinput Lite cloud speech recognition";
-    doubao = "Doubao streaming ASR with agenix-managed credentials";
+    speech = "VoCoType speech recognition";
+    doubao = "Doubao speech credentials and worker integration";
     easyeffects = "EasyEffects microphone denoising";
     codexDesktop = "Codex Desktop Computer Use integration";
     aiCli = "Claude Code, Codex and OpenCode CLI tools";
@@ -50,7 +50,6 @@ in
       { assertion = !cfg.graphicalBoot.enable || cfg.desktop.enable; message = "my.features.graphicalBoot requires desktop"; }
       { assertion = !cfg.wallpaperEngine.enable || cfg.desktop.enable; message = "my.features.wallpaperEngine requires desktop"; }
       { assertion = !cfg.speech.enable || cfg.desktop.enable; message = "my.features.speech requires desktop"; }
-      { assertion = !cfg.speech.enable || cfg.doubao.enable; message = "Vinput Lite speech requires my.features.doubao.enable (cloud-only)"; }
       { assertion = !cfg.doubao.enable || cfg.speech.enable; message = "my.features.doubao requires speech"; }
       { assertion = !cfg.easyeffects.enable || cfg.desktop.enable; message = "my.features.easyeffects requires desktop"; }
       { assertion = !cfg.codexDesktop.enable || cfg.desktop.enable; message = "my.features.codexDesktop requires desktop"; }

@@ -58,7 +58,7 @@ Item {
         if (!cached.ok) return [info("无法添加", cached.error)];
         if (cached.existing)
             return [info("已存在：" + cached.existing.canonical,
-                         "不会重复添加；修改别名或启用已有词的热词选项，请直接编辑 terms.yaml")];
+                         "不会重复添加；修改别名或启用已有词的热词选项，请使用 VoCoType 设置中心")];
         return [{id: "save:" + text, name: "保存热词：" + cached.word,
                  comment: (cached.aliases.length ? "纠错别名：" + cached.aliases.join(" / ") + " · " : "")
                           + "热词与保护已启用 · 下一次听写使用",

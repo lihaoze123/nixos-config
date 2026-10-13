@@ -68,7 +68,7 @@ sudo nixos-rebuild boot --flake .#laptop
 | `bluetooth`、`tailscale`、`dae`、`honk`、`edunet` | 蓝牙、VPN、代理、校园网认证；dae 与 honk 互斥，代理配置见 [代理说明](proxy.md) |
 | `docker`、`podman` | Docker rootless；Podman + Distrobox，各自独立 |
 | `virtualMachines`、`waydroid` | QEMU/libvirt/virt-manager；Waydroid，各自独立 |
-| `speech`、`doubao`、`easyeffects` | Vinput Lite 云端听写；豆包凭据与流式 provider 集成；麦克风降噪（speech 与 doubao 配套启用） |
+| `speech`、`doubao`、`easyeffects` | VoCoType；豆包凭据与 worker 集成；麦克风降噪，各自独立 |
 | `aiCli` | Claude Code、Codex、OpenCode 与已有加密凭据/包装命令 |
 | `aria2` | aria2 RPC、AriaNg 和本地 Caddy 服务 |
 | `wireshark`、`appimage`、`nixLd` | 抓包权限；AppImage；外部程序兼容加载器，各自独立 |
@@ -81,7 +81,7 @@ sudo nixos-rebuild boot --flake .#laptop
 | `phoneIntegration`、`screenCast` | laptop：Valent/KDE Connect；Wi-Fi 投屏及配套端口，各自独立 |
 | `printing`、`syncthing` | home：打印及驱动；已有 Syncthing 同步配置，各自独立 |
 
-extraDesktop、语音识别、EasyEffects、Codex 桌面、动态壁纸、手机集成和投屏要求 desktop；Vinput Lite 的 speech 与 doubao 必须配套启用。不满足依赖时求值会给出错误。开关只控制安装与服务，关闭不会删除原有用户数据。
+extraDesktop、语音识别、EasyEffects、Codex 桌面、动态壁纸、手机集成和投屏要求 desktop；doubao 要求 speech。不满足依赖时求值会给出错误。开关只控制安装与服务，关闭不会删除原有用户数据。
 
 启用 `podman` 时，未指定仓库域名的镜像名按 `docker.io`、`quay.io`、`ghcr.io` 的顺序搜索，配置由 NixOS 写入 `/etc/containers/registries.conf`。例如 `podman pull alpine` 使用此搜索列表；`podman pull docker.io/library/alpine` 则直接使用指定仓库。Podman 可能提示选择仓库并记住选择；用户自己的 `~/.config/containers/registries.conf` 会覆盖系统配置。
 

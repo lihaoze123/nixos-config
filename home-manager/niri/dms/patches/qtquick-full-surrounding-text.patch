@@ -1,0 +1,35 @@
+--- a/src/quick/items/qquicktextcontrol.cpp
++++ b/src/quick/items/qquicktextcontrol.cpp
+@@ -1356,7 +1356,7 @@
+                 if (mousePressed)
+                     imSelectionAfterPress = true;
+                 QTextCursor oldCursor = cursor;
+-                int blockStart = a.start + cursor.block().position();
++                int blockStart = a.start;
+                 cursor.setPosition(blockStart, QTextCursor::MoveAnchor);
+                 cursor.setPosition(blockStart + a.length, QTextCursor::KeepAnchor);
+                 repaintOldAndNewSelection(oldCursor);
+@@ -1430,11 +1430,11 @@
+     case Qt::ImCursorPosition: {
+         const QPointF pt = argument.toPointF();
+         if (!pt.isNull())
+-            return QVariant(d->doc->documentLayout()->hitTest(pt, Qt::FuzzyHit) - block.position());
+-        return QVariant(d->cursor.position() - block.position());
++            return QVariant(d->doc->documentLayout()->hitTest(pt, Qt::FuzzyHit));
++        return QVariant(d->cursor.position());
+     }
+     case Qt::ImSurroundingText:
+-        return QVariant(block.text());
++        return QVariant(d->doc->toPlainText());
+     case Qt::ImCurrentSelection: {
+         QMimeData *mimeData = createMimeDataFromSelection();
+         mimeData->deleteLater();
+@@ -1443,7 +1443,7 @@
+     case Qt::ImMaximumTextLength:
+         return QVariant(); // No limit.
+     case Qt::ImAnchorPosition:
+-        return QVariant(d->cursor.anchor() - block.position());
++        return QVariant(d->cursor.anchor());
+     case Qt::ImAbsolutePosition:
+         return QVariant(d->cursor.position());
+     case Qt::ImTextAfterCursor:

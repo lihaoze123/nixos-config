@@ -25,7 +25,7 @@
     windowsFonts.enable = true;
     aiCli.enable = true;
     codexDesktop.enable = true; # 需要 desktop
-    # speech.enable = true; # 需要 desktop 和 doubao（Lite 仅支持云端）
+    # speech.enable = true; # 需要 desktop
     # doubao.enable = true; # 需要 speech
     # easyeffects.enable = true; # 需要 desktop
     # wallpaperEngine.enable = true; # 需要 desktop

@@ -1,6 +1,14 @@
 { config, lib, pkgs, inputs, osConfig, ... }:
 let
   cfg = config.programs.dank-material-shell;
+  # Qt Quick normally exposes only the current paragraph to the input method,
+  # even when the user selects several paragraphs. Keep DMS voice-edit input
+  # and replacement ranges in the same document-wide coordinate space.
+  voiceEditQt = pkgs.qt6.overrideScope (final: prev: {
+    qtdeclarative = prev.qtdeclarative.overrideAttrs (old: {
+      patches = (old.patches or [ ]) ++ [ ./patches/qtquick-full-surrounding-text.patch ];
+    });
+  });
   jsonFormat = pkgs.formats.json { };
   initialSettings = jsonFormat.generate "dms-settings.json" {
     configVersion = 18;
@@ -103,7 +111,11 @@ in
     programs.dank-material-shell = {
       # Use nixpkgs for the runtime and the upstream flake for its module.
       package = pkgs.dms-shell;
-      quickshell.package = pkgs.quickshell;
+      quickshell.package =
+        if osConfig.my.features.speech.enable then
+          pkgs.quickshell.override { qt6 = voiceEditQt; }
+        else
+          pkgs.quickshell;
       systemd.enable = true;
       systemd.target = "graphical-session.target";
       enableCalendarEvents = true;
