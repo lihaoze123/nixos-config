@@ -46,9 +46,19 @@ fcitx5/
 
 聚焦文本框，**按住 F9 说话，松开完成听写**，在小鹤和英文模式下都能使用。
 `Shift+F9` 打开 Vinput 命令面板；关闭默认右 Alt、右 Ctrl、右 Shift 绑定。
-当前只配置原始听写，不配置 LLM，也不绑定语音编辑键。
+听写后默认调用 DeepSeek `deepseek-flash` 自动润色，修正识别错误、标点和语病，
+去掉语气词与重复，保留原意；单个润色结果直接上屏，不再弹出原文／润色候选菜单。
+选中文字后，**按住 Ctrl+F9 说出修改指令，松开执行**，例如「翻译成英文」或
+「改成更简短的表达」。命令模式使用 Vinput 原生的选区与语音指令模板。
+`Shift+F9` 的场景菜单可切回原始听写，跳过润色。
 打开 `vinput-gui` 查看状态；参数由 Home Manager 管理，修改入口为
 [vinput.nix](vinput.nix)，GUI 中的配置修改不能覆盖只读的声明式配置。
+
+润色与语音命令使用 Vinput 原生 OpenAI 兼容 LLM 接口 `https://api.deepseek.com`，
+关闭思考模式以减少等待。复用 `dscc` 的 `age.secrets.deepseek-token`，密文统一来自
+`secrets/deepseek-token.age`；daemon 启动时读取解密文件，通过环境变量传给原生 LLM
+接口，token 不写入声明式配置或 Nix store。修改 token 后重新应用配置并重启服务生效。
+润色超时为 15 秒，命令超时为 30 秒；听写润色失败时由 Vinput 回退原文。
 
 使用官方豆包 ASR 2.0 双向流式接口
 `wss://openspeech.bytedance.com/api/v3/sauc/bigmodel_async`，资源为

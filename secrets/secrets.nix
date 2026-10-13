@@ -9,4 +9,5 @@ in
     "edunet-env.age".publicKeys = users;
     "doubao-asr.age".publicKeys = users;
     "r2-cache-credentials.age".publicKeys = users;
+    "deepseek-token.age".publicKeys = users;
 }

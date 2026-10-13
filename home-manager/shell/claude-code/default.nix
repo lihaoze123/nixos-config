@@ -47,7 +47,7 @@ lib.mkIf osConfig.my.features.aiCli.enable {
     file = ../../secrets/codex-cpa-token.age;
   };
   age.secrets.deepseek-token = {
-    file = ../../secrets/deepseek-token.age;
+    file = ../../../secrets/deepseek-token.age;
   };
 
   home.packages = with pkgs; [
