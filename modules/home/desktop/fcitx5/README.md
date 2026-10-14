@@ -1,7 +1,10 @@
 # Fcitx5 与小鹤音形
 
-[default.nix](default.nix) 是 Home Manager 模块入口，负责词库构建、
-配置部署、输入法服务，以及查码/加词工具和 DMS 插件的安装。
+[default.nix](default.nix) 是 Home Manager 模块入口，负责 Fcitx5 本体、主题与输入法列表，
+并导入按功能拆分的子模块：Rime 词库与部署（[rime.nix](rime.nix)）、查码/加词工具与 DMS 插件
+（[xhup.nix](xhup.nix)）、VoCoType 语音（[vocotype.nix](vocotype.nix)、[doubao.nix](doubao.nix)、
+[hotwords.nix](hotwords.nix)）和微信拼音（[vtype.nix](vtype.nix)）。rime.nix 与 xhup.nix 共用的 rime-crane 派生在
+[packages.nix](packages.nix)。
 
 当前固定上游 [rime-crane `71f3add`（2026-09-10）](https://github.com/kchen0x/rime-crane/commit/71f3add6a39d58a8e8b35abc7ca9c998d766b274)，
 包含小鹤音形官方清风版 `v1.26.9c` 码表及同步至 2026-09-08 的雾凇词库。
@@ -10,7 +13,12 @@
 
 ```text
 fcitx5/
-├── default.nix         # Nix 模块入口
+├── default.nix         # 模块入口：Fcitx5、主题、输入法列表
+├── packages.nix        # rime-crane、生成词库与用户目录（纯函数）
+├── rime.nix            # Rime 插件、配置部署、缓存失效与用户词库
+├── xhup.nix            # 查码/加词命令与 DMS 小鹤插件
+├── vocotype.nix        # VoCoType 语音识别（doubao.nix、hotwords.nix 为其扩展）
+├── vtype.nix           # 微信拼音插件
 ├── README.md
 ├── config/             # Fcitx5 profile 与 Rime 配置补丁
 ├── dictionaries/       # 计算机术语源数据与许可证（用户词库在独立仓库 xhup-dicts）
