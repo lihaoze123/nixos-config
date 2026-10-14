@@ -43,6 +43,11 @@ in
     allowedTCPPorts = [ 9100 ];
     allowedUDPPorts = [ 7778 ];
   };
+  # Discover wireless displays on the LAN through mDNS/DNS-SD.
+  services.avahi = {
+    enable = true;
+    openFirewall = true;
+  };
   nixpkgs.hostPlatform = "x86_64-linux";
   # Start Plymouth on the Intel KMS device, before the greeter takes over.
   boot.initrd.kernelModules = lib.mkIf config.my.features.graphicalBoot.enable [ "i915" ];
