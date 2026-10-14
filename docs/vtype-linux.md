@@ -1,10 +1,10 @@
 # VType Linux 试用
 
-`profiles/vtype-linux.nix` 提供固定版本的微信拼音 Fcitx5 插件、静态 QEMU 和
+独立 NUR 仓库的 `pkgs/vtype-linux/default.nix` 提供固定版本的微信拼音 Fcitx5 插件、静态 QEMU 和
 `wetype-demo`、`wetype-cloud` 命令，并补充小鹤双拼设置。用独立用户 profile 安装：
 
 ```bash
-nix profile install .#vtype-linux
+nix profile install github:lihaoze123/nur-packages#vtype-linux
 ```
 
 这个包编译带双拼支持的 Android 宿主程序，需要另行安装腾讯引擎库、词库和
@@ -85,10 +85,10 @@ python3 ~/.local/share/vtype-linux-src/scripts/test_bionic_daemon.py \
   --harness ~/.nix-profile/libexec/wetype-harness
 ```
 
-本仓库的双拼回归检查：
+NUR 仓库中的双拼回归检查（在 nur-packages 根目录执行）：
 
 ```bash
-python3 profiles/vtype-linux/test-double-pinyin.py \
+python3 tests/vtype-linux/test-double-pinyin.py \
   --source ~/.local/share/vtype-linux-src --package ~/.nix-profile
 ```
 
@@ -108,7 +108,7 @@ wetype-cloud pair
 路径；不依赖 `ctypes.find_library` 在系统目录中查找库。压缩响应回归检查：
 
 ```bash
-python3 profiles/vtype-linux/test-cloud-runtime.py --package ~/.nix-profile
+python3 tests/vtype-linux/test-cloud-runtime.py --package ~/.nix-profile
 ```
 
 云候选启用时，本包将官方引擎接收云结果的时限从 200 毫秒调整为 1.5 秒，
@@ -117,7 +117,7 @@ python3 profiles/vtype-linux/test-cloud-runtime.py --package ~/.nix-profile
 云查询最多等待 300 毫秒再获取锁。离线检查不读取账户、不发送网络请求：
 
 ```bash
-python3 profiles/vtype-linux/test-cloud-latency.py \
+python3 tests/vtype-linux/test-cloud-latency.py \
   --source ~/.local/share/vtype-linux-src --package ~/.nix-profile
 ```
 

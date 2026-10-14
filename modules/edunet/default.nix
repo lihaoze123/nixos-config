@@ -1,7 +1,7 @@
 { config, lib, pkgs, inputs, ... }:
 {
   imports = [
-    inputs.edunet.nixosModules.default
+    inputs.nur-packages.nixosModules.edunet
   ];
 
   config = lib.mkIf config.my.features.edunet.enable {

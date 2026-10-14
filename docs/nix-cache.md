@@ -1,6 +1,6 @@
 # 私有 R2 缓存配置与维护
 
-下载由 Nix 直接访问 R2；手动上传采用“导出本地签名缓存，再用 rclone 上传”的流程。
+R2 按命令启用，默认安装只查询官方缓存和清华镜像。手动上传采用“导出本地签名缓存，再用 rclone 上传”的流程。
 配置位于 [modules/nix-cache/default.nix](../modules/nix-cache/default.nix)，通过共享模块
 应用到 laptop、home、class、base；nixos 别名继承 laptop，installer 保持独立。
 
@@ -14,7 +14,7 @@
 | 加密凭据 | `secrets/r2-cache-credentials.age`，收件人规则在 `secrets/secrets.nix` |
 | 系统解密文件 | `/run/agenix/r2-cache-credentials`，root 所有、权限 `0400` |
 | daemon 认证 | `systemd.services.nix-daemon.environment.AWS_SHARED_CREDENTIALS_FILE` |
-| 下载源、公钥 | `nix.settings.extra-substituters`、`extra-trusted-public-keys` |
+| 允许的下载源、公钥 | `nix.settings.trusted-substituters`、`extra-trusted-public-keys`；缓存组由 NUR 的 `lib/cache-config.nix` 维护 |
 | 上传签名私钥 | 上传设备的 `~/.local/share/nix-cache/signing-key` |
 | 对应公钥文件 | 上传设备的 `~/.local/share/nix-cache/public-key`，公钥名为 `r2-fonts-1` |
 
@@ -32,12 +32,23 @@ R2 桶根目录中的 `nix-cache-info` 描述缓存；`<store-hash>.narinfo` 包
 替换为自身的主机入口：
 
 ```bash
-nixos-rebuild build --flake .#class
-sudo nixos-rebuild boot --flake .#class
+nix run .#with-caches -- system nixos-rebuild build --flake .#class
+nix run .#with-caches -- system sudo --preserve-env=NIX_CONFIG nixos-rebuild boot --flake .#class
 ```
 
-保存工作后重启。配置生效后正常 rebuild 即可：本地已有的输出直接复用，缺失的输出
-从缓存下载并验签，未命中缓存时才构建。无需给每个软件单独添加缓存配置。
+保存工作后重启。构建时用 `with-caches` 选择所需缓存组；本地已有输出直接复用，
+缺失输出按本次命令的缓存列表下载并验签。普通安装不再逐一查询项目缓存。
+用户 `~/.config/nix/nix.conf` 的默认查询列表由 Home Manager 同步维护。
+
+```bash
+nix run github:lihaoze123/nur-packages#install -- --private dbx edunet
+nix run .#with-caches -- nur,computer-use nix profile upgrade codex-desktop
+nix run .#with-caches -- speech --print-config
+```
+
+NUR CI 使用同一私有 R2 桶与签名密钥，通过 GitHub Secrets 获取凭据；
+构建锁文件对应的软件包并自动签名、上传及校验。该缓存对个人设备开放，
+其他用户可选择相关项目的公开 Cachix 缓存或从源码构建。
 
 首次构建仍使用当前运行系统的缓存配置。如果新设备尚无 Windows 字体，先关闭
 `windowsFonts` 并部署缓存配置，再开启字体并构建，避免在缓存生效前下载、解包 ISO。
@@ -255,4 +266,5 @@ journalctl -u nix-daemon.service -n 50 --no-pager
 | 上传进度有字节但文件数仍是 `0/1` | 文件尚未完整上传、提交；等命令成功结束，并用 check 确认，未完成分片不等于可用对象 |
 | 原生 Nix 上传慢 | 本次实测 rclone 并发分片更快，优先用本文流程；速度差异不能单凭截图归因于代理或 IPv6 |
 
-维护文档只记录手动操作；没有部署 post-build-hook、自动上传服务或 R2 对象删除规则。
+本机维护使用上述手动流程；NUR CI 自动上传锁定版本的构建输出。未部署本机
+post-build-hook 或 R2 对象删除规则。

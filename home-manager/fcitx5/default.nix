@@ -238,7 +238,7 @@ let
   # DMS plugin (github:lihaoze123/dms-xhup): lookup, quick add and the
   # part-root chart. The Rime shared data lives in the store, so pass it here;
   # directories set in the plugin settings would take precedence.
-  xhup-dms-plugin = inputs.dms-xhup.packages.${pkgs.stdenv.hostPlatform.system}.default.override {
+  xhup-dms-plugin = inputs.nur-packages.packages.${pkgs.stdenv.hostPlatform.system}.dms-xhup.override {
     serviceArgs = [
       "--data-dir"
       "${rime-crane}/share/rime-data"

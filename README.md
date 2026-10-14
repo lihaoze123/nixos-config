@@ -52,7 +52,7 @@ ssh root@<IP>
 
 ## 配置结构
 
-- `flake.nix` / `flake.lock`：锁定输入、主机入口、独立 profile 包和项目模板。
+- `flake.nix` / `flake.lock`：锁定输入、主机入口、独立 NUR 包引用和项目模板。
 - `hosts/base.nix`：启动、网络、用户、SSH、防火墙、Nix 和 direnv。
 - `hosts/<主机>/features.nix`：选择主机功能；base 默认全部关闭，class 按选择开启。
 - `hosts/base/`：独立的最小配置，功能默认全部关闭，硬件配置为占位文件。
@@ -61,7 +61,7 @@ ssh root@<IP>
 - `modules/features.nix`：`my.features.*.enable` 选项、基础集成和依赖约束。
 - `modules/`：桌面、代理、下载、校园网和虚拟化服务。
 - `home-manager/`：Shell、编辑器以及受开关控制的桌面与输入法配置。
-- `profiles/packages.nix`：通过 `nix profile install .#包名` 按需安装应用。
+- 自定义软件包在独立 [nur-packages](https://github.com/lihaoze123/nur-packages) 仓库维护；本仓库通过 Flake 输入引用。
 - `templates/project/`：通用 devShell 模板（`#project`）和 Java 8 Servlet/JSP 可执行 JAR 模板（`#java-webapp`）。
 - `secrets/`：age 加密凭据，相关功能开启时使用。
 
@@ -69,9 +69,9 @@ ssh root@<IP>
 
 ```bash
 # 逐个安装用户应用，不需要重建系统
-nix profile install .#wechat
-nix profile install .#anki .#obsidian
-nix profile install .#vscode
+nix profile install nixpkgs#wechat
+nix profile install nixpkgs#anki nixpkgs#obsidian
+nix profile install github:lihaoze123/nur-packages#vscode
 
 # 版本管理使用 Jujutsu
 jj status

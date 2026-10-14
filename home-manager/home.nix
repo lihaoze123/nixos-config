@@ -15,6 +15,10 @@
 
   home.username = "chumeng";
   home.homeDirectory = "/home/chumeng";
+  xdg.configFile."nix/nix.conf".text = ''
+    # Project caches are selected explicitly by nur-with-caches.
+    substituters = ${pkgs.lib.concatStringsSep " " inputs.nur-packages.lib.cacheConfig.base}
+  '';
 
   home.packages = with pkgs;[
     # archives

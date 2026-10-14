@@ -7,7 +7,7 @@
     ../base.nix
     inputs.ragenix.nixosModules.default
     inputs.home-manager.nixosModules.home-manager
-    inputs.gxfp5130Chicago.nixosModules.default
+    inputs.nur-packages.nixosModules.gxfp5130-chicago
     {
       home-manager.useGlobalPkgs = true;
       home-manager.useUserPackages = true;

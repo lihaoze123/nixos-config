@@ -8,7 +8,7 @@
 - `hosts/`：`base.nix` 提供共享配置；各主机的 `default.nix` 管理导入，`features.nix` 选择功能。
 - `modules/`：系统服务、`my.features.*.enable` 选项与依赖约束。
 - `home-manager/`：Shell、编辑器、Niri、DMS、输入法及脚本和配置资源；输入法测试位于 `home-manager/fcitx5/tests/`。
-- `profiles/packages.nix`：独立用户应用；`templates/project/`：项目开发环境模板。
+- 自定义软件包维护于独立 `nur-packages` 仓库，本仓库仅引用；`templates/project/`：项目开发环境模板。
 - `docs/`：安装与桌面说明；`secrets/`：加密凭据及规则。
 
 ## 构建、检查与开发命令

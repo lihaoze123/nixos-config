@@ -12,8 +12,8 @@
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    try = {
-      url = "github:tobi/try";
+    nur-packages = {
+      url = "github:lihaoze123/nur-packages";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-index-database = {
@@ -24,10 +24,6 @@
     vocotype.url = "github:LeonardNJU/VocoType-linux/v5.0.1";
     dms = {
       url = "github:AvengeMedia/DankMaterialShell/v1.6.2";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    dms-xhup = {
-      url = "github:lihaoze123/dms-xhup";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     daeuniverse.url = "github:daeuniverse/flake.nix";
@@ -52,13 +48,6 @@
     };
     claude-code.url = "github:sadjow/claude-code-nix";
     codex-code.url = "github:sadjow/codex-cli-nix";
-    # Upstream updates Desktop independently of the tested niri backend.
-    computer-use.url = "github:lihaoze123/niri-computer-use";
-    edunet.url = "github:lihaoze123/hhu-edunet-cli";
-    gxfp5130Chicago = {
-      url = "github:lihaoze123/gxfp5130-chicago";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs = { self, nixpkgs, home-manager, ragenix, geodb, ... }@inputs:
@@ -88,13 +77,15 @@
         modules = [ ./hosts/installer ];
       };
 
-      packages.${system} = (import ./profiles/packages.nix {
-        inherit inputs system;
-        pkgs = import nixpkgs { inherit system; config.allowUnfree = true; };
-      }) // {
-        honk = (import nixpkgs { inherit system; }).callPackage ./modules/honk/package.nix { };
+      packages.${system} = inputs.nur-packages.packages.${system} // {
+        # Compatibility for the existing profile entry installed from .#delta.
+        delta = (import nixpkgs { inherit system; }).delta;
         installer-iso = self.nixosConfigurations.installer.config.system.build.isoImage;
       };
+      # Standard applications resolve from nixpkgs without a maintained alias list.
+      legacyPackages.${system} = (import nixpkgs { inherit system; config.allowUnfree = true; })
+        // inputs.nur-packages.packages.${system};
+      apps.${system}.with-caches = inputs.nur-packages.apps.${system}.with-caches;
       templates.project = {
         path = ./templates/project/devshell;
         description = "Independent project devShells for Rust, C++, Node.js, Python and Java";

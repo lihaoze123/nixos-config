@@ -3,7 +3,7 @@ let
   cfg = config.my.niri;
 in
 {
-  imports = [ inputs.computer-use.nixosModules.default ];
+  imports = [ inputs.nur-packages.nixosModules.computer-use ];
 
   options.my.niri.greeterExtraConfig = lib.mkOption {
     type = lib.types.lines;
@@ -20,7 +20,7 @@ in
     programs.codexComputerUse = {
       enable = config.my.features.codexDesktop.enable;
       users = [ "chumeng" ];
-      package = inputs.computer-use.packages.${system}.codex-desktop;
+      package = inputs.nur-packages.packages.${system}.codex-desktop;
     };
 
     # Dank Greeter on greetd. Switching display managers stops the running

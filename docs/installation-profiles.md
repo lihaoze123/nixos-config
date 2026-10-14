@@ -14,7 +14,7 @@
 | `class` | 基于 base，Btrfs + 独立 ESP，保留 Windows；桌面、常用工具、蓝牙、DAE、校园网认证、AI CLI、Codex Desktop / computer use |
 | `base` | 最小系统：启动、网络、用户、SSH、防火墙、Shell、Git/Jujutsu、Neovim、direnv，无图形会话 |
 
-laptop、home、class、base 共用 `modules/nix-cache/` 的私有 R2 下载缓存配置，
+laptop、home、class、base 共用 `modules/nix-cache/` 的缓存信任配置，项目缓存按命令启用，
 使用 `secrets/r2-cache-credentials.age` 和同一份缓存签名公钥；installer 保持独立。
 凭据由 agenix 解密为 root 可读文件，nix-daemon 在配置激活后使用它，上传仍手动执行。
 新机器须先将解密公钥加入 `secrets/keys.nix` 与凭据收件人规则，重新加密，并配置
@@ -112,27 +112,40 @@ sudo nix build .#nixosConfigurations.class.config.system.build.toplevel --no-lin
 > - Fish 中的 `lg`（lazygit）和 `try` 集成只在安装对应程序后生效（开启 `extra`，或用 profile 安装）。
 > - Neovim 自身需要的 tree-sitter、gcc、Node.js 和 clangd 仍随 Home Manager 安装，只在 nvim 内可见。
 
-包定义位于 `profiles/packages.nix`，沿用仓库的 nixpkgs 锁定版本；除 `extra` 复用的 `try` 外，不被 NixOS 系统引用。以普通用户在仓库根目录执行，选择需要的包，不必全部安装：
+自定义包集中维护在独立 [nur-packages](https://github.com/lihaoze123/nur-packages) 仓库，
+支持传统 NUR、Flake 和 `nix profile`。NixOS 配置仅保留该仓库的输入引用，
+不再维护普通应用的导出列表。标准应用直接使用 nixpkgs：
 
 ```bash
-nix profile install .#wechat
-nix profile install .#anki .#obsidian
-nix profile install .#vscode
-nix profile install .#microsoft-edge
-nix profile install .#typst .#pandoc
+nix profile install nixpkgs#wechat
+nix profile install nixpkgs#anki nixpkgs#obsidian
+nix profile install nixpkgs#microsoft-edge
+nix profile install nixpkgs#typst nixpkgs#pandoc
 ```
 
-VS Code 保留原来的六个扩展。其他可安装输出包括 `qq`、`tectonic`；没有开启 `extra`、`extraDesktop` 的机器（如 base）也可以单独安装 `fastfetch`、`lazygit`、`zellij`、`tealdeer`、`try`，以及 `ghostty`、`neovide`、`pavucontrol`、`gnome-disk-utility`、`baobab`、`filelight`。`try` 保留此前针对 NixOS shebang 的修补，`extra` 使用同一个包；安装后 Fish 会自动加载其 shell 集成（目录为 `~/src/tries`）。
+自定义包从独立仓库安装：
 
-你已有 profile 中的 QQ Wayland 修复版，可以继续使用，无需再装 `.#qq`。重建系统不会自动补装或更新 profile 中的应用。
+```bash
+nix run github:lihaoze123/nur-packages#install -- --private dbx
+nix profile install github:lihaoze123/nur-packages#vscode
+nix profile install github:lihaoze123/nur-packages#vtype-linux
+nix profile install github:lihaoze123/nur-packages#try
+```
+
+VS Code 保留原来的六个扩展。`try` 是 tobi/try，保留 NixOS shebang 修补；
+系统的 `extra` 功能也使用 NUR 中的同一个包，Fish 的集成目录仍为 `~/src/tries`。
+现有 `.#包名` 安装方式继续可用：自定义包由 NUR 提供，普通软件由
+`legacyPackages` 中的 nixpkgs 提供。已有 profile 中的包不会被自动替换。
 
 ```bash
 nix profile list
-nix profile upgrade wechat
-nix profile remove wechat
+nix profile upgrade dbx
+nix profile remove dbx
 ```
 
-名字以 `nix profile list` 的实际输出为准。更新应用前先按需要更新仓库锁文件。安装后应用的启动器条目由用户 profile 提供；已运行的桌面若未刷新条目，可以重新登录。
+名字以 `nix profile list` 为准。更新 NUR 应用时升级对应 profile 条目；
+更新 NixOS 中引用的版本时执行 `nix flake update nur-packages`。
+重建系统不会自动更新 profile 中的应用。应用菜单由用户 profile 提供。
 
 profile 的收益是延后安装和独立更新；以后全部装回仍会占空间。旧系统/profile 代际也可能继续保留旧包，当前改动不会自动删除代际或执行 GC。
 
