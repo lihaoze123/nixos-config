@@ -20,6 +20,10 @@
       url = "github:nix-community/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    vtype-linux = {
+      url = "github:zhl-HFUT/vtype-linux";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     # Keep VoCoType's validated ONNX Runtime / FunASR dependency versions.
     vocotype.url = "github:LeonardNJU/VocoType-linux/v5.0.1";
     dms = {

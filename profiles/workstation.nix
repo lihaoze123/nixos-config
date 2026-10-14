@@ -7,7 +7,10 @@ in
   my = {
     cli.extra.enable = on;
     ai.enable = on;
-    apps.browsers.enable = on;
+    apps = {
+      edge.enable = on;
+      mpv.enable = on;
+    };
     desktop = {
       enable = on;
       utilities.enable = on;

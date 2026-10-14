@@ -16,6 +16,9 @@ let
     (color: [ "mellow-${color}" "mellow-${color}-dark" ])
     [ "graphite" "sakura" "vermilion" "wechat" "youlan" ];
   speechEnabled = osConfig.my.input.speech.enable;
+  vtypeEnabled = osConfig.my.input.vtype.enable;
+  # WeChat Pinyin; wetype-setup downloads the engine into the user directory.
+  vtype = inputs.vtype-linux.packages.${pkgs.stdenv.hostPlatform.system}.vtype-linux;
   vocotypePackage = inputs.vocotype.packages.${pkgs.stdenv.hostPlatform.system}.vocotype-fcitx5.overrideAttrs (old: {
     patches = (old.patches or [ ]) ++ [ ./patches/vocotype-edit-context-bounds.patch ];
   });
@@ -276,7 +279,8 @@ in
   imports = [ ./doubao.nix ./hotwords.nix ];
 
   config = lib.mkIf osConfig.my.desktop.enable {
-    home.packages = [ xhup-lookup xhup-add-word ] ++ lib.optionals speechEnabled [ vocotype doubaoWorker ];
+    home.packages = [ xhup-lookup xhup-add-word ] ++ lib.optionals speechEnabled [ vocotype doubaoWorker ]
+      ++ lib.optional vtypeEnabled vtype;
     # Also expose settings when activating Home Manager before a system switch.
     home.file.".local/bin/vocotype-settings" = lib.mkIf speechEnabled { source = "${vocotype}/bin/vocotype-settings"; };
 
@@ -364,7 +368,8 @@ in
         fcitx5-rime-crane
         qt6Packages.fcitx5-configtool
         fcitx5-gtk
-      ] ++ lib.optional speechEnabled vocotype;
+      ] ++ lib.optional speechEnabled vocotype
+      ++ lib.optional vtypeEnabled vtype;
     };
 
     # DMS launches applications through systemd-run, which inherits the user

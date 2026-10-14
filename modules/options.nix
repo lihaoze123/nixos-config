@@ -42,6 +42,7 @@ in
       enable = mkEnableOption "VoCoType speech recognition";
       doubao.enable = mkEnableOption "Doubao speech credentials and worker integration";
     };
+    input.vtype.enable = mkEnableOption "VType (WeChat Pinyin) Fcitx5 addon; the engine is fetched by wetype-setup";
 
     fonts = {
       extra.enable = mkEnableOption "additional Chinese and typesetting fonts";
@@ -82,11 +83,23 @@ in
       waydroid.enable = mkEnableOption "Waydroid";
     };
 
-    # Daily graphical applications; nix profile is only for trying software.
+    # One switch per application. Profiles enable only the first-install set;
+    # try anything else with nix shell or nix profile.
     apps = {
-      browsers.enable = mkEnableOption "Google Chrome and Microsoft Edge";
-      chat.enable = mkEnableOption "WeChat, QQ and Telegram";
-      media.enable = mkEnableOption "mpv, VLC, OBS Studio, yt-dlp and FFmpeg";
+      edge.enable = mkEnableOption "Microsoft Edge";
+      chrome.enable = mkEnableOption "Google Chrome";
+      wechat.enable = mkEnableOption "WeChat";
+      qq.enable = mkEnableOption "QQ";
+      telegram.enable = mkEnableOption "Telegram Desktop";
+      mpv.enable = mkEnableOption "mpv";
+      vlc.enable = mkEnableOption "VLC";
+      obs.enable = mkEnableOption "OBS Studio";
+      ytDlp.enable = mkEnableOption "yt-dlp";
+      ffmpeg.enable = mkEnableOption "FFmpeg command-line tools";
+      vscode.enable = mkEnableOption "VS Code with Vim, Dracula, Tinymist, LaTeX Workshop, CodeSnap and the Chinese language pack";
+      anki.enable = mkEnableOption "Anki";
+      obsidian.enable = mkEnableOption "Obsidian";
+      typesetting.enable = mkEnableOption "Typst, Pandoc and Tectonic";
     };
 
     programs = {
@@ -97,7 +110,10 @@ in
     };
   };
 
-  config.assertions = [
+  config.assertions = map
+    (name: requires cfg.apps.${name}.enable cfg.desktop.enable "apps.${name}" "desktop")
+    [ "edge" "chrome" "wechat" "qq" "telegram" "mpv" "vlc" "obs" "vscode" "anki" "obsidian" ]
+  ++ [
     {
       assertion = !(cfg.network.proxy.backend == "honk" && config.services.dae.enable);
       message = "my.network.proxy.backend = \"honk\" conflicts with services.dae";
@@ -109,10 +125,8 @@ in
     (requires cfg.desktop.easyeffects.enable cfg.desktop.enable "desktop.easyeffects" "desktop")
     (requires cfg.desktop.phone.enable cfg.desktop.enable "desktop.phone" "desktop")
     (requires cfg.desktop.screenCast.enable cfg.desktop.enable "desktop.screenCast" "desktop")
-    (requires cfg.apps.browsers.enable cfg.desktop.enable "apps.browsers" "desktop")
-    (requires cfg.apps.chat.enable cfg.desktop.enable "apps.chat" "desktop")
-    (requires cfg.apps.media.enable cfg.desktop.enable "apps.media" "desktop")
     (requires cfg.input.speech.enable cfg.desktop.enable "input.speech" "desktop")
+    (requires cfg.input.vtype.enable cfg.desktop.enable "input.vtype" "desktop")
     (requires cfg.input.speech.doubao.enable cfg.input.speech.enable "input.speech.doubao" "input.speech")
     (requires cfg.fonts.extra.enable cfg.desktop.enable "fonts.extra" "desktop")
     (requires cfg.fonts.windows.enable cfg.fonts.extra.enable "fonts.windows" "fonts.extra")

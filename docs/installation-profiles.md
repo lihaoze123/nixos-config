@@ -6,9 +6,9 @@
 
 | Flake 入口 | Profile | 主机额外开启 |
 | --- | --- | --- |
-| `laptop`（别名 `nixos`） | `personal` | Plymouth、Codex computer use、手机集成、投屏、Windows 字体、CachyOS 内核、honk、Podman、libvirt、Waydroid、Steam；指纹在 `hosts/laptop/hardware.nix` |
+| `laptop`（别名 `nixos`） | `personal` | Chrome、微信、QQ、Telegram、VLC、OBS、yt-dlp、FFmpeg、微信拼音；Plymouth、Codex computer use、手机集成、投屏、Windows 字体、CachyOS 内核、honk、Podman、libvirt、Waydroid、Steam；指纹在 `hosts/laptop/hardware.nix` |
 | `home` | `personal` | dae；NVIDIA、打印、Syncthing 在 `hosts/home/` |
-| `class` | `workstation` | Plymouth、Codex computer use、Windows 字体、CachyOS 内核、dae、Podman、libvirt；Btrfs + 独立 ESP，保留 Windows |
+| `class` | `workstation` | 微信拼音；Plymouth、Codex computer use、Windows 字体、CachyOS 内核、dae、Podman、libvirt；Btrfs + 独立 ESP，保留 Windows |
 | `base` | 无 | 最小系统：启动、网络、用户、SSH、防火墙、Shell、Git/Jujutsu、Neovim、direnv，无图形会话 |
 
 三台主机使用同一套桌面：Niri + DankMaterialShell，登录界面为 Dank Greeter（greetd）。各主机只在 niri 布局（`modules/home/desktop/niri/config.kdl`、`hosts/<主机>/config-<主机>.kdl`）和 greeter 输出（`my.desktop.greeter.extraConfig`）上不同。改变登录管理器配置时，用 `sudo nixos-rebuild boot` 后重启。
@@ -52,9 +52,9 @@ nixos-rebuild build --flake .#base
 | `ai` | Claude Code、Codex、OpenCode 与加密凭据/包装命令 | ✓ | ✓ |
 | `desktop` | Niri + DMS、Dank Greeter、中文输入法、PipeWire、基础字体、Kitty、文件管理 | ✓ | ✓ |
 | `desktop.utilities` | ghostty、neovide、pavucontrol、GNOME 磁盘、baobab、Filelight | ✓ | ✓ |
-| `apps.browsers` | Google Chrome、Microsoft Edge | ✓ | ✓ |
-| `apps.chat` | 微信、QQ、Telegram | | ✓ |
-| `apps.media` | mpv、VLC、OBS Studio、yt-dlp、FFmpeg | | ✓ |
+| `apps.edge` / `apps.mpv` | Microsoft Edge；mpv | ✓ | ✓ |
+| 其他 `apps.*` | `chrome`、`wechat`、`qq`、`telegram`、`vlc`、`obs`、`ytDlp`、`ffmpeg`、`vscode`（含原来的六个扩展）、`anki`、`obsidian`、`typesetting`（Typst、Pandoc、Tectonic），每个应用一个开关 | | |
+| `input.vtype` | 微信拼音 Fcitx5 插件，来自上游 vtype-linux flake，见 [VType Linux](vtype-linux.md) | | |
 | `fonts.extra` / `fonts.windows` | 额外中文与排版字体；chinese-fonts-overlay 的 Windows 字体 | extra | extra |
 | `hardware.bluetooth` | 蓝牙及桌面小程序 | ✓ | ✓ |
 | `network.edunet` / `network.tailscale` | 校园网认证；Tailscale | edunet | 两者 |
@@ -67,7 +67,7 @@ nixos-rebuild build --flake .#base
 | `desktop.graphicalBoot` / `codexComputerUse` / `phone` / `screenCast` / `wallpaperEngine` | Plymouth；Codex Desktop computer use；Valent；Wi-Fi 投屏；动态壁纸 | | |
 | `kernel.cachyos` | CachyOS BORE 内核及二进制缓存 | | |
 
-依赖不满足时求值会给出断言错误（例如 `apps.*`、`desktop.*`、`input.speech` 需要 `desktop`，`input.speech.doubao` 需要 `input.speech`，`fonts.windows` 需要 `fonts.extra`）。开关只控制安装与服务，关闭不会删除原有用户数据。只在一台主机上存在的配置（指纹、打印、Syncthing、NVIDIA）直接写在该主机目录，不设共享开关。
+依赖不满足时求值会给出断言错误（例如图形类 `apps.*`、`desktop.*`、`input.speech`、`input.vtype` 需要 `desktop`，`input.speech.doubao` 需要 `input.speech`，`fonts.windows` 需要 `fonts.extra`）。开关只控制安装与服务，关闭不会删除原有用户数据。只在一台主机上存在的配置（指纹、打印、Syncthing、NVIDIA）直接写在该主机目录，不设共享开关。
 
 启用 `podman` 时，未指定仓库域名的镜像名按 `docker.io`、`quay.io`、`ghcr.io` 的顺序搜索，配置由 NixOS 写入 `/etc/containers/registries.conf`。例如 `podman pull alpine` 使用此搜索列表；`podman pull docker.io/library/alpine` 则直接使用指定仓库。Podman 可能提示选择仓库并记住选择；用户自己的 `~/.config/containers/registries.conf` 会覆盖系统配置。
 
@@ -83,7 +83,7 @@ sudo nix build .#nixosConfigurations.class.config.system.build.toplevel --no-lin
 
 ## 应用：声明式安装，profile 只用于试用
 
-长期使用的图形应用写在 `modules/home/apps.nix` 的分组中，命令行工具写在 `modules/home/shell/cli.nix`，随系统构建与回滚。新增分组时在 `modules/options.nix` 的 `my.apps` 下声明开关，再在合适的 profile 或主机中开启。
+长期使用的应用写在 `modules/home/apps.nix`，每个应用一个开关；命令行工具写在 `modules/home/shell/cli.nix`，随系统构建与回滚。profile 只开启首次安装需要的 Edge 和 mpv，其余应用（包括迁移到 nix profile 之前的 VS Code、Anki、Obsidian 和排版工具）按主机开启，例如 laptop 在 `hosts/laptop/default.nix` 中开启了正在使用的聊天和媒体应用。新增应用时在 `modules/options.nix` 的 `my.apps` 下声明开关，并在 `apps.nix` 的对应表中加入软件包。
 
 试用软件不改配置：
 

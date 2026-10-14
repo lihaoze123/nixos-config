@@ -972,6 +972,7 @@
         "ragenix": "ragenix",
         "rust-overlay": "rust-overlay_2",
         "vocotype": "vocotype",
+        "vtype-linux": "vtype-linux",
         "xwayland-satellite": "xwayland-satellite"
       }
     },
@@ -1149,6 +1150,26 @@
         "owner": "LeonardNJU",
         "ref": "v5.0.1",
         "repo": "VocoType-linux",
+        "type": "github"
+      }
+    },
+    "vtype-linux": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1791942563,
+        "narHash": "sha256-MfdRhqmG/6ULEDO0HcOXtw16+eRKZezRXxbOJhdvrIA=",
+        "owner": "zhl-HFUT",
+        "repo": "vtype-linux",
+        "rev": "879bbe830d262321031bacb9b1321af2729582b8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "zhl-HFUT",
+        "repo": "vtype-linux",
         "type": "github"
       }
     },

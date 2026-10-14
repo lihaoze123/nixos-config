@@ -8,6 +8,18 @@
   ];
 
   my = {
+    # Applications already in use on this machine, beyond the profile's Edge and mpv.
+    apps = {
+      chrome.enable = true;
+      wechat.enable = true;
+      qq.enable = true;
+      telegram.enable = true;
+      vlc.enable = true;
+      obs.enable = true;
+      ytDlp.enable = true;
+      ffmpeg.enable = true;
+    };
+    input.vtype.enable = true;
     desktop = {
       graphicalBoot = {
         enable = true;

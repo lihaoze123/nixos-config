@@ -24,6 +24,7 @@ in
         }
       '';
     };
+    input.vtype.enable = true;
     fonts.windows.enable = true;
     kernel.cachyos.enable = true;
     network.proxy.backend = "dae";
