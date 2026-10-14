@@ -1,4 +1,4 @@
-{ inputs, system, ... }:
+{ config, inputs, system, ... }:
 {
   # Shared by every installed host; mkHost adds the host directory.
   imports = [
@@ -19,7 +19,7 @@
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-    users.chumeng.imports = [ ../home ];
+    users.${config.my.user.name}.imports = [ ../home ] ++ config.my.home.imports;
     extraSpecialArgs = { inherit inputs system; };
   };
 }

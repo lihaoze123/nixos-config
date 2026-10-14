@@ -21,7 +21,7 @@ in
     '';
   };
 
-  home-manager.users.chumeng.imports = [ ./home.nix ];
+  my.home.imports = [ ./home.nix ];
 
   hardware.graphics.enable = useNvidia;
   services.xserver.videoDrivers = lib.mkIf useNvidia [ "nvidia" ];

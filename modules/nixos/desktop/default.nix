@@ -19,7 +19,7 @@ in
     # Share the desktop and native niri backend across hosts.
     programs.codexComputerUse = {
       enable = cfg.codexComputerUse.enable;
-      users = [ "chumeng" ];
+      users = [ config.my.user.name ];
       package = inputs.nur-packages.packages.${system}.codex-desktop;
     };
 
@@ -54,7 +54,7 @@ in
         '' + cfg.greeter.extraConfig;
       };
       # Copies the DMS theme and wallpaper into the greeter before each start.
-      configHome = "/home/chumeng";
+      configHome = config.my.user.home;
     };
 
     security.polkit.enable = true;
@@ -86,6 +86,6 @@ in
       alsa.support32Bit = true;
       pulse.enable = true;
     };
-    users.users.chumeng.extraGroups = [ "render" "audio" ];
+    users.users.${config.my.user.name}.extraGroups = [ "render" "audio" ];
   };
 }

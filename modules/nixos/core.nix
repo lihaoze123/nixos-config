@@ -1,4 +1,7 @@
-{ lib, pkgs, ... }:
+{ config, lib, pkgs, ... }:
+let
+  user = config.my.user;
+in
 {
   boot.loader = {
     grub = {
@@ -26,13 +29,13 @@
     bind
   ];
 
-  users.users.chumeng = {
+  users.users.${user.name} = {
     isNormalUser = true;
-    description = "chumeng";
+    description = user.name;
     extraGroups = [ "networkmanager" "wheel" ];
   };
 
-  age.identityPaths = lib.mkDefault [ "/home/chumeng/.ssh/id_rsa" ];
+  age.identityPaths = lib.mkDefault [ "${user.home}/.ssh/id_rsa" ];
 
   services.openssh.enable = true;
   programs.mosh.enable = true;

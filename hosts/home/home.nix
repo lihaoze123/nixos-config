@@ -1,6 +1,6 @@
 { config, lib, osConfig, ... }:
 let
-  niriConfigPath = "${config.home.homeDirectory}/nixos-config/hosts/home/config-home.kdl";
+  niriConfigPath = "${osConfig.my.configPath}/hosts/home/config-home.kdl";
 in
 {
   # DMS loads niri/config.kdl and includes this host's layout as base.kdl.

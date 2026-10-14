@@ -28,7 +28,7 @@ Shared modules, Home Manager and the host name are wired in by `mkHost` in `../l
 3. Generate hardware configuration: `sudo nixos-generate-config`
 4. Copy `hardware-configuration.nix` to the new host directory
 5. Add `nixosConfigurations.new-host = mkHost "new-host";` to `flake.nix`
-6. Add `home.nix` and `home-manager.users.chumeng.imports = [ ./home.nix ];` if the host needs Home Manager overrides
+6. Add `home.nix` and `my.home.imports = [ ./home.nix ];` if the host needs Home Manager overrides; set `my.configPath = null;` when the machine has no checkout at `~/nixos-config`
 
 ## Usage
 

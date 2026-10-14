@@ -1,9 +1,13 @@
-{ config, pkgs, ... }:
+{ config, pkgs, osConfig, ... }:
 let
-  nvimPath = "${config.home.homeDirectory}/nixos-config/modules/home/shell/neovim/nvim";
+  inherit (osConfig.my) configPath;
 in
 {
-  xdg.configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink nvimPath;
+  # Link the live checkout when there is one, so plugin updates stay editable.
+  xdg.configFile."nvim".source =
+    if configPath != null
+    then config.lib.file.mkOutOfStoreSymlink "${configPath}/modules/home/shell/neovim/nvim"
+    else ./nvim;
   programs.neovim = {
     enable = true;
     # Keep the live ./nvim directory; load Home Manager's init code via the wrapper.

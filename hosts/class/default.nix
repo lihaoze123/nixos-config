@@ -34,9 +34,9 @@ in
     };
   };
 
-  home-manager.users.chumeng.imports = [
-    (import ./home.nix { inherit panelMode; })
-  ];
+  # No checkout of this repository on this machine: ship configs from the store.
+  my.configPath = null;
+  my.home.imports = [ (import ./home.nix { inherit panelMode; }) ];
 
   networking.firewall = {
     allowedTCPPorts = [ 9100 ];
@@ -58,7 +58,7 @@ in
   users.users.root.openssh.authorizedKeys.keys = [
     (import ../../secrets/keys.nix).laptop
   ];
-  users.users.chumeng.openssh.authorizedKeys.keys = [
+  users.users.${config.my.user.name}.openssh.authorizedKeys.keys = [
     (import ../../secrets/keys.nix).laptop
   ];
 

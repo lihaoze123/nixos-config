@@ -21,7 +21,7 @@ in
         };
       };
       virtualisation.spiceUSBRedirection.enable = true;
-      users.users.chumeng.extraGroups = [ "kvm" "libvirtd" ];
+      users.users.${config.my.user.name}.extraGroups = [ "kvm" "libvirtd" ];
       networking.firewall.interfaces."virbr0".allowedUDPPorts = [ 67 ];
     })
     (lib.mkIf cfg.waydroid.enable { virtualisation.waydroid.enable = true; })

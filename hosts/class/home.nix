@@ -1,10 +1,8 @@
 { panelMode }:
 { lib, pkgs, osConfig, ... }:
 {
-  age.identityPaths = [ "/home/chumeng/.ssh/id_ed25519" ];
+  age.identityPaths = [ "${osConfig.my.user.home}/.ssh/id_ed25519" ];
   xresources.properties."Xft.dpi" = lib.mkForce 96;
-  # The new machine has no checkout at ~/nixos-config: ship these files.
-  xdg.configFile."nvim".source = lib.mkForce ../../modules/home/shell/neovim/nvim;
   # Keep the desktop and greeter on the same preferred panel mode.
   xdg.configFile."niri/base.kdl" = lib.mkIf osConfig.my.desktop.enable {
     source = lib.mkForce (pkgs.writeText "class-niri-base.kdl" (lib.replaceStrings

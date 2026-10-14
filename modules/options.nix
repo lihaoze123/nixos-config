@@ -12,6 +12,36 @@ in
   # Feature switches shared by the NixOS and Home Manager modules.
   # Hosts select them through profiles/ and their own default.nix.
   options.my = {
+    user = {
+      name = mkOption {
+        type = types.str;
+        default = "chumeng";
+        description = "The single desktop user managed by this configuration.";
+      };
+      home = mkOption {
+        type = types.str;
+        default = "/home/${cfg.user.name}";
+        defaultText = lib.literalExpression "\"/home/\${config.my.user.name}\"";
+        description = "Home directory of my.user.name.";
+      };
+    };
+
+    configPath = mkOption {
+      type = types.nullOr types.str;
+      default = "${cfg.user.home}/nixos-config";
+      defaultText = lib.literalExpression "\"\${config.my.user.home}/nixos-config\"";
+      description = ''
+        Checkout of this repository. Neovim and niri configs link into it so that
+        edits apply without a rebuild; null ships read-only copies from the store.
+      '';
+    };
+
+    home.imports = mkOption {
+      type = types.listOf types.deferredModule;
+      default = [ ];
+      description = "Host-specific Home Manager modules for my.user.name.";
+    };
+
     cli.extra.enable = mkEnableOption "commonly used command-line tools beyond the minimal system";
     ai.enable = mkEnableOption "Claude Code, Codex and OpenCode CLI tools";
 

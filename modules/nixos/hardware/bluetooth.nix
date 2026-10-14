@@ -12,5 +12,5 @@ lib.mkIf cfg.hardware.bluetooth.enable {
     };
   };
   services.blueman.enable = cfg.desktop.enable;
-  users.users.chumeng.extraGroups = [ "bluetooth" ];
+  users.users.${config.my.user.name}.extraGroups = [ "bluetooth" ];
 }

@@ -1,4 +1,7 @@
 { config, lib, pkgs, ... }:
+let
+  user = config.my.user;
+in
 {
   config = lib.mkIf config.my.services.aria2.enable {
     age.secrets."aria2-password" = {
@@ -10,14 +13,14 @@
 
     systemd.tmpfiles.rules = lib.mkBefore [
       # The first rule for a path wins; precede the upstream aria2-owned rules.
-      "d '/home/chumeng/Download' 0710 chumeng users - -"
-      "d '/var/lib/aria2' 0770 chumeng users - -"
+      "d '${user.home}/Download' 0710 ${user.name} users - -"
+      "d '/var/lib/aria2' 0770 ${user.name} users - -"
       # Transfer existing state and downloads after the module creates its directories.
-      "Z /var/lib/aria2 - chumeng users - -"
+      "Z /var/lib/aria2 - ${user.name} users - -"
     ];
 
     systemd.services.aria2.serviceConfig = {
-      User = lib.mkForce "chumeng";
+      User = lib.mkForce user.name;
       Group = lib.mkForce "users";
     };
 
@@ -38,7 +41,7 @@
       serviceUMask = "0007";
       downloadDirPermission = "0710";
       settings = {
-        dir = "/home/chumeng/Download";
+        dir = "${user.home}/Download";
         max-concurrent-downloads = 3;
         max-connection-per-server = 16;
         split = 16;

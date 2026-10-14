@@ -128,8 +128,10 @@ in
       "niri/wallpaper-engine.kdl" = lib.mkIf osConfig.my.desktop.wallpaperEngine.enable {
         source = ./wallpaper-engine.kdl;
       };
-      "niri/base.kdl".source = config.lib.file.mkOutOfStoreSymlink
-        "${config.home.homeDirectory}/nixos-config/modules/home/desktop/niri/config.kdl";
+      "niri/base.kdl".source =
+        if osConfig.my.configPath != null
+        then config.lib.file.mkOutOfStoreSymlink "${osConfig.my.configPath}/modules/home/desktop/niri/config.kdl"
+        else ../config.kdl;
       "niri/dms-bindings.kdl".text = lib.concatStringsSep "\n" (
         builtins.filter
           (line: osConfig.my.input.speech.enable || !(lib.hasInfix "vocotypeHotwords" line))

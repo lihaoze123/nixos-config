@@ -1,7 +1,10 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
+let
+  user = config.my.user;
+in
 {
   # HP printer
-  users.users.chumeng.extraGroups = [ "lpadmin" ];
+  users.users.${user.name}.extraGroups = [ "lpadmin" ];
   services.printing = {
     enable = true;
     drivers = [ pkgs.hplipWithPlugin ];
@@ -14,9 +17,9 @@
 
   services.syncthing = {
     enable = true;
-    user = "chumeng";
-    dataDir = "/home/chumeng/Documents";
-    configDir = "/home/chumeng/.config/syncthing";
+    user = user.name;
+    dataDir = "${user.home}/Documents";
+    configDir = "${user.home}/.config/syncthing";
     settings = {
       devices = {
         "remote" = {
@@ -25,7 +28,7 @@
       };
       folders = {
         "Tweets" = {
-          path = "/home/chumeng/Documents/.obsidian/Notes/Tweets";
+          path = "${user.home}/Documents/.obsidian/Notes/Tweets";
           devices = [ "remote" ];
         };
       };
@@ -33,6 +36,6 @@
   };
 
   systemd.tmpfiles.rules = [
-    "d /home/chumeng/Documents/.obsidian/Notes/Tweets 0755 chumeng syncthing -"
+    "d ${user.home}/Documents/.obsidian/Notes/Tweets 0755 ${user.name} syncthing -"
   ];
 }

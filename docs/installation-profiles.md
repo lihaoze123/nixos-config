@@ -34,7 +34,7 @@ nixos-rebuild build --flake .#base
 
 ## 开关与 profile
 
-所有 `my.*` 开关默认关闭，完整列表与说明见 `modules/options.nix`。profile 以 `lib.mkDefault` 设置开关，主机中直接赋值即可覆盖，例如在 personal 主机上关闭语音：
+所有 `my.*` 开关默认关闭，完整列表与说明见 `modules/options.nix`。用户名与家目录由 `my.user.name`、`my.user.home` 统一设置；`my.configPath` 指向本仓库的检出位置（默认 `~/nixos-config`），Neovim 与 niri 配置链接到这里，改动无需重建即可生效。没有检出的机器（如 class）设为 `null`，改用 store 中的只读副本；主机自己的 Home Manager 覆盖写在 `my.home.imports`。profile 以 `lib.mkDefault` 设置开关，主机中直接赋值即可覆盖，例如在 personal 主机上关闭语音：
 
 ```nix
 {
