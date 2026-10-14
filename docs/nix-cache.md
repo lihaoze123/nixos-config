@@ -55,8 +55,9 @@ NUR CI 使用同一私有 R2 桶与签名密钥，通过 GitHub Secrets 获取�
 
 新主机还需要把解密公钥加入 `secrets/keys.nix` 和 R2 凭据的 `publicKeys` 规则，
 重新加密，并将主机的 `age.identityPaths` 设置为对应私钥路径。base 当前继承的
-`/home/chumeng/.ssh/id_rsa` 路径需要按新机器调整。class 的系统解密密钥是
-`/etc/ssh/ssh_host_ed25519_key`；手动维护时使用用户的 `~/.ssh/id_ed25519`。
+`/home/chumeng/.ssh/id_rsa` 路径需要按新机器调整。laptop 和 class 的系统解密密钥是
+`/etc/ssh/ssh_host_ed25519_key`，避免启动时依赖尚未挂载的 `/home`；Home Manager
+和手动维护仍使用用户私钥（laptop 为 `~/.ssh/id_rsa`，class 为 `~/.ssh/id_ed25519`）。
 
 ## 进入临时维护会话
 

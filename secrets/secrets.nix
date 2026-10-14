@@ -1,6 +1,6 @@
 let
   keys = import ./keys.nix;
-  users = [ keys.laptop keys.home keys.class keys.class-user ];
+  users = [ keys.laptop keys.laptop-host keys.home keys.class keys.class-user ];
 in
 {
     "dae-nodes.age".publicKeys = users;

@@ -23,6 +23,9 @@
     {
       networking.hostName = "laptop";
 
+      # System secrets must be available before /home is mounted.
+      age.identityPaths = lib.mkForce [ "/etc/ssh/ssh_host_ed25519_key" ];
+
       # Ignore the Wi-Fi side of F9 to avoid accidental rfkill toggles when
       # switching Fn modes. The regular F9 used by VoCoType remains available.
       services.udev.extraHwdb = ''
