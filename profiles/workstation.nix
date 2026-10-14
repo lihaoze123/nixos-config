@@ -7,6 +7,7 @@ in
   my = {
     cli.extra.enable = on;
     ai.enable = on;
+    apps.browsers.enable = on;
     desktop = {
       enable = on;
       utilities.enable = on;

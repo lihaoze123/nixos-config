@@ -37,6 +37,11 @@
     zellij
     tealdeer
     fastfetch
+    btop
+    ouch
+    iperf
+    jjui
+    nh
     # tobi/try with the NixOS shebang fix.
     inputs.nur-packages.packages.${system}.try
   ] ++ lib.optionals osConfig.my.desktop.enable [

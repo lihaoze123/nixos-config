@@ -7,6 +7,5 @@ lib.mkIf osConfig.my.desktop.utilities.enable {
     gnome-disk-utility
     baobab
     kdePackages.filelight
-    microsoft-edge
   ];
 }

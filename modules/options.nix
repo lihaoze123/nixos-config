@@ -82,6 +82,13 @@ in
       waydroid.enable = mkEnableOption "Waydroid";
     };
 
+    # Daily graphical applications; nix profile is only for trying software.
+    apps = {
+      browsers.enable = mkEnableOption "Google Chrome and Microsoft Edge";
+      chat.enable = mkEnableOption "WeChat, QQ and Telegram";
+      media.enable = mkEnableOption "mpv, VLC, OBS Studio, yt-dlp and FFmpeg";
+    };
+
     programs = {
       wireshark.enable = mkEnableOption "Wireshark with capture permissions";
       appimage.enable = mkEnableOption "AppImage execution support";
@@ -102,6 +109,9 @@ in
     (requires cfg.desktop.easyeffects.enable cfg.desktop.enable "desktop.easyeffects" "desktop")
     (requires cfg.desktop.phone.enable cfg.desktop.enable "desktop.phone" "desktop")
     (requires cfg.desktop.screenCast.enable cfg.desktop.enable "desktop.screenCast" "desktop")
+    (requires cfg.apps.browsers.enable cfg.desktop.enable "apps.browsers" "desktop")
+    (requires cfg.apps.chat.enable cfg.desktop.enable "apps.chat" "desktop")
+    (requires cfg.apps.media.enable cfg.desktop.enable "apps.media" "desktop")
     (requires cfg.input.speech.enable cfg.desktop.enable "input.speech" "desktop")
     (requires cfg.input.speech.doubao.enable cfg.input.speech.enable "input.speech.doubao" "input.speech")
     (requires cfg.fonts.extra.enable cfg.desktop.enable "fonts.extra" "desktop")

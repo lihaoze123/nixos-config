@@ -1,6 +1,6 @@
 # NixOS 配置仓库
 
-模块化 NixOS + Home Manager 配置，支持 laptop、home、class 三台主机，以及供新机器首次安装的最小配置 `base`。各主机选择一个 profile（`workstation` 或 `personal`），再在自己的 `default.nix` 中覆盖 `my.*` 开关。普通应用交给 `nix profile`，编程环境由各项目自己的 devShell 管理。
+模块化 NixOS + Home Manager 配置，支持 laptop、home、class 三台主机，以及供新机器首次安装的最小配置 `base`。各主机选择一个 profile（`workstation` 或 `personal`），再在自己的 `default.nix` 中覆盖 `my.*` 开关。日常应用全部声明在配置中，`nix profile` 只用于试用；编程环境由各项目自己的 devShell 管理。
 
 ## 安装与构建
 
@@ -56,7 +56,7 @@ ssh root@<IP>
 - `lib/default.nix`：`mkHost`，为每台主机接入 `modules/nixos`、Home Manager 和 `hosts/<主机>`，并设置主机名。
 - `modules/options.nix`：全部 `my.*` 开关的集中声明与依赖断言。
 - `modules/nixos/`：系统层。`core.nix`（启动、网络、用户、SSH、防火墙、Nix、direnv）、`nix-cache.nix`、`overlays.nix`，以及 `desktop/`、`hardware/`、`network/`、`services/`、`virtualisation.nix`、`programs.nix`。
-- `modules/home/`：Home Manager 层。`shell/`、`desktop/`（Niri、DMS、输入法、文件管理等） 与 `ai/`。
+- `modules/home/`：Home Manager 层。`shell/`、`desktop/`（Niri、DMS、输入法、文件管理等）、`ai/` 与 `apps.nix`。
 - `profiles/`：`workstation.nix`（所有桌面主机共用）与 `personal.nix`（laptop、home 的个人功能），均以 `mkDefault` 设置，主机可直接覆盖。
 - `hosts/<主机>/`：选择 profile、覆盖开关，并放置硬件与单主机配置；`home.nix` 为该主机的 Home Manager 覆盖。`hosts/base/` 是功能全关的最小配置，`hosts/installer/` 为独立安装镜像。
 - 自定义软件包在独立 [nur-packages](https://github.com/lihaoze123/nur-packages) 仓库维护；本仓库通过 Flake 输入引用。
@@ -66,10 +66,11 @@ ssh root@<IP>
 ## 常用操作
 
 ```bash
-# 逐个安装用户应用，不需要重建系统
-nix profile install nixpkgs#wechat
-nix profile install nixpkgs#anki nixpkgs#obsidian
-nix profile install github:lihaoze123/nur-packages#vscode
+# 试用软件：nix shell 不留痕迹，nix profile 可保留一段时间
+nix shell nixpkgs#obsidian
+nix profile install nixpkgs#obsidian
+# 决定长期使用后，写入 modules/home/apps.nix 并从 profile 移除
+nix profile remove obsidian
 
 # 版本管理使用 Jujutsu
 jj status

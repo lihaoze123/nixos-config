@@ -4,6 +4,7 @@
     ./shell
     ./desktop
     ./ai
+    ./apps.nix
     inputs.ragenix.homeManagerModules.default
   ];
   programs.dank-material-shell.enable = osConfig.my.desktop.enable;

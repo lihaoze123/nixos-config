@@ -7,6 +7,10 @@ in
   imports = [ ./workstation.nix ];
 
   my = {
+    apps = {
+      chat.enable = on;
+      media.enable = on;
+    };
     desktop.easyeffects.enable = on;
     input.speech = {
       enable = on;

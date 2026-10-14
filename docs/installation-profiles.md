@@ -1,4 +1,4 @@
-# 安装入口、功能开关与用户应用
+# 安装入口、功能开关与应用
 
 配置分为四层：`modules/options.nix` 集中声明开关，`modules/nixos` 与 `modules/home` 实现开关，`profiles/` 把常用开关组合成角色，`hosts/<主机>/` 选择 profile 并覆盖开关、放置硬件与单主机配置。`base` 是功能全关的最小配置，供新机器首次安装使用；class 的安装步骤见 [class 双系统安装指南](class-installation.md)。
 
@@ -48,10 +48,13 @@ nixos-rebuild build --flake .#base
 
 | 开关 | 管理的内容 | workstation | personal |
 | --- | --- | --- | --- |
-| `cli.extra` | lazygit、zellij、tealdeer、fastfetch、try | ✓ | ✓ |
+| `cli.extra` | lazygit、zellij、tealdeer、fastfetch、btop、ouch、iperf、jjui、nh、try | ✓ | ✓ |
 | `ai` | Claude Code、Codex、OpenCode 与加密凭据/包装命令 | ✓ | ✓ |
 | `desktop` | Niri + DMS、Dank Greeter、中文输入法、PipeWire、基础字体、Kitty、文件管理 | ✓ | ✓ |
-| `desktop.utilities` | ghostty、neovide、pavucontrol、GNOME 磁盘、baobab、Filelight、Microsoft Edge | ✓ | ✓ |
+| `desktop.utilities` | ghostty、neovide、pavucontrol、GNOME 磁盘、baobab、Filelight | ✓ | ✓ |
+| `apps.browsers` | Google Chrome、Microsoft Edge | ✓ | ✓ |
+| `apps.chat` | 微信、QQ、Telegram | | ✓ |
+| `apps.media` | mpv、VLC、OBS Studio、yt-dlp、FFmpeg | | ✓ |
 | `fonts.extra` / `fonts.windows` | 额外中文与排版字体；chinese-fonts-overlay 的 Windows 字体 | extra | extra |
 | `hardware.bluetooth` | 蓝牙及桌面小程序 | ✓ | ✓ |
 | `network.edunet` / `network.tailscale` | 校园网认证；Tailscale | edunet | 两者 |
@@ -64,7 +67,7 @@ nixos-rebuild build --flake .#base
 | `desktop.graphicalBoot` / `codexComputerUse` / `phone` / `screenCast` / `wallpaperEngine` | Plymouth；Codex Desktop computer use；Valent；Wi-Fi 投屏；动态壁纸 | | |
 | `kernel.cachyos` | CachyOS BORE 内核及二进制缓存 | | |
 
-依赖不满足时求值会给出断言错误（例如 `desktop.*`、`input.speech` 需要 `desktop`，`input.speech.doubao` 需要 `input.speech`，`fonts.windows` 需要 `fonts.extra`）。开关只控制安装与服务，关闭不会删除原有用户数据。只在一台主机上存在的配置（指纹、打印、Syncthing、NVIDIA）直接写在该主机目录，不设共享开关。
+依赖不满足时求值会给出断言错误（例如 `apps.*`、`desktop.*`、`input.speech` 需要 `desktop`，`input.speech.doubao` 需要 `input.speech`，`fonts.windows` 需要 `fonts.extra`）。开关只控制安装与服务，关闭不会删除原有用户数据。只在一台主机上存在的配置（指纹、打印、Syncthing、NVIDIA）直接写在该主机目录，不设共享开关。
 
 启用 `podman` 时，未指定仓库域名的镜像名按 `docker.io`、`quay.io`、`ghcr.io` 的顺序搜索，配置由 NixOS 写入 `/etc/containers/registries.conf`。例如 `podman pull alpine` 使用此搜索列表；`podman pull docker.io/library/alpine` 则直接使用指定仓库。Podman 可能提示选择仓库并记住选择；用户自己的 `~/.config/containers/registries.conf` 会覆盖系统配置。
 
@@ -78,59 +81,21 @@ sudo nix build .#nixosConfigurations.class.config.system.build.toplevel --no-lin
   --extra-trusted-public-keys 'lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc='
 ```
 
-## 用户 profile：逐个安装应用
+## 应用：声明式安装，profile 只用于试用
 
-> **切换到新配置前，先在每台机器上装好需要的应用。** 功能开关保持了原有行为，但下面这些软件已经不随系统安装，laptop、home、class 切换后都会消失：
->
-> - 应用：VS Code（含原来的六个扩展）、Microsoft Edge、QQ、微信、Anki、Obsidian
-> - 排版：typst、pandoc、tectonic
-> - 工具链：GCC、Clang、Rust（含 `~/.rust-rover/toolchain` 链接与 `RUST_SRC_PATH`）、JDK、Node.js、Bun、Python、uv，改由项目 devShell 提供
->
-> lazygit、zellij、tealdeer、fastfetch、try 由 `cli.extra` 开关安装；ghostty、neovide、pavucontrol、GNOME 磁盘、baobab、Filelight、Edge 由 `desktop.utilities` 开关安装。laptop、home、class 都已开启，切换后不会消失；base 默认不装。
->
-> 依赖这些软件的配置也要留意：
->
-> - 默认终端由 ghostty 改为 kitty（niri `Mod+Return`、DMS `terminalOverride`）。
-> - niri 的 `Mod+C` 仍绑定 `microsoft-edge`，未安装 `.#microsoft-edge` 时该快捷键无效。
-> - Fish 中的 `lg`（lazygit）和 `try` 集成只在安装对应程序后生效（开启 `extra`，或用 profile 安装）。
-> - Neovim 自身需要的 tree-sitter、gcc、Node.js 和 clangd 仍随 Home Manager 安装，只在 nvim 内可见。
+长期使用的图形应用写在 `modules/home/apps.nix` 的分组中，命令行工具写在 `modules/home/shell/cli.nix`，随系统构建与回滚。新增分组时在 `modules/options.nix` 的 `my.apps` 下声明开关，再在合适的 profile 或主机中开启。
 
-自定义包集中维护在独立 [nur-packages](https://github.com/lihaoze123/nur-packages) 仓库，
-支持传统 NUR、Flake 和 `nix profile`。NixOS 配置仅保留该仓库的输入引用，
-不再维护普通应用的导出列表。标准应用直接使用 nixpkgs：
+试用软件不改配置：
 
 ```bash
-nix profile install nixpkgs#wechat
-nix profile install nixpkgs#anki nixpkgs#obsidian
-nix profile install nixpkgs#microsoft-edge
-nix profile install nixpkgs#typst nixpkgs#pandoc
-```
-
-自定义包从独立仓库安装：
-
-```bash
-nix run github:lihaoze123/nur-packages#install -- --private dbx
+nix shell nixpkgs#obsidian                    # 只在当前 shell 中可用
+nix profile install nixpkgs#obsidian          # 临时保留，可随时移除
 nix profile install github:lihaoze123/nur-packages#vscode
-nix profile install github:lihaoze123/nur-packages#vtype-linux
-nix profile install github:lihaoze123/nur-packages#try
-```
-
-VS Code 保留原来的六个扩展。`try` 是 tobi/try，保留 NixOS shebang 修补；
-系统的 `extra` 功能也使用 NUR 中的同一个包，Fish 的集成目录仍为 `~/src/tries`。
-现有 `.#包名` 安装方式继续可用：自定义包由 NUR 提供，普通软件由
-`legacyPackages` 中的 nixpkgs 提供。已有 profile 中的包不会被自动替换。
-
-```bash
 nix profile list
-nix profile upgrade dbx
-nix profile remove dbx
+nix profile remove obsidian
 ```
 
-名字以 `nix profile list` 为准。更新 NUR 应用时升级对应 profile 条目；
-更新 NixOS 中引用的版本时执行 `nix flake update nur-packages`。
-重建系统不会自动更新 profile 中的应用。应用菜单由用户 profile 提供。
-
-profile 的收益是延后安装和独立更新；以后全部装回仍会占空间。旧系统/profile 代际也可能继续保留旧包，当前改动不会自动删除代际或执行 GC。
+确定长期使用后，把软件写进配置，切换到新系统，再从 profile 中移除，避免同一程序有两份。本仓库不再导出 `packages` / `legacyPackages` 供 profile 安装；自定义包直接从 nur-packages 安装。
 
 ## 开发环境：各项目自己的 flake
 

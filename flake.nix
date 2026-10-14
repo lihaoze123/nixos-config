@@ -67,14 +67,7 @@
         modules = [ ./hosts/installer ];
       };
 
-      packages.${system} = inputs.nur-packages.packages.${system} // {
-        # Compatibility for the existing profile entry installed from .#delta.
-        delta = (import nixpkgs { inherit system; }).delta;
-        installer-iso = self.nixosConfigurations.installer.config.system.build.isoImage;
-      };
-      # Standard applications resolve from nixpkgs without a maintained alias list.
-      legacyPackages.${system} = (import nixpkgs { inherit system; config.allowUnfree = true; })
-        // inputs.nur-packages.packages.${system};
+      packages.${system}.installer-iso = self.nixosConfigurations.installer.config.system.build.isoImage;
       apps.${system}.with-caches = inputs.nur-packages.apps.${system}.with-caches;
       templates.project = {
         path = ./templates/project/devshell;
