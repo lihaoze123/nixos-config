@@ -1,7 +1,7 @@
 # 私有 R2 缓存配置与维护
 
 R2 按命令启用，默认安装只查询官方缓存和清华镜像。手动上传采用“导出本地签名缓存，再用 rclone 上传”的流程。
-配置位于 [modules/nix-cache/default.nix](../modules/nix-cache/default.nix)，通过共享模块
+配置位于 [modules/nixos/nix-cache.nix](../modules/nixos/nix-cache.nix)，通过共享模块
 应用到 laptop、home、class、base；nixos 别名继承 laptop，installer 保持独立。
 
 ## 配置在哪里
@@ -51,7 +51,7 @@ NUR CI 使用同一私有 R2 桶与签名密钥，通过 GitHub Secrets 获取�
 其他用户可选择相关项目的公开 Cachix 缓存或从源码构建。
 
 首次构建仍使用当前运行系统的缓存配置。如果新设备尚无 Windows 字体，先关闭
-`windowsFonts` 并部署缓存配置，再开启字体并构建，避免在缓存生效前下载、解包 ISO。
+`my.fonts.windows` 并部署缓存配置，再开启字体并构建，避免在缓存生效前下载、解包 ISO。
 
 新主机还需要把解密公钥加入 `secrets/keys.nix` 和 R2 凭据的 `publicKeys` 规则，
 重新加密，并将主机的 `age.identityPaths` 设置为对应私钥路径。base 当前继承的

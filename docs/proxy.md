@@ -1,6 +1,6 @@
 # dae、honk 与 doona
 
-dae 和 honk 共用 `modules/dae/config.dae` 的公开规则与 `secrets/dae-nodes.age` 的加密节点。公开配置保留 DMIT/HK 分组、国内直连、AI/GitHub 经 DMIT、Google 经 HK、UDP 443 阻断，以及 HK 默认出站。`dae-config.age` 已不再被配置或加密规则引用；旧加密文件保留供迁移核对。
+dae 和 honk 共用 `modules/nixos/network/dae/config.dae` 的公开规则与 `secrets/dae-nodes.age` 的加密节点。公开配置保留 DMIT/HK 分组、国内直连、AI/GitHub 经 DMIT、Google 经 HK、UDP 443 阻断，以及 HK 默认出站。`dae-config.age` 已不再被配置或加密规则引用；旧加密文件保留供迁移核对。
 
 ## 节点凭据
 
@@ -24,21 +24,18 @@ ragenix -e dae-nodes.age -i ~/.ssh/id_ed25519
 
 ## 功能与接口
 
-`my.features.dae.enable` 和 `my.features.honk.enable` 互斥；求值断言和 systemd `Conflicts` 都有约束。honk 启动与 dae 停止之间还有顺序约束，避免同时接管接口。
+代理由 `my.network.proxy.backend` 选择 `"dae"`、`"honk"` 或 `null`，两者天然互斥；另有求值断言防止 honk 与手动启用的 `services.dae` 同时存在，systemd `Conflicts` 也有约束。honk 启动与 dae 停止之间还有顺序约束，避免同时接管接口。
 
 ```nix
-my.features = {
-  dae.enable = false;
-  honk.enable = true;
-};
+my.network.proxy.backend = "honk";
 ```
 
-两个引擎共用 `modules/dae/render-config.nix` 生成配置，保留 `wan_interface: auto`。`my.proxy.lanInterfaces` 默认为空列表，不生成 `lan_interface`，仅代理本机流量。启用 Docker 或 libvirt 不会自动加入 `docker0`、`virbr0`，因为服务启用并不保证这些网桥已经存在；例如 libvirt 的默认网络可能尚未启动，否则 honk 会因绑定不存在的接口而启动失败。
+两个引擎共用 `modules/nixos/network/dae/render-config.nix` 生成配置，保留 `wan_interface: auto`。`my.network.proxy.lanInterfaces` 默认为空列表，不生成 `lan_interface`，仅代理本机流量。启用 Docker 或 libvirt 不会自动加入 `docker0`、`virbr0`，因为服务启用并不保证这些网桥已经存在；例如 libvirt 的默认网络可能尚未启动，否则 honk 会因绑定不存在的接口而启动失败。
 
 需要代理虚拟机或局域网转发流量时，在主机配置中显式指定接口：
 
 ```nix
-my.proxy.lanInterfaces = [ "virbr0" ];
+my.network.proxy.lanInterfaces = [ "virbr0" ];
 ```
 
 显式配置的接口必须在代理启动前存在。对于 libvirt 的默认网络，先用 `sudo virsh -c qemu:///system net-start default` 启动网络，并用 `sudo virsh -c qemu:///system net-autostart default` 设置自动启动；自动启动仍不保证网桥先于代理就绪，若需要开机即代理虚拟机流量，还应配置相应的服务启动依赖。
@@ -87,4 +84,4 @@ systemctl is-active honk
 sudo "$previous_system/bin/switch-to-configuration" test
 ```
 
-要持久恢复 dae，在 `hosts/class/features.nix` 中关闭 honk、启用 dae，再构建并 switch。图形登录配置发生变化时仍按桌面文档采用 boot 后重启；不清理旧系统代际。
+要持久恢复 dae，在主机的 `default.nix` 中将 `my.network.proxy.backend` 设为 `"dae"`，再构建并 switch。图形登录配置发生变化时仍按桌面文档采用 boot 后重启；不清理旧系统代际。

@@ -4,10 +4,12 @@
 
 本仓库管理 NixOS 与 Home Manager 配置，支持 `laptop`、`home`、`class` 和最小安装配置 `base`。
 
-- `flake.nix`、`flake.lock`：主机入口、依赖锁定、应用包与项目模板。
-- `hosts/`：`base.nix` 提供共享配置；各主机的 `default.nix` 管理导入，`features.nix` 选择功能。
-- `modules/`：系统服务、`my.features.*.enable` 选项与依赖约束。
-- `home-manager/`：Shell、编辑器、Niri、DMS、输入法及脚本和配置资源；输入法测试位于 `home-manager/fcitx5/tests/`。
+- `flake.nix`、`flake.lock`：输入、主机入口与项目模板；`lib/` 提供 `mkHost`，统一接入共享模块、Home Manager 与主机目录。
+- `modules/options.nix`：集中声明全部 `my.*` 开关（`my.desktop`、`my.network.proxy` 等）及依赖断言。
+- `modules/nixos/`：系统层，`core.nix` 为所有主机共用的基础，其余按 desktop、hardware、network、services、virtualisation、programs 分组。
+- `modules/home/`：Home Manager 层，分为 shell、desktop（Niri、DMS、输入法） 和 ai；输入法测试位于 `modules/home/desktop/fcitx5/tests/`。
+- `profiles/`：角色组合，以 `mkDefault` 打开一组开关；`workstation` 为所有桌面主机共用，`personal` 在其上增加 laptop、home 的个人功能。
+- `hosts/<主机>/`：`default.nix` 选择 profile 并覆盖开关，硬件与单主机配置（指纹、打印、NVIDIA 等）直接写在此目录，不设共享开关；`home.nix` 放该主机的 Home Manager 覆盖。
 - 自定义软件包维护于独立 `nur-packages` 仓库，本仓库仅引用；`templates/project/`：项目开发环境模板。
 - `docs/`：安装与桌面说明；`secrets/`：加密凭据及规则。
 
@@ -22,7 +24,7 @@ nix fmt                                # 使用 nixpkgs-fmt 格式化 Nix
 nix flake check --no-build              # 检查 Flake 与配置求值
 nix flake check                        # 仅用户明确要求时执行含构建的 Flake 检查
 nixos-rebuild build --flake .#laptop    # 仅用户明确要求时构建目标主机，不激活系统
-nix profile install .#anki             # 安装独立用户应用
+nix profile install nixpkgs#anki       # 安装独立用户应用
 ```
 
 将 `laptop` 替换为目标主机。编程环境使用项目自己的 devShell；在项目目录通过 `nix flake init -t /path/to/nixos-config#project` 初始化模板。仅在需要更新依赖时运行 `nix flake update`。
@@ -36,7 +38,7 @@ Nix 使用两空格缩进，以 `nix fmt` 输出为准。模块入口命名为 `
 修改配置后优先使用针对改动的轻量检查和局部求值；修改共享模块时检查各相关主机的受影响选项。未经用户明确要求，不构建受影响主机。`nix flake check --no-build` 仍会求值多个完整配置，不能视为轻量检查；避免并行运行完整配置求值或构建，以免耗尽内存。Python 回归测试主要使用 `unittest`，文件命名为 `test-*.py`，方法使用 `test_*`。直接运行脚本，避免默认 discovery 漏掉含连字符的文件名：
 
 ```bash
-python3 home-manager/fcitx5/tests/test-xhup-lookup.py
+python3 modules/home/desktop/fcitx5/tests/test-xhup-lookup.py
 ```
 
 该测试需要 Python 与 PyYAML；其他依赖和真实 Fcitx/Rime 集成测试步骤见输入法文档。仓库未设定覆盖率门槛。桌面、硬件与服务变更还需在目标机器验证。

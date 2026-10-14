@@ -1,31 +1,28 @@
 # 安装入口、功能开关与用户应用
 
-> 当前 class 已基于 base 重建，启用桌面、常用工具、蓝牙、DAE、校园网认证、AI CLI 和 Codex Desktop / computer use，旧硬件与专属桌面配置已移除。
-> 安装步骤见 [class 双系统安装指南](class-installation.md)。下文有关旧 class 桌面、已启用功能及迁移验证的记录仅描述此前的配置。
-
-各主机通过 `hosts/<主机>/features.nix` 选择功能，保持重构前的功能；普通应用和语言工具链移出了系统：应用由用户 profile 管理，工具链属于各项目的 devShell。home、class 的桌面已统一为 laptop 使用的 DMS。`base` 是独立的最小配置，供新机器首次安装使用。
+配置分为四层：`modules/options.nix` 集中声明开关，`modules/nixos` 与 `modules/home` 实现开关，`profiles/` 把常用开关组合成角色，`hosts/<主机>/` 选择 profile 并覆盖开关、放置硬件与单主机配置。`base` 是功能全关的最小配置，供新机器首次安装使用；class 的安装步骤见 [class 双系统安装指南](class-installation.md)。
 
 ## 安装入口
 
-| Flake 入口 | 内容 |
-| --- | --- |
-| `laptop`（别名 `nixos`） | 笔记本日常配置：桌面、Plymouth、语音、容器、虚拟化、指纹等原有功能 |
-| `home` | 桌面、NVIDIA、打印、Syncthing、Docker 等原有功能 |
-| `class` | 基于 base，Btrfs + 独立 ESP，保留 Windows；桌面、常用工具、蓝牙、DAE、校园网认证、AI CLI、Codex Desktop / computer use |
-| `base` | 最小系统：启动、网络、用户、SSH、防火墙、Shell、Git/Jujutsu、Neovim、direnv，无图形会话 |
+| Flake 入口 | Profile | 主机额外开启 |
+| --- | --- | --- |
+| `laptop`（别名 `nixos`） | `personal` | Plymouth、Codex computer use、手机集成、投屏、Windows 字体、CachyOS 内核、honk、Podman、libvirt、Waydroid、Steam；指纹在 `hosts/laptop/hardware.nix` |
+| `home` | `personal` | dae；NVIDIA、打印、Syncthing 在 `hosts/home/` |
+| `class` | `workstation` | Plymouth、Codex computer use、Windows 字体、CachyOS 内核、dae、Podman、libvirt；Btrfs + 独立 ESP，保留 Windows |
+| `base` | 无 | 最小系统：启动、网络、用户、SSH、防火墙、Shell、Git/Jujutsu、Neovim、direnv，无图形会话 |
 
-laptop、home、class、base 共用 `modules/nix-cache/` 的缓存信任配置，项目缓存按命令启用，
+三台主机使用同一套桌面：Niri + DankMaterialShell，登录界面为 Dank Greeter（greetd）。各主机只在 niri 布局（`modules/home/desktop/niri/config.kdl`、`hosts/<主机>/config-<主机>.kdl`）和 greeter 输出（`my.desktop.greeter.extraConfig`）上不同。改变登录管理器配置时，用 `sudo nixos-rebuild boot` 后重启。
+
+laptop、home、class、base 共用 `modules/nixos/nix-cache.nix` 的缓存信任配置，项目缓存按命令启用，
 使用 `secrets/r2-cache-credentials.age` 和同一份缓存签名公钥；installer 保持独立。
 凭据由 agenix 解密为 root 可读文件，nix-daemon 在配置激活后使用它，上传仍手动执行。
 新机器须先将解密公钥加入 `secrets/keys.nix` 与凭据收件人规则，重新加密，并配置
-`age.identityPaths` 指向对应私钥；base 的旧 id_rsa 路径也应按目标机器调整。
+`age.identityPaths` 指向对应私钥；`modules/nixos/core.nix` 中默认的 id_rsa 路径（`mkDefault`）可在主机中直接覆盖。
 首次构建使用的是机器当前的缓存配置；需要下载 Windows 字体的设备可先关闭
-`windowsFonts`，部署缓存配置后再开启字体并构建。
+`fonts.windows`，部署缓存配置后再开启字体并构建。
 日常上传其他输出、校验、密钥轮换与清理见 [私有 R2 缓存维护](nix-cache.md)。
 
-三台主机使用同一套桌面：Niri + DankMaterialShell，登录界面为 Dank Greeter（greetd）。各主机只在 niri 布局（`home-manager/niri/config.kdl`、`hosts/<主机>/config-<主机>.kdl`）和 greeter 的输出设置（`my.niri.greeterExtraConfig`）上不同。从 SDDM 切换过来时，用 `sudo nixos-rebuild boot` 后重启。
-
-`base` 不属于任何现有主机，有自己的 `hosts/base/`。新机器上安装前，先用目标机器的硬件配置替换占位文件：
+`base` 有自己的 `hosts/base/`。新机器上安装前，先用目标机器的硬件配置替换占位文件：
 
 ```bash
 nixos-generate-config --show-hardware-config > hosts/base/hardware-configuration.nix
@@ -33,59 +30,45 @@ jj status   # 让 flake 读取到新文件
 nixos-rebuild build --flake .#base
 ```
 
-占位的 `hardware-configuration.nix` 只用于让仓库能求值（按 NixOS 手册的 `nixos` / `boot` 分区标签），不能直接用于实际机器。需要更多功能时编辑 `hosts/base/features.nix`；以后为这台机器单独建主机目录时，可以把 `hosts/base` 复制一份作为起点。
+占位的 `hardware-configuration.nix` 只用于让仓库能求值（按 NixOS 手册的 `nixos` / `boot` 分区标签），不能直接用于实际机器。需要桌面时在 `hosts/base/default.nix` 中导入 `../../profiles/workstation.nix`；以后为这台机器单独建主机目录时，复制 `hosts/base` 作为起点，并在 `flake.nix` 中加一行 `mkHost "<主机名>"`。
 
-```bash
-# 在仓库根目录：只构建，不激活
-nixos-rebuild build --flake .#laptop
-nixos-rebuild build --flake .#home
+## 开关与 profile
 
-# 改变桌面/登录管理器配置时，用 boot 后重启
-sudo nixos-rebuild boot --flake .#laptop
-```
-
-## 功能开关
-
-所有 `my.features.<名称>.enable` 在模块中默认都是 `false`。laptop、home、class 的 `features.nix` 显式打开了各自重构前就有的功能，文件末尾以注释列出该主机重构前没有、但可以开启的功能。`hosts/base/features.nix` 全部注释，只列出共享模块实现的功能。
+所有 `my.*` 开关默认关闭，完整列表与说明见 `modules/options.nix`。profile 以 `lib.mkDefault` 设置开关，主机中直接赋值即可覆盖，例如在 personal 主机上关闭语音：
 
 ```nix
 {
-  my.features = {
-    desktop.enable = true;
-    bluetooth.enable = true;
-    docker.enable = true;
-    speech.enable = true;
-    doubao.enable = true; # 需要 speech
+  imports = [ ../../profiles/personal.nix ];
+  my = {
+    input.speech.enable = false;
+    network.proxy.backend = "dae"; # 或 "honk"，null 为不启用
   };
 }
 ```
 
-| 功能开关 | 管理的内容 |
-| --- | --- |
-| `extra` | base 之外的常用命令行工具：lazygit、zellij、tealdeer、fastfetch、try；不依赖桌面 |
-| `extraDesktop` | 常用图形工具：ghostty、neovide、pavucontrol、GNOME 磁盘、baobab、Filelight、Microsoft Edge |
-| `desktop` | Niri + DankMaterialShell（状态栏、通知、启动器、锁屏、剪贴板、文件搜索）、Dank Greeter、中文输入法、PipeWire、基础字体、Kitty、文件管理；laptop 另启用 Plymouth |
-| `bluetooth`、`tailscale`、`dae`、`honk`、`edunet` | 蓝牙、VPN、代理、校园网认证；dae 与 honk 互斥，代理配置见 [代理说明](proxy.md) |
-| `docker`、`podman` | Docker rootless；Podman + Distrobox，各自独立 |
-| `virtualMachines`、`waydroid` | QEMU/libvirt/virt-manager；Waydroid，各自独立 |
-| `speech`、`doubao`、`easyeffects` | VoCoType；豆包凭据与 worker 集成；麦克风降噪，各自独立 |
-| `aiCli` | Claude Code、Codex、OpenCode 与已有加密凭据/包装命令 |
-| `aria2` | aria2 RPC、AriaNg 和本地 Caddy 服务 |
-| `wireshark`、`appimage`、`nixLd` | 抓包权限；AppImage；外部程序兼容加载器，各自独立 |
-| `extraFonts` | 基础桌面字体之外的中文及排版字体 |
-| `windowsFonts` | chinese-fonts-overlay 的 Windows 字体，需要 desktop 和 extraFonts |
-| `codexDesktop` | Codex Desktop 和 Niri computer use 集成；laptop、class 已启用 |
-| `cachyosKernel` | CachyOS BORE 调度内核及二进制缓存；laptop、class 已启用 |
-| `fingerprint`、`steam` | laptop：指纹驱动；Steam，各自独立 |
-| `wallpaperEngine` | DMS 动态壁纸插件、linux-wallpaperengine、ImageMagick 与 Niri 背景规则；各主机默认关闭 |
-| `phoneIntegration`、`screenCast` | laptop：Valent/KDE Connect；Wi-Fi 投屏及配套端口，各自独立 |
-| `printing`、`syncthing` | home：打印及驱动；已有 Syncthing 同步配置，各自独立 |
+| 开关 | 管理的内容 | workstation | personal |
+| --- | --- | --- | --- |
+| `cli.extra` | lazygit、zellij、tealdeer、fastfetch、try | ✓ | ✓ |
+| `ai` | Claude Code、Codex、OpenCode 与加密凭据/包装命令 | ✓ | ✓ |
+| `desktop` | Niri + DMS、Dank Greeter、中文输入法、PipeWire、基础字体、Kitty、文件管理 | ✓ | ✓ |
+| `desktop.utilities` | ghostty、neovide、pavucontrol、GNOME 磁盘、baobab、Filelight、Microsoft Edge | ✓ | ✓ |
+| `fonts.extra` / `fonts.windows` | 额外中文与排版字体；chinese-fonts-overlay 的 Windows 字体 | extra | extra |
+| `hardware.bluetooth` | 蓝牙及桌面小程序 | ✓ | ✓ |
+| `network.edunet` / `network.tailscale` | 校园网认证；Tailscale | edunet | 两者 |
+| `network.proxy.backend` | `"dae"`、`"honk"` 或 `null`，见 [代理说明](proxy.md) | | |
+| `programs.nixLd` / `appimage` / `wireshark` / `steam` | 外部程序加载器；AppImage；抓包；Steam | nixLd | 前三项 |
+| `input.speech` / `input.speech.doubao` | VoCoType；豆包凭据与 worker | | ✓ |
+| `desktop.easyeffects` | 麦克风降噪 | | ✓ |
+| `services.aria2` | aria2 RPC、AriaNg 和本地 Caddy | | ✓ |
+| `virtualisation.docker` / `podman` / `libvirt` / `waydroid` | rootless Docker；Podman + Distrobox；QEMU/libvirt；Waydroid | | docker |
+| `desktop.graphicalBoot` / `codexComputerUse` / `phone` / `screenCast` / `wallpaperEngine` | Plymouth；Codex Desktop computer use；Valent；Wi-Fi 投屏；动态壁纸 | | |
+| `kernel.cachyos` | CachyOS BORE 内核及二进制缓存 | | |
 
-extraDesktop、语音识别、EasyEffects、Codex 桌面、动态壁纸、手机集成和投屏要求 desktop；doubao 要求 speech。不满足依赖时求值会给出错误。开关只控制安装与服务，关闭不会删除原有用户数据。
+依赖不满足时求值会给出断言错误（例如 `desktop.*`、`input.speech` 需要 `desktop`，`input.speech.doubao` 需要 `input.speech`，`fonts.windows` 需要 `fonts.extra`）。开关只控制安装与服务，关闭不会删除原有用户数据。只在一台主机上存在的配置（指纹、打印、Syncthing、NVIDIA）直接写在该主机目录，不设共享开关。
 
 启用 `podman` 时，未指定仓库域名的镜像名按 `docker.io`、`quay.io`、`ghcr.io` 的顺序搜索，配置由 NixOS 写入 `/etc/containers/registries.conf`。例如 `podman pull alpine` 使用此搜索列表；`podman pull docker.io/library/alpine` 则直接使用指定仓库。Podman 可能提示选择仓库并记住选择；用户自己的 `~/.config/containers/registries.conf` 会覆盖系统配置。
 
-没有启用 cachyosKernel 时使用 NixOS 默认内核。启用后先运行 `nixos-rebuild build --flake .#class` 验证构建，再运行 `sudo nixos-rebuild boot --flake .#class` 并重启（其他主机替换 `class`）；新内核在重启后生效。没有启用 fingerprint 时不安装第三方指纹驱动，也不引入其内核开发闭包。
+没有启用 `kernel.cachyos` 时使用 NixOS 默认内核。启用后先运行 `nixos-rebuild build --flake .#class` 验证构建，再运行 `sudo nixos-rebuild boot --flake .#class` 并重启（其他主机替换 `class`）；新内核在重启后生效。第三方指纹驱动只在 laptop 的 `hosts/laptop/hardware.nix` 中启用，其他主机不引入其内核开发闭包。
 
 首次启用时，当前系统尚未信任 CachyOS 缓存，可先使用以下命令构建，避免本地编译内核；写入启动配置后，缓存设置会在新系统启动时生效：
 
@@ -103,7 +86,7 @@ sudo nix build .#nixosConfigurations.class.config.system.build.toplevel --no-lin
 > - 排版：typst、pandoc、tectonic
 > - 工具链：GCC、Clang、Rust（含 `~/.rust-rover/toolchain` 链接与 `RUST_SRC_PATH`）、JDK、Node.js、Bun、Python、uv，改由项目 devShell 提供
 >
-> lazygit、zellij、tealdeer、fastfetch、try 由 `extra` 开关安装；ghostty、neovide、pavucontrol、GNOME 磁盘、baobab、Filelight 由 `extraDesktop` 开关安装。laptop、home、class 都已开启，切换后不会消失；base 默认不装。
+> lazygit、zellij、tealdeer、fastfetch、try 由 `cli.extra` 开关安装；ghostty、neovide、pavucontrol、GNOME 磁盘、baobab、Filelight、Edge 由 `desktop.utilities` 开关安装。laptop、home、class 都已开启，切换后不会消失；base 默认不装。
 >
 > 依赖这些软件的配置也要留意：
 >
@@ -178,19 +161,3 @@ java -jar target/my-jsp-project.jar
 访问 `http://localhost:8080/` 和 `/hello`。初始化后的默认 devShell 为 Temurin JDK 8，Maven 和 `JAVA_HOME` 均使用同一个 JDK。只需复制打包后的 JAR，即可在其他装有 Java 8 或以上版本的机器上运行。
 
 direnv 示例：项目 `.envrc` 写 `use flake .#rust`，再执行 `direnv allow`。从该环境启动 `nvim`，项目 LSP 与编译器会出现在 PATH 中。工具链只在使用该项目时实现，不参与首次系统构建。
-
-## 本次验证
-
-功能拆分时，与重构前（`1a85601`）逐项对比 laptop、home、class 的求值结果：系统包、启用的 systemd 服务、用户组、字体、Home Manager 的 xdg 配置文件和用户服务完全一致，差异只有上面列出的移到 profile/devShell 的软件（以及相应的 VS Code 扩展、`~/.rust-rover` 链接），另外新增了 `fd`。
-
-统一桌面后：laptop 只少了不再使用的 swaylock/swayidle；home、class 的 SDDM、Waybar、Mako、wofi、swaybg、cliphist 换成了 DMS、Dank Greeter 及其系统后端（UPower、电源模式、AccountsService、dsearch），Tailscale 增加 `--operator=chumeng` 供 Dankscale 使用。
-
-基于当前 `flake.lock` 的构建闭包大小（NAR 大小，非下载量），为重构过程中的测量：
-
-| 配置 | 大小 | store 路径数 |
-| --- | --- | --- |
-| 改动前 laptop | 30.74 GiB | 3457 |
-| 改动后 laptop | 21.65 GiB | 3153 |
-| 最小系统（无桌面） | 3.49 GiB | 1045 |
-
-所有入口求值通过，`nix flake check --no-build` 通过；未激活任何系统。实际桌面登录、设备与服务仍需在启动新代际后验证。

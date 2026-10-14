@@ -1,0 +1,30 @@
+set -gx EDITOR nvim
+set fish_greeting
+
+set -gx PATH "$HOME/.cargo/bin" $PATH
+set -gx PATH "$HOME/.local/bin" $PATH
+
+alias cat="bat"
+alias find="fd"
+alias ls="eza --git --icons --color=always --group-directories-first"
+alias la="ls -la"
+alias vim="nvim"
+alias grep="rg"
+if command -q lazygit
+    alias lg="lazygit"
+end
+# try comes from my.cli.extra; its cd needs this shell function.
+if command -q try
+    eval (try init ~/src/tries | string collect)
+end
+
+function yy
+    set tmp (mktemp -t "yazi-cwd.XXXXXX")
+    yazi $argv --cwd-file="$tmp"
+    if read -z cwd < "$tmp"; and [ -n "$cwd" ]; and [ "$cwd" != "$PWD" ]
+    builtin cd -- "$cwd"
+    end
+    rm -f -- "$tmp"
+end
+
+direnv hook fish | source

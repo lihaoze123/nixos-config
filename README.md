@@ -1,6 +1,6 @@
 # NixOS 配置仓库
 
-模块化 NixOS + Home Manager 配置，支持 laptop、home、class 三台主机，以及供新机器首次安装的最小配置 `base`。各主机通过自己的 `features.nix` 选择功能；class 基于 base 重建，按需启用桌面、常用工具、蓝牙、代理和校园网认证。普通应用交给 `nix profile`，编程环境由各项目自己的 devShell 管理。
+模块化 NixOS + Home Manager 配置，支持 laptop、home、class 三台主机，以及供新机器首次安装的最小配置 `base`。各主机选择一个 profile（`workstation` 或 `personal`），再在自己的 `default.nix` 中覆盖 `my.*` 开关。普通应用交给 `nix profile`，编程环境由各项目自己的 devShell 管理。
 
 ## 安装与构建
 
@@ -14,7 +14,7 @@ nixos-rebuild build --flake .#class
 nixos-rebuild build --flake .#base
 ```
 
-改变图形登录配置时，构建通过后使用 `sudo nixos-rebuild boot --flake .#<主机>` 并重启。切换前先用 `nix profile` 装好移出系统的应用。
+改变图形登录配置时，构建通过后使用 `sudo nixos-rebuild boot --flake .#<主机>` 并重启。
 
 功能开关、应用安装、项目环境及迁移注意事项见 [分阶段安装指南](docs/installation-profiles.md)。
 class 的分区、首次安装和登录命令见 [class 双系统安装指南](docs/class-installation.md)。
@@ -52,18 +52,16 @@ ssh root@<IP>
 
 ## 配置结构
 
-- `flake.nix` / `flake.lock`：锁定输入、主机入口、独立 NUR 包引用和项目模板。
-- `hosts/base.nix`：启动、网络、用户、SSH、防火墙、Nix 和 direnv。
-- `hosts/<主机>/features.nix`：选择主机功能；base 默认全部关闭，class 按选择开启。
-- `hosts/base/`：独立的最小配置，功能默认全部关闭，硬件配置为占位文件。
-- `hosts/installer/`：独立的安装镜像配置，构建输出为 `installer-iso`。
-- `hosts/<主机>/default.nix`：主机及硬件相关配置。
-- `modules/features.nix`：`my.features.*.enable` 选项、基础集成和依赖约束。
-- `modules/`：桌面、代理、下载、校园网和虚拟化服务。
-- `home-manager/`：Shell、编辑器以及受开关控制的桌面与输入法配置。
+- `flake.nix` / `flake.lock`：锁定输入、主机入口、安装镜像和项目模板。
+- `lib/default.nix`：`mkHost`，为每台主机接入 `modules/nixos`、Home Manager 和 `hosts/<主机>`，并设置主机名。
+- `modules/options.nix`：全部 `my.*` 开关的集中声明与依赖断言。
+- `modules/nixos/`：系统层。`core.nix`（启动、网络、用户、SSH、防火墙、Nix、direnv）、`nix-cache.nix`、`overlays.nix`，以及 `desktop/`、`hardware/`、`network/`、`services/`、`virtualisation.nix`、`programs.nix`。
+- `modules/home/`：Home Manager 层。`shell/`、`desktop/`（Niri、DMS、输入法、文件管理等） 与 `ai/`。
+- `profiles/`：`workstation.nix`（所有桌面主机共用）与 `personal.nix`（laptop、home 的个人功能），均以 `mkDefault` 设置，主机可直接覆盖。
+- `hosts/<主机>/`：选择 profile、覆盖开关，并放置硬件与单主机配置；`home.nix` 为该主机的 Home Manager 覆盖。`hosts/base/` 是功能全关的最小配置，`hosts/installer/` 为独立安装镜像。
 - 自定义软件包在独立 [nur-packages](https://github.com/lihaoze123/nur-packages) 仓库维护；本仓库通过 Flake 输入引用。
 - `templates/project/`：通用 devShell 模板（`#project`）和 Java 8 Servlet/JSP 可执行 JAR 模板（`#java-webapp`）。
-- `secrets/`：age 加密凭据，相关功能开启时使用。
+- `secrets/`：系统与 Home Manager 共用的 age 加密凭据，收件人规则见 `secrets/secrets.nix`。
 
 ## 常用操作
 

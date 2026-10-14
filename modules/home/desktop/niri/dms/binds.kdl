@@ -1,0 +1,21 @@
+// HHKB-friendly DMS shortcuts. The base configuration uses Alt for Mod.
+binds {
+    // Quick Capture uses the same editor as the DankBar screenshot widget.
+    Print repeat=false hotkey-overlay-title="Quick Capture: Region" { spawn "dms" "ipc" "call" "quickCapture" "screenshot" "region" "edit"; }
+    Ctrl+Print repeat=false hotkey-overlay-title="Quick Capture: Screen" { spawn "dms" "ipc" "call" "quickCapture" "screenshot" "full" "edit"; }
+    Alt+Print repeat=false hotkey-overlay-title="Quick Capture: Window" { spawn "dms" "ipc" "call" "quickCapture" "screenshot" "window" "edit"; }
+    Ctrl+Alt+Space hotkey-overlay-title="DMS Launcher" { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
+    Ctrl+Alt+N hotkey-overlay-title="DMS Notifications" { spawn "dms" "ipc" "call" "notifications" "toggle"; }
+    Ctrl+Alt+M hotkey-overlay-title="DMS System Monitor" { spawn "dms" "ipc" "call" "processlist" "focusOrToggle"; }
+    Ctrl+Alt+Comma hotkey-overlay-title="DMS Settings" { spawn "dms" "ipc" "call" "settings" "focusOrToggle"; }
+    // Super is free here (Mod is Alt); Ctrl+Alt+L would shadow JetBrains Reformat Code.
+    Super+L hotkey-overlay-title="Lock the Screen: DMS" { spawn "dms" "ipc" "call" "lock" "lock"; }
+    Mod+P hotkey-overlay-title="Run an Application: DMS" { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
+    Mod+V hotkey-overlay-title="DMS Clipboard" { spawn "dms" "ipc" "call" "clipboard" "toggle"; }
+    Mod+N hotkey-overlay-title="DMS 便签" { spawn "dms" "ipc" "call" "notepad" "toggle"; }
+    // Xiaohe plugin from github:lihaoze123/dms-xhup (modules/home/desktop/fcitx5).
+    Mod+X hotkey-overlay-title="小鹤音形字根图" { spawn "dms" "ipc" "call" "flypyXhup" "roots"; }
+    Mod+Shift+X hotkey-overlay-title="小鹤音形反查" { spawn "dms" "ipc" "call" "flypyXhup" "lookup"; }
+    Mod+Ctrl+X hotkey-overlay-title="小鹤快速加词" { spawn "dms" "ipc" "call" "flypyXhup" "add"; }
+    Mod+Ctrl+T hotkey-overlay-title="语音快速加热词" { spawn "dms" "ipc" "call" "vocotypeHotwords" "add"; }
+}

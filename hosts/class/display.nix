@@ -25,7 +25,7 @@ let
     '';
 in
 {
-  config = lib.mkIf config.my.features.desktop.enable {
+  config = lib.mkIf config.my.desktop.enable {
     # Niri's fixed 60 Hz setting does not stop i915's idle DRRS downclock.
     # A single-timing EDID prevents DRRS without a debugfs polling service.
     hardware.firmware = [ panelFirmware ];

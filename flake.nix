@@ -50,27 +50,17 @@
     codex-code.url = "github:sadjow/codex-cli-nix";
   };
 
-  outputs = { self, nixpkgs, home-manager, ragenix, geodb, ... }@inputs:
+  outputs = { self, nixpkgs, ... }@inputs:
     let
-      system = "x86_64-linux";
-      mkHost = hostModule: nixpkgs.lib.nixosSystem {
-        specialArgs = {
-          inherit inputs system;
-          pkgs-stable = import inputs.nixpkgs-stable {
-            inherit system;
-            config.allowUnfree = true;
-          };
-        };
-        modules = [ hostModule ];
-      };
+      inherit (import ./lib { inherit inputs; }) system mkHost;
     in
     {
-      nixosConfigurations.laptop = mkHost ./hosts/laptop;
-      nixosConfigurations.class = mkHost ./hosts/class;
-      nixosConfigurations.home = mkHost ./hosts/home;
+      nixosConfigurations.laptop = mkHost "laptop";
+      nixosConfigurations.class = mkHost "class";
+      nixosConfigurations.home = mkHost "home";
       nixosConfigurations.nixos = self.nixosConfigurations.laptop;
       # Minimal system for new machines; optional features stay off.
-      nixosConfigurations.base = mkHost ./hosts/base;
+      nixosConfigurations.base = mkHost "base";
       # Live installer stays independent of the installed hosts' shared modules.
       nixosConfigurations.installer = nixpkgs.lib.nixosSystem {
         inherit system;

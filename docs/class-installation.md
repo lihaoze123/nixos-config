@@ -102,7 +102,7 @@ passwd chumeng
 nixos-rebuild switch --flake .#class --target-host root@<IP>
 ```
 
-需要桌面或其他功能时编辑 `hosts/class/features.nix`。
+需要桌面或其他功能时编辑 `hosts/class/default.nix` 中的 `my` 开关。
 
 ## 加密凭据
 
@@ -118,7 +118,7 @@ nixos-rebuild switch --flake .#class --target-host root@<IP>
 
 ## 桌面配置
 
-`hosts/class/features.nix` 开启 desktop、graphicalBoot、extra、extraDesktop、bluetooth、dae、edunet、aiCli、codexDesktop。
+`hosts/class/default.nix` 导入 `profiles/workstation.nix`（桌面、常用工具与图形工具、浏览器、蓝牙、校园网认证、AI CLI），另开启 `desktop.graphicalBoot`、`desktop.codexComputerUse`、dae 代理、Podman、libvirt、Windows 字体和 CachyOS 内核。
 内屏 eDP-1 固定使用 `1920x1080@60.000`、100% 缩放，greeter 与桌面一致。
 这是屏幕 EDID 的首选模式。此前固定为 50.002 Hz 的配置在开机黑屏排查中
 已恢复为 60 Hz；50 Hz 暂不作为黑屏的修复方案。
@@ -159,7 +159,7 @@ sudo nixos-rebuild boot --flake .#class
 
 Niri 与 Neovim 的配置直接随系统部署，不依赖目标机上的 `~/nixos-config` checkout。
 class 与 laptop 共用 Codex Desktop 和 computer use 集成，使用带 agent input 补丁的 Niri，
-启用 is-agent-driven 窗口规则；关闭 codexDesktop 时恢复标准 Niri 并禁用该规则。
+启用 is-agent-driven 窗口规则；关闭 `my.desktop.codexComputerUse` 时恢复标准 Niri 并禁用该规则。
 用户 chumeng 加入 ydotool 组，系统部署 uinput 权限、ydotool 服务和 AT-SPI 支持。
 命令行入口为 `codex-desktop` 和 `codex-computer-use`（MCP 模式使用 `codex-computer-use mcp`）。
 首次启用须按下方步骤写入下一次启动并重启，让新 Niri 和组权限生效。
@@ -167,7 +167,7 @@ DMS 布局文件采用可选 include，以支持首次启动。
 小鹤个人词库已从本机复制到目标机的 `~/src/xhup-dicts`（仅词库文件快照，未复制 Git 私钥）。
 以后可以自行连接词库仓库或同步这些文件。
 
-`graphicalBoot` 与 laptop 共用 `modules/graphical-boot/default.nix`：隐藏 GRUB 菜单并等待
+`graphicalBoot` 与 laptop 共用 `modules/nixos/desktop/graphical-boot.nix`：隐藏 GRUB 菜单并等待
 1 秒，显示深色背景、紫色 NixOS 标志与转圈，隐藏常规启动文字，并在 Dank Greeter
 接管屏幕后保留 Plymouth 最后一帧退出。class 提前在 initrd 加载 i915，主题使用
 1 倍素材；laptop 使用 2 倍素材。开机时按 Esc 可显示 GRUB 菜单并选择 Windows

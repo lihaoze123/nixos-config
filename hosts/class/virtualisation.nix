@@ -1,7 +1,7 @@
 { config, lib, pkgs, ... }:
 {
-  config = lib.mkIf config.my.features.virtualMachines.enable {
-    my.proxy.lanInterfaces = [ "virbr0" ];
+  config = lib.mkIf config.my.virtualisation.libvirt.enable {
+    my.network.proxy.lanInterfaces = [ "virbr0" ];
 
     networking.firewall.interfaces."virbr0" = {
       allowedTCPPorts = [ 53 ];
@@ -31,11 +31,11 @@
       };
     };
 
-    systemd.services.dae = lib.mkIf config.my.features.dae.enable {
+    systemd.services.dae = lib.mkIf (config.my.network.proxy.backend == "dae") {
       requires = [ "libvirt-default-network.service" ];
       after = [ "libvirt-default-network.service" ];
     };
-    systemd.services.honk = lib.mkIf config.my.features.honk.enable {
+    systemd.services.honk = lib.mkIf (config.my.network.proxy.backend == "honk") {
       requires = [ "libvirt-default-network.service" ];
       after = [ "libvirt-default-network.service" ];
     };
