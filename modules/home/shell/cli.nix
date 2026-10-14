@@ -1,5 +1,17 @@
 { lib, pkgs, osConfig, inputs, system, ... }:
+let
+  # Commit identity shared by Git and Jujutsu.
+  identity = {
+    name = "chumeng";
+    email = "2595248810@qq.com";
+  };
+in
 {
+  programs.git = {
+    enable = true;
+    settings.user = identity;
+  };
+
   programs.delta = {
     enable = true;
     enableGitIntegration = true;
@@ -9,10 +21,7 @@
   programs.jujutsu = {
     enable = true;
     settings = {
-      user = {
-        name = "chumeng";
-        email = "2595248810@qq.com";
-      };
+      user = identity;
       ui = {
         default-command = "log";
       };

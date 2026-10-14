@@ -43,13 +43,5 @@
     nix-output-monitor
   ];
 
-  programs.git = {
-    enable = true;
-    settings.user = {
-      name = "chumeng";
-      email = "2595248810@qq.com";
-    };
-  };
-
   home.stateVersion = "25.05";
 }
