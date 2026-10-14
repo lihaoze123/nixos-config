@@ -96,8 +96,12 @@
         installer-iso = self.nixosConfigurations.installer.config.system.build.isoImage;
       };
       templates.project = {
-        path = ./templates/project;
+        path = ./templates/project/devshell;
         description = "Independent project devShells for Rust, C++, Node.js, Python and Java";
+      };
+      templates.java-webapp = {
+        path = ./templates/project/java-webapp;
+        description = "Minimal Java 8 + embedded Tomcat 9 + javax Servlet/JSP executable JAR";
       };
 
       formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixpkgs-fmt;

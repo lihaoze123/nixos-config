@@ -151,6 +151,19 @@ nix develop .#rust
 
 在已有 flake 的项目中，手动合并需要的 devShell，不覆盖已有文件。删掉不需要的 shell，并按项目要求选择版本与依赖。项目使用 jj 时，新文件写入后执行 `jj status` 让 flake 能读取它们。
 
+Java 8 + 内嵌 Tomcat 9 + javax Servlet/JSP 的最小项目使用独立模板，打包产物为包含全部运行依赖和 JSP 的单个 JAR：
+
+```bash
+mkdir my-webapp
+cd my-webapp
+nix flake init -t /home/chumeng/nixos-config#java-webapp
+nix develop
+mvn clean package
+java -jar target/my-jsp-project.jar
+```
+
+访问 `http://localhost:8080/` 和 `/hello`。初始化后的默认 devShell 为 Temurin JDK 8，Maven 和 `JAVA_HOME` 均使用同一个 JDK。只需复制打包后的 JAR，即可在其他装有 Java 8 或以上版本的机器上运行。
+
 direnv 示例：项目 `.envrc` 写 `use flake .#rust`，再执行 `direnv allow`。从该环境启动 `nvim`，项目 LSP 与编译器会出现在 PATH 中。工具链只在使用该项目时实现，不参与首次系统构建。
 
 ## 本次验证

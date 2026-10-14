@@ -62,7 +62,7 @@ ssh root@<IP>
 - `modules/`：桌面、代理、下载、校园网和虚拟化服务。
 - `home-manager/`：Shell、编辑器以及受开关控制的桌面与输入法配置。
 - `profiles/packages.nix`：通过 `nix profile install .#包名` 按需安装应用。
-- `templates/project/`：项目自己的 Rust/C++/Node/Python/Java devShell 模板。
+- `templates/project/`：通用 devShell 模板（`#project`）和 Java 8 Servlet/JSP 可执行 JAR 模板（`#java-webapp`）。
 - `secrets/`：age 加密凭据，相关功能开启时使用。
 
 ## 常用操作
