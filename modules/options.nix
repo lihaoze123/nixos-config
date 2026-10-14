@@ -61,6 +61,45 @@ in
         default = "";
         description = "Host-specific niri configuration for the Dank Greeter, such as outputs.";
       };
+      outputs = mkOption {
+        type = types.attrsOf (types.submodule {
+          options = {
+            mode = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              example = "1920x1080@60.000";
+            };
+            scale = mkOption {
+              type = types.nullOr types.number;
+              default = null;
+            };
+            position = mkOption {
+              type = types.nullOr (types.submodule {
+                options = {
+                  x = mkOption { type = types.int; };
+                  y = mkOption { type = types.int; };
+                };
+              });
+              default = null;
+            };
+          };
+        });
+        default = { };
+        description = "Monitors keyed by connector name (`niri msg outputs`), for both the desktop and the Dank Greeter.";
+      };
+      outputsConfig = mkOption {
+        type = types.lines;
+        internal = true;
+        readOnly = true;
+        default = lib.concatStrings (lib.mapAttrsToList
+          (name: o: "output \"${name}\" {\n"
+            + lib.optionalString (o.mode != null) "    mode \"${o.mode}\"\n"
+            + lib.optionalString (o.scale != null) "    scale ${builtins.toJSON o.scale}\n"
+            + lib.optionalString (o.position != null) "    position x=${toString o.position.x} y=${toString o.position.y}\n"
+            + "}\n")
+          cfg.desktop.outputs);
+        description = "niri KDL generated from my.desktop.outputs.";
+      };
       wallpaperEngine.enable = mkEnableOption "Wallpaper Engine animated wallpapers with the DMS plugin";
       codexComputerUse.enable = mkEnableOption "Codex Desktop Computer Use integration";
       easyeffects.enable = mkEnableOption "EasyEffects microphone denoising";

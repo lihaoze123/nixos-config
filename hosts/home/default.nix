@@ -13,15 +13,12 @@ in
   my = {
     network.proxy.backend = "dae";
     # wallpaperEngine, podman, libvirt and waydroid stay off here.
-    desktop.greeter.extraConfig = ''
-      output "DP-1" {
-          mode "3440x1440@144.0"
-          scale 1.2
-      }
-    '';
+    desktop.outputs."DP-1" = {
+      mode = "3440x1440@144.0";
+      scale = 1.2;
+      position = { x = 1280; y = 0; };
+    };
   };
-
-  my.home.imports = [ ./home.nix ];
 
   hardware.graphics.enable = useNvidia;
   services.xserver.videoDrivers = lib.mkIf useNvidia [ "nvidia" ];

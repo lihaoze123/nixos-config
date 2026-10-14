@@ -30,12 +30,11 @@
       phone.enable = true;
       screenCast.enable = true;
       # wallpaperEngine.enable = true;
-      greeter.extraConfig = ''
-        output "eDP-1" {
-            mode "3120x2080@120"
-            scale 2
-        }
-      '';
+      outputs."eDP-1" = {
+        mode = "3120x2080@120";
+        scale = 2;
+        position = { x = 1280; y = 0; };
+      };
     };
     fonts.windows.enable = true;
     kernel.cachyos.enable = true;

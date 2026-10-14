@@ -71,42 +71,10 @@ input {
     focus-follows-mouse max-scroll-amount="0%"
 }
 
-// You can configure outputs by their name, which you can find
-// by running `niri msg outputs` while inside a niri instance.
-// The built-in laptop monitor is usually called "eDP-1".
-// Find more information on the wiki:
+// Outputs are host-specific: Home Manager writes outputs.kdl from
+// my.desktop.outputs, which also configures the Dank Greeter.
 // https://yalter.github.io/niri/Configuration:-Outputs
-// Remember to uncomment the node by removing "/-"!
-output "eDP-1" {
-    // Uncomment this line to disable this output.
-    // off
-
-    // Resolution and, optionally, refresh rate of the output.
-    // The format is "<width>x<height>" or "<width>x<height>@<refresh rate>".
-    // If the refresh rate is omitted, niri will pick the highest refresh rate
-    // for the resolution.
-    // If the mode is omitted altogether or is invalid, niri will pick one automatically.
-    // Run `niri msg outputs` while inside a niri instance to list all outputs and their modes.
-    mode "3120x2080@120"
-
-    // You can use integer or fractional scale, for example use 1.5 for 150% scale.
-    scale 2.0
-
-    // Transform allows to rotate the output counter-clockwise, valid values are:
-    // normal, 90, 180, 270, flipped, flipped-90, flipped-180 and flipped-270.
-    transform "normal"
-
-    // Position of the output in the global coordinate space.
-    // This affects directional monitor actions like "focus-monitor-left", and cursor movement.
-    // The cursor can only move between directly adjacent outputs.
-    // Output scale and rotation has to be taken into account for positioning:
-    // outputs are sized in logical, or scaled, pixels.
-    // For example, a 3840×2160 output with scale 2.0 will have a logical size of 1920×1080,
-    // so to put another output directly adjacent to it on the right, set its x to 1920.
-    // If the position is unset or results in an overlap, the output is instead placed
-    // automatically.
-    position x=1280 y=0
-}
+include "outputs.kdl"
 
 // Settings that influence how windows are positioned and sized.
 // Find more information on the wiki:
@@ -651,28 +619,8 @@ environment {
 	SDL_IM_MODULE "fcitx"
 }
 
-// Indicate windows driven by a computer-use agent (niri-computer-use agent
-// input patch) with a thin indigo-violet border and a soft glow.
-// Disabled with "/-" until the patched niri is running: stock niri rejects
-// is-agent-driven and would refuse to load this config.
-window-rule {
-    match is-agent-driven=true
-
-    border {
-        on
-        width 2
-        active-gradient from="#818cf8" to="#c084fc" angle=135
-        inactive-gradient from="#818cf8" to="#c084fc" angle=135
-    }
-
-    shadow {
-        on
-        softness 40
-        spread 3
-        offset x=0 y=0
-        color "#a78bfa70"
-    }
-}
+// Agent window highlight; present only on hosts with Codex computer use.
+include optional=true "computer-use.kdl"
 
 // DMS Include Configs
-include "dms/layout.kdl"
+include optional=true "dms/layout.kdl"

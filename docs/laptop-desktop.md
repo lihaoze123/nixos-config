@@ -55,7 +55,7 @@ reboot
 ## 登录（Dank Greeter）
 
 - 启动 greetd 前，会从 `/home/chumeng` 复制 DMS 的 `settings.json`、`session.json` 与配色，因此主题和壁纸与桌面一致。
-- greeter 的 niri 配置由 `modules/nixos/desktop/default.nix` 的 `compositor.customConfig` 提供通用部分（触摸板轻触等），laptop 通过 `my.desktop.greeter.extraConfig` 追加 eDP-1 和 2 倍缩放，`graphical-boot` 模块追加与 Plymouth 一致的背景色。修改缩放时要同时改这里。
+- greeter 的 niri 配置由 `modules/nixos/desktop/default.nix` 的 `compositor.customConfig` 提供通用部分（触摸板轻触等），输出来自 `hosts/laptop/default.nix` 的 `my.desktop.outputs`（eDP-1、2 倍缩放），桌面与 greeter 共用；`graphical-boot` 模块追加与 Plymouth 一致的背景色。修改缩放只需改这一处；Plymouth 素材缩放仍由 `my.desktop.graphicalBoot.scale` 单独设置。
 - 登录只用密码：greetd 通过 `login` PAM substack 认证，`login.fprintAuth = false`。greetd 只有一个 PAM 会话，`pam_fprintd` 排在密码前面时，回车后要等指纹超时才验证密码，所以登录不启用指纹。用密码登录也能自动解锁 GNOME Keyring。
 - laptop 在 `hosts/laptop/hardware.nix` 中启用指纹驱动，指纹用于锁屏（DMS 自带的 `fprint` 会话，和密码并行）、sudo 和 polkit。TTY 登录同样只用密码。
 

@@ -11,7 +11,7 @@
 | `class` | `workstation` | 微信拼音；Plymouth、Codex computer use、Windows 字体、CachyOS 内核、dae、Podman、libvirt；Btrfs + 独立 ESP，保留 Windows |
 | `base` | 无 | 最小系统：启动、网络、用户、SSH、防火墙、Shell、Git/Jujutsu、Neovim、direnv，无图形会话 |
 
-三台主机使用同一套桌面：Niri + DankMaterialShell，登录界面为 Dank Greeter（greetd）。各主机只在 niri 布局（`modules/home/desktop/niri/config.kdl`、`hosts/<主机>/config-<主机>.kdl`）和 greeter 输出（`my.desktop.greeter.extraConfig`）上不同。改变登录管理器配置时，用 `sudo nixos-rebuild boot` 后重启。
+三台主机使用同一套桌面：Niri + DankMaterialShell，登录界面为 Dank Greeter（greetd）。niri 布局统一使用 `modules/home/desktop/niri/config.kdl`，各主机只在显示器输出（`my.desktop.outputs`，桌面与 greeter 共用）上不同。改变登录管理器配置时，用 `sudo nixos-rebuild boot` 后重启。
 
 laptop、home、class、base 共用 `modules/nixos/nix-cache.nix` 的缓存信任配置，项目缓存按命令启用，
 使用 `secrets/r2-cache-credentials.age` 和同一份缓存签名公钥；installer 保持独立。

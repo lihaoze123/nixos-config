@@ -1,8 +1,4 @@
 { config, lib, ... }:
-let
-  # Use the panel's preferred EDID timing for both greeter and desktop.
-  panelMode = "1920x1080@60.000";
-in
 # Base-derived classroom machine alongside Windows.
 {
   imports = [
@@ -17,12 +13,12 @@ in
     desktop = {
       graphicalBoot.enable = true;
       codexComputerUse.enable = true;
-      greeter.extraConfig = ''
-        output "eDP-1" {
-          mode "${panelMode}"
-          scale 1.0
-        }
-      '';
+      # The panel's preferred EDID timing, for both greeter and desktop.
+      outputs."eDP-1" = {
+        mode = "1920x1080@60.000";
+        scale = 1;
+        position = { x = 0; y = 0; };
+      };
     };
     input.vtype.enable = true;
     fonts.windows.enable = true;
@@ -36,7 +32,7 @@ in
 
   # No checkout of this repository on this machine: ship configs from the store.
   my.configPath = null;
-  my.home.imports = [ (import ./home.nix { inherit panelMode; }) ];
+  my.home.imports = [ ./home.nix ];
 
   networking.firewall = {
     allowedTCPPorts = [ 9100 ];

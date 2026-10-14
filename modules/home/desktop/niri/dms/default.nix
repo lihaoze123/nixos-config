@@ -125,6 +125,10 @@ in
 
     xdg.configFile = {
       "niri/config.kdl".source = ./niri.kdl;
+      "niri/outputs.kdl".text = osConfig.my.desktop.outputsConfig;
+      "niri/computer-use.kdl" = lib.mkIf osConfig.my.desktop.codexComputerUse.enable {
+        source = ../computer-use.kdl;
+      };
       "niri/wallpaper-engine.kdl" = lib.mkIf osConfig.my.desktop.wallpaperEngine.enable {
         source = ./wallpaper-engine.kdl;
       };

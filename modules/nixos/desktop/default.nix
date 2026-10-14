@@ -51,7 +51,7 @@ in
                   natural-scroll
               }
           }
-        '' + cfg.greeter.extraConfig;
+        '' + cfg.outputsConfig + cfg.greeter.extraConfig;
       };
       # Copies the DMS theme and wallpaper into the greeter before each start.
       configHome = config.my.user.home;

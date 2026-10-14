@@ -159,7 +159,7 @@ sudo nixos-rebuild boot --flake .#class
 
 Niri 与 Neovim 的配置直接随系统部署，不依赖目标机上的 `~/nixos-config` checkout。
 class 与 laptop 共用 Codex Desktop 和 computer use 集成，使用带 agent input 补丁的 Niri，
-启用 is-agent-driven 窗口规则；关闭 `my.desktop.codexComputerUse` 时恢复标准 Niri 并禁用该规则。
+部署 `computer-use.kdl` 中的 is-agent-driven 窗口规则；关闭 `my.desktop.codexComputerUse` 时恢复标准 Niri 并禁用该规则。
 用户 chumeng 加入 ydotool 组，系统部署 uinput 权限、ydotool 服务和 AT-SPI 支持。
 命令行入口为 `codex-desktop` 和 `codex-computer-use`（MCP 模式使用 `codex-computer-use mcp`）。
 首次启用须按下方步骤写入下一次启动并重启，让新 Niri 和组权限生效。

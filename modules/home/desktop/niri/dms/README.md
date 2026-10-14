@@ -9,8 +9,9 @@ Home Manager 通过官方 DMS v1.6.2 模块管理 `dms.service`，运行包使�
 `modules/nixos/desktop/default.nix` 提供 Dank Greeter、UPower、电源模式、AccountsService 和 dsearch；
 laptop 的指纹 PAM 在 `hosts/laptop/default.nix`。
 
-`niri/config.kdl` 来自本目录的 `niri.kdl`，它包含 `base.kdl`：laptop 指向
-`modules/home/desktop/niri/config.kdl`，home、class 分别指向 `hosts/<主机>/config-<主机>.kdl`。
+`niri/config.kdl` 来自本目录的 `niri.kdl`，它包含 `base.kdl`。所有主机共用
+`modules/home/desktop/niri/config.kdl`（有仓库检出时为可编辑链接，`my.configPath = null` 时为 store 副本）；
+主机差异只有 `outputs.kdl`（由 `my.desktop.outputs` 生成）和 `computer-use.kdl`（开启 `my.desktop.codexComputerUse` 时安装）。
 
 ## 配置归属
 
@@ -18,6 +19,8 @@ laptop 的指纹 PAM 在 `hosts/laptop/default.nix`。
 | --- | --- |
 | `~/.config/niri/config.kdl` | Home Manager 部署本目录的 `niri.kdl`，负责加载下列文件 |
 | `~/.config/niri/base.kdl` | 链接到仓库的 `modules/home/desktop/niri/config.kdl`，保留原有窗口管理配置 |
+| `~/.config/niri/outputs.kdl` | Home Manager 由主机的 `my.desktop.outputs` 生成，greeter 使用同一份输出 |
+| `~/.config/niri/computer-use.kdl` | 仅 `my.desktop.codexComputerUse` 主机部署，为 agent 驱动的窗口加边框 |
 | `~/.config/niri/dms-bindings.kdl` | Home Manager 部署本目录的 `binds.kdl` |
 | `~/.config/niri/dms/*.kdl` | DMS 界面生成，放在基础配置之后加载，让界面调整生效 |
 | `~/.config/DankMaterialShell/settings.json` | DMS 界面设置，可写且重建时保留 |

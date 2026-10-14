@@ -1,0 +1,21 @@
+// Indicate windows driven by a computer-use agent (niri-computer-use agent
+// input patch) with a thin indigo-violet border and a soft glow. Installed
+// only with my.desktop.codexComputerUse: stock niri rejects is-agent-driven.
+window-rule {
+    match is-agent-driven=true
+
+    border {
+        on
+        width 2
+        active-gradient from="#818cf8" to="#c084fc" angle=135
+        inactive-gradient from="#818cf8" to="#c084fc" angle=135
+    }
+
+    shadow {
+        on
+        softness 40
+        spread 3
+        offset x=0 y=0
+        color "#a78bfa70"
+    }
+}
