@@ -1,4 +1,4 @@
-{ inputs, pkgs-stable, system, ... }:
+{ inputs, system, ... }:
 {
   # Shared by every installed host; mkHost adds the host directory.
   imports = [
@@ -20,6 +20,6 @@
     useGlobalPkgs = true;
     useUserPackages = true;
     users.chumeng.imports = [ ../home ];
-    extraSpecialArgs = { inherit inputs pkgs-stable system; };
+    extraSpecialArgs = { inherit inputs system; };
   };
 }

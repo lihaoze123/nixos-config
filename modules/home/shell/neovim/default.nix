@@ -1,4 +1,4 @@
-{ config, pkgs, pkgs-stable, ... }:
+{ config, pkgs, ... }:
 let
   nvimPath = "${config.home.homeDirectory}/nixos-config/modules/home/shell/neovim/nvim";
 in
@@ -18,7 +18,7 @@ in
       pkgs.tree-sitter
       pkgs.gcc
       pkgs.nodejs
-      pkgs-stable.clang-tools # https://github.com/nixos/nixpkgs/issues/463367
+      pkgs.clang-tools
     ];
   };
 }

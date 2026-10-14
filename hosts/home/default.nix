@@ -1,4 +1,4 @@
-{ config, lib, pkgs-stable, ... }:
+{ config, lib, pkgs, ... }:
 let
   # GPU containers need the NVIDIA driver even without a graphical session.
   useNvidia = config.my.desktop.enable || config.my.virtualisation.docker.enable;
@@ -36,5 +36,5 @@ in
 
   # Docker with NVIDIA support
   hardware.nvidia-container-toolkit.enable = config.my.virtualisation.docker.enable;
-  virtualisation.docker.extraPackages = lib.mkIf config.my.virtualisation.docker.enable [ pkgs-stable.nvidia-container-toolkit ];
+  virtualisation.docker.extraPackages = lib.mkIf config.my.virtualisation.docker.enable [ pkgs.nvidia-container-toolkit ];
 }

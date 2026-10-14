@@ -1,10 +1,10 @@
-{ pkgs-stable, ... }:
+{ pkgs, ... }:
 {
   # HP printer
   users.users.chumeng.extraGroups = [ "lpadmin" ];
   services.printing = {
     enable = true;
-    drivers = with pkgs-stable; [ hplipWithPlugin ];
+    drivers = [ pkgs.hplipWithPlugin ];
   };
   services.avahi = {
     enable = true;
