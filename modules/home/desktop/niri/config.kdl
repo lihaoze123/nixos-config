@@ -586,7 +586,8 @@ binds {
     // moving the mouse or pressing any other key.
     Mod+Shift+P { power-off-monitors; }
 
-    Mod+Shift+Ctrl+C { set-dynamic-cast-window; }
+    Mod+Ctrl+Shift+C { set-dynamic-cast-window; }
+    Mod+Ctrl+Shift+M { set-dynamic-cast-monitor; }
     Mod+Ctrl+Shift+F { toggle-windowed-fullscreen; }
 }
 
