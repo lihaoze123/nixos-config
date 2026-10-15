@@ -30,8 +30,8 @@
     };
   };
 
-  # No checkout of this repository on this machine: ship configs from the store.
-  my.configPath = null;
+  # Use the writable checkout so LazyExtras can save plugin selections.
+  my.configPath = "/home/chumeng/nixos-config";
   my.home.imports = [ ./home.nix ];
 
   networking.firewall = {
