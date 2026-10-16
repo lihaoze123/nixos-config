@@ -5,6 +5,7 @@
     inputs.disko.nixosModules.disko
     ./hardware.nix
     ./disk-config.nix
+    ./cloudreve.nix
   ];
 
   my = {
@@ -35,6 +36,7 @@
     useNetworkd = true;
     useDHCP = false;
     timeServers = [ "169.254.169.254" ];
+    # OCI's NSG allows all IPv4/IPv6 ingress; filter service ports in NixOS.
     firewall = {
       allowedUDPPortRanges = lib.mkForce [ ];
       # Keep NixOS's loopback allowance for the local DNS stub and other IPC.

@@ -33,13 +33,19 @@
 - Shell：Fish、Starship（含 JJ 状态）、zoxide；关闭 Atuin、nix-index/comma。
 - 编辑器：简洁 Neovim，无 LazyVim、插件自举、GCC、Node.js 或 clang-tools；共享系统层仍有 Vim。
 
-启用系统级 Docker 和 rootless Docker，`chumeng` 加入 `docker` 组，Docker CLI 默认连接 rootless 用户 socket。启用 linger，让用户服务在开机时启动、退出 SSH 后保持运行。不启用桌面、AI、代理、Tailscale、Mosh 或业务服务。时区与 locale 沿用共享配置的 `Asia/Shanghai` 和 `zh_CN.UTF-8`。
+启用系统级 Docker 和 rootless Docker，`chumeng` 加入 `docker` 组，Docker CLI 默认连接 rootless 用户 socket。启用 linger，让用户服务在开机时启动、退出 SSH 后保持运行。业务服务为由 NixOS 管理的 Cloudreve 容器栈，见 [Cloudreve 使用说明](vps-cloudreve.md)。不启用桌面、AI、代理、Tailscale 或 Mosh。时区与 locale 沿用共享配置的 `Asia/Shanghai` 和 `zh_CN.UTF-8`。
 
 登录后使用 `docker info` 查看 rootless 状态，通过 `systemctl --user status docker` 查看用户服务状态。加入 `docker` 组后需重新登录，之后可使用 `docker -H unix:///var/run/docker.sock info` 访问系统级 Docker，无需 sudo。
 
+## 防火墙管理
+
+OCI 云侧对本 VPS 放行所有入站协议与端口，服务端口统一由 NixOS 的 `networking.firewall` 管理。2026-10-16 已在仅关联 VPS VNIC 的 `ig-quick-action-NSG` 中添加两条有状态入站规则：来源 `0.0.0.0/0` 和 `::/0`，协议均为“所有协议”。NSG 与子网安全列表的允许规则取并集，子网原有的窄范围规则不限制这两条放行规则。
+
+主机使用 nftables，入站默认丢弃；当前允许 TCP 22、80、443，以及 NixOS 默认的 ICMP、DHCP 等必要流量。`trustedInterfaces` 仅包含 `lo`。Cloudreve 通过 `https://pan.chumeng.xyz` 公开访问，80 端口用于跳转 HTTPS 和 ACME 证书验证；应用容器仅发布至 `127.0.0.1:5212`，数据库和 Redis 不发布端口。后续公开服务须在 Nix 配置中声明监听地址和对应 `allowedTCPPorts` / `allowedUDPPorts`，构建并部署后生效，无需再逐端口修改 OCI。新建或更换 VNIC 时，需重新确认其关联了该 NSG。
+
 ## 安装前核对（只读）
 
-在本仓库根目录操作。先准备 OCI 控制台与串口控制台入口，确认 SSH 密钥可用；云侧安全列表/NSG 也需要允许当前来源的 TCP 22。
+在本仓库根目录操作。先准备 OCI 控制台与串口控制台入口，确认 SSH 密钥可用；云侧安全列表/NSG 也需要允许当前来源的 TCP 22（本 VPS 已通过上述全入站 NSG 放行）。
 
 ```bash
 ssh ubuntu@<VPS_IP> 'uname -m'

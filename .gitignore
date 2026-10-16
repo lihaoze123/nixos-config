@@ -4,3 +4,5 @@ __pycache__/
 *.py[cod]
 # Local Claude Code settings
 .claude/
+# Local Cloudflare CLI cache
+.cloudflare/

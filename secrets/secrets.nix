@@ -5,6 +5,7 @@ let
   homeUsers = [ keys.laptop keys.home keys.class-user ];
 in
 {
+  "cloudreve-admin-password.age".publicKeys = [ keys.vps keys.laptop keys.class-user ];
   "dae-nodes.age".publicKeys = users;
   "hermes-env.age".publicKeys = users;
   "aria2-password.age".publicKeys = users;
