@@ -8,6 +8,7 @@
     ./cloudreve.nix
     ./wastebin.nix
     ./media.nix
+    ./attic.nix
   ];
 
   my = {

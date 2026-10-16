@@ -14,10 +14,19 @@
 
   home.username = osConfig.my.user.name;
   home.homeDirectory = osConfig.my.user.home;
-  xdg.configFile."nix/nix.conf".text = ''
-    # Project caches are selected explicitly by nur-with-caches.
-    substituters = ${lib.concatStringsSep " " (if osConfig.my.nix.cacheProfile == "public" then [ "https://cache.nixos.org" ] else inputs.nur-packages.lib.cacheConfig.base)}
-  '';
+  age.secrets.attic-upload-token = lib.mkIf (osConfig.my.nix.cacheProfile == "private") {
+    file = ../../secrets/attic-upload-token.age;
+    path = "${config.xdg.dataHome}/attic/token";
+  };
+  xdg.configFile."attic/config.toml" = lib.mkIf (osConfig.my.nix.cacheProfile == "private") {
+    text = ''
+      default-server = "personal"
+
+      [servers.personal]
+      endpoint = "https://cache.chumeng.xyz/"
+      token-file = "${config.age.secrets.attic-upload-token.path}"
+    '';
+  };
 
   home.packages = with pkgs;[
     # archives
@@ -41,7 +50,7 @@
 
     # nix related
     nix-output-monitor
-  ];
+  ] ++ lib.optionals (osConfig.my.nix.cacheProfile == "private") [ pkgs.attic-client ];
 
   home.stateVersion = "25.05";
 }

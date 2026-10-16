@@ -8,12 +8,14 @@ in
   "cloudreve-admin-password.age".publicKeys = [ keys.vps keys.laptop keys.class-user ];
   "wastebin-env.age".publicKeys = [ keys.vps keys.laptop keys.class-user ];
   "media-credentials.age".publicKeys = [ keys.vps keys.laptop keys.class-user ];
+  "attic-server-env.age".publicKeys = [ keys.vps keys.laptop keys.class-user ];
+  "attic-netrc.age".publicKeys = users;
+  "attic-upload-token.age".publicKeys = homeUsers;
   "dae-nodes.age".publicKeys = users;
   "hermes-env.age".publicKeys = users;
   "aria2-password.age".publicKeys = users;
   "edunet-env.age".publicKeys = users;
   "doubao-asr.age".publicKeys = users;
-  "r2-cache-credentials.age".publicKeys = users;
   "deepseek-token.age".publicKeys = users;
 
   "glm-token.age".publicKeys = homeUsers;

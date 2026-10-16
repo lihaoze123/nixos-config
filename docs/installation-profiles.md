@@ -14,15 +14,15 @@
 
 三台主机使用同一套桌面：Niri + DankMaterialShell，登录界面为 Dank Greeter（greetd）。niri 布局统一使用 `modules/home/desktop/niri/config.kdl`，各主机只在显示器输出（`my.desktop.outputs`，桌面与 greeter 共用）上不同。改变登录管理器配置时，用 `sudo nixos-rebuild boot` 后重启。
 
-laptop、home、class、base 共用 `modules/nixos/nix-cache.nix` 的缓存信任配置，项目缓存按命令启用，
-使用 `secrets/r2-cache-credentials.age` 和同一份缓存签名公钥；installer 保持独立。
+laptop、home、class、base 共用 `modules/nixos/nix-cache.nix` 的下载源与公钥，默认启用公开项目缓存和私有 Attic。
+普通 Nix 命令自动使用这些缓存，私有下载凭据保存在 `secrets/attic-netrc.age`；installer 保持独立。
 凭据由 agenix 解密为 root 可读文件，nix-daemon 在配置激活后使用它，上传仍手动执行。
 新机器须先将解密公钥加入 `secrets/keys.nix` 与凭据收件人规则，重新加密，并配置
 `age.identityPaths` 指向对应私钥；`modules/nixos/core.nix` 中默认的 id_rsa 路径（`mkDefault`）可在主机中直接覆盖。
 首次构建使用的是机器当前的缓存配置；需要下载 Windows 字体的设备可先关闭
 `fonts.windows`，部署缓存配置后再开启字体并构建。
-日常上传其他输出、校验、密钥轮换与清理见 [私有 R2 缓存维护](nix-cache.md)。
-`vps` 设置 `my.nix.cacheProfile = "public"`，系统与 Home Manager 都只使用官方缓存，不引入 R2 凭据或私有缓存信任。
+日常上传其他输出、校验、密钥轮换与清理见 [私有 Attic 缓存维护](nix-cache.md)。
+`vps` 设置 `my.nix.cacheProfile = "public"`，系统与 Home Manager 都只使用官方缓存，不引入个人下载凭据或私有缓存信任。
 
 `base` 有自己的 `hosts/base/`。新机器上安装前，先用目标机器的硬件配置替换占位文件：
 

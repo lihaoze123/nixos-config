@@ -922,11 +922,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792116253,
-        "narHash": "sha256-tiOq5C+yf2gSKI+HbSGyfdzQT7GrRgyG0vciDhFzzsU=",
+        "lastModified": 1792165951,
+        "narHash": "sha256-4RMeCJiAz+ZmskSj13yKQ6x2GucYYH9eh9uA18CNGuM=",
         "owner": "lihaoze123",
         "repo": "nur-packages",
-        "rev": "fe3f801abd8e3e95bd0c86d21e57381b01c48038",
+        "rev": "9d571f57160e12924c3c200405c8c7963648820e",
         "type": "github"
       },
       "original": {

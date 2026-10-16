@@ -2,23 +2,22 @@
 let
   caches = inputs.nur-packages.lib.cacheConfig;
   private = config.my.nix.cacheProfile == "private";
+  projectCaches = lib.attrValues caches.caches;
 in
 {
-  age.secrets.r2-cache-credentials = lib.mkIf private {
-    file = ../../secrets/r2-cache-credentials.age;
+  age.secrets.attic-netrc = lib.mkIf private {
+    file = ../../secrets/attic-netrc.age;
     mode = "0400";
   };
 
   systemd.services.nix-daemon = lib.mkIf private {
-    environment.AWS_SHARED_CREDENTIALS_FILE =
-      config.age.secrets.r2-cache-credentials.path;
-    restartTriggers = [ config.age.secrets.r2-cache-credentials.file ];
+    restartTriggers = [ config.age.secrets.attic-netrc.file ];
   };
 
   nix.settings = {
-    substituters = lib.mkForce (if private then caches.base else [ "https://cache.nixos.org" ]);
+    substituters = lib.mkForce (if private then caches.base ++ map (cache: cache.url) projectCaches else [ "https://cache.nixos.org" ]);
     extra-substituters = lib.mkForce [ ];
-    trusted-substituters = lib.optionals private (map (cache: cache.url) (lib.attrValues caches.caches));
-    extra-trusted-public-keys = lib.optionals private (map (cache: cache.key) (lib.attrValues caches.caches));
+    extra-trusted-public-keys = lib.optionals private (map (cache: cache.key) projectCaches);
+    netrc-file = lib.mkIf private config.age.secrets.attic-netrc.path;
   };
 }

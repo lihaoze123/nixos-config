@@ -4,7 +4,7 @@
 `pkgs.windows-fonts` 安装 Windows 字体，需要同时启用 `my.desktop` 和 `my.fonts.extra`。
 当前 laptop、class 已开启，默认字体保持原设置。配置没有本地字体路径或来源覆盖。
 
-各设备共用私有 R2 下载缓存。字体首次构建后可按 [缓存配置与维护](nix-cache.md)
+各设备共用私有 Attic 下载缓存。字体首次构建后可按 [缓存配置与维护](nix-cache.md)
 手动上传；其他设备部署缓存配置后会自动下载同一输出。
 
 Nix 会复用 `/nix/store` 中已经构建好的同一份字体包，普通系统 rebuild 不会重复下载

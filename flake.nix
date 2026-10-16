@@ -82,7 +82,6 @@
 
       packages.${system}.installer-iso = self.nixosConfigurations.installer.config.system.build.isoImage;
       apps.${system} = {
-        with-caches = inputs.nur-packages.apps.${system}.with-caches;
         deploy = inputs.deploy-rs.apps.${system}.default;
       };
       deploy.nodes.vps = {

@@ -19,7 +19,7 @@
 | 公网地址 | IPv4 由 OCI 映射到 DHCP 内网地址，不能将公网 IPv4 配在接口上 |
 | 登录 | `chumeng`，现有个人 RSA 与 class Ed25519 公钥，免密 sudo |
 | SSH | TCP 22；禁用密码、键盘交互认证和 root SSH 登录 |
-| Nix 缓存 | 仅 `https://cache.nixos.org`，不解密 R2 凭据，不复制个人私钥 |
+| Nix 缓存 | 仅 `https://cache.nixos.org`，不解密个人设备缓存 token，不复制个人私钥 |
 
 机器专属设置在 [hosts/vps/default.nix](../hosts/vps/default.nix)，磁盘布局在 [disk-config.nix](../hosts/vps/disk-config.nix)。[hardware.nix](../hosts/vps/hardware.nix) 是根据现有 OCI 虚拟硬件手写的模块，导入上游 QEMU guest 驱动；无需复制其他主机自动生成的硬件配置，也不要导入 `disko/btrfs-partitions.nix`。
 
@@ -33,7 +33,7 @@
 - Shell：Fish、Starship（含 JJ 状态）、zoxide；关闭 Atuin、nix-index/comma。
 - 编辑器：简洁 Neovim，无 LazyVim、插件自举、GCC、Node.js 或 clang-tools；共享系统层仍有 Vim。
 
-启用系统级 Docker 和 rootless Docker，`chumeng` 加入 `docker` 组，Docker CLI 默认连接 rootless 用户 socket。启用 linger，让用户服务在开机时启动、退出 SSH 后保持运行。业务服务包含由 NixOS 管理的 Cloudreve、AutoBangumi、qBittorrent、Emby 容器与原生 wastebin 服务，见 [Cloudreve 使用说明](vps-cloudreve.md)、[wastebin 使用说明](vps-wastebin.md) 和 [自动追番与 Emby](vps-media.md)。不启用桌面、AI、代理、Tailscale 或 Mosh。时区与 locale 沿用共享配置的 `Asia/Shanghai` 和 `zh_CN.UTF-8`。
+启用系统级 Docker 和 rootless Docker，`chumeng` 加入 `docker` 组，Docker CLI 默认连接 rootless 用户 socket。启用 linger，让用户服务在开机时启动、退出 SSH 后保持运行。业务服务包含由 NixOS 管理的 Cloudreve、AutoBangumi、qBittorrent、Emby 容器与原生 wastebin 服务，见 [Cloudreve 使用说明](vps-cloudreve.md)、[wastebin 使用说明](vps-wastebin.md)、[私有 Attic 缓存](nix-cache.md) 和 [自动追番与 Emby](vps-media.md)。不启用桌面、AI、代理、Tailscale 或 Mosh。时区与 locale 沿用共享配置的 `Asia/Shanghai` 和 `zh_CN.UTF-8`。
 
 登录后使用 `docker info` 查看 rootless 状态，通过 `systemctl --user status docker` 查看用户服务状态。加入 `docker` 组后需重新登录，之后可使用 `docker -H unix:///var/run/docker.sock info` 访问系统级 Docker，无需 sudo。
 
