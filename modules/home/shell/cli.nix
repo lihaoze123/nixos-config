@@ -41,6 +41,7 @@ in
     iperf
     jjui
     nh
+    inputs.nur-packages.packages.${system}.cloudflare-cli
     # tobi/try with the NixOS shebang fix.
     inputs.nur-packages.packages.${system}.try
   ] ++ lib.optionals osConfig.my.desktop.enable [
