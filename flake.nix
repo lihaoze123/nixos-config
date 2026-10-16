@@ -27,6 +27,8 @@
       url = "github:zhl-HFUT/vtype-linux";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # Lite contains cloud ASR only; retain upstream's nixpkgs for cache compatibility.
+    fcitx5-vinput.url = "github:xifan2333/fcitx5-vinput/c46f0078de80e493f6ea3040e05c9e3308b76751";
     # Keep VoCoType's validated ONNX Runtime / FunASR dependency versions.
     vocotype.url = "github:LeonardNJU/VocoType-linux/v5.0.1";
     dms = {

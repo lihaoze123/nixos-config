@@ -20,6 +20,7 @@
       ffmpeg.enable = true;
     };
     input.vtype.enable = true;
+    input.speech.backend = "vinput";
     desktop = {
       graphicalBoot = {
         enable = true;

@@ -130,7 +130,12 @@ in
     };
 
     input.speech = {
-      enable = mkEnableOption "VoCoType speech recognition";
+      enable = mkEnableOption "speech recognition";
+      backend = mkOption {
+        type = types.enum [ "vocotype" "vinput" ];
+        default = "vocotype";
+        description = "Fcitx5 speech recognition backend.";
+      };
       doubao.enable = mkEnableOption "Doubao speech credentials and worker integration";
     };
     input.vtype.enable = mkEnableOption "VType (WeChat Pinyin) Fcitx5 addon; the engine is fetched by wetype-setup";
@@ -219,6 +224,7 @@ in
     (requires cfg.input.speech.enable cfg.desktop.enable "input.speech" "desktop")
     (requires cfg.input.vtype.enable cfg.desktop.enable "input.vtype" "desktop")
     (requires cfg.input.speech.doubao.enable cfg.input.speech.enable "input.speech.doubao" "input.speech")
+    (requires (cfg.input.speech.enable && cfg.input.speech.backend == "vinput") cfg.input.speech.doubao.enable "input.speech.backend=vinput" "input.speech.doubao")
     (requires cfg.fonts.extra.enable cfg.desktop.enable "fonts.extra" "desktop")
     (requires cfg.fonts.windows.enable cfg.fonts.extra.enable "fonts.windows" "fonts.extra")
   ];

@@ -62,7 +62,7 @@ let
     '';
   };
 in
-lib.mkIf (osConfig.my.desktop.enable && osConfig.my.input.speech.enable) {
+lib.mkIf (osConfig.my.desktop.enable && osConfig.my.input.speech.enable && osConfig.my.input.speech.backend == "vocotype") {
   home.packages = [ vocotype doubaoWorker ];
   # Also expose settings when activating Home Manager before a system switch.
   home.file.".local/bin/vocotype-settings".source = "${vocotype}/bin/vocotype-settings";

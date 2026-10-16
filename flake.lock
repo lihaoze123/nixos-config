@@ -135,7 +135,7 @@
     "codex-desktop-linux": {
       "inputs": {
         "flake-utils": "flake-utils_3",
-        "nixpkgs": "nixpkgs_7"
+        "nixpkgs": "nixpkgs_8"
       },
       "locked": {
         "lastModified": 1790123554,
@@ -156,7 +156,7 @@
         "codex-desktop-current": "codex-desktop-current",
         "codex-desktop-linux": "codex-desktop-linux",
         "niri-src": "niri-src",
-        "nixpkgs": "nixpkgs_8"
+        "nixpkgs": "nixpkgs_9"
       },
       "locked": {
         "lastModified": 1791953386,
@@ -336,7 +336,7 @@
     "edunet": {
       "inputs": {
         "home-manager": "home-manager_2",
-        "nixpkgs": "nixpkgs_9",
+        "nixpkgs": "nixpkgs_10",
         "pyproject-build-systems": "pyproject-build-systems",
         "pyproject-nix": "pyproject-nix",
         "uv2nix": "uv2nix"
@@ -353,6 +353,26 @@
         "owner": "lihaoze123",
         "repo": "hhu-edunet-cli",
         "rev": "cd4b7d4d12be160fc8c1aee777adf60267b759a7",
+        "type": "github"
+      }
+    },
+    "fcitx5-vinput": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_5",
+        "sherpa-onnx": "sherpa-onnx"
+      },
+      "locked": {
+        "lastModified": 1791825937,
+        "narHash": "sha256-zHUkfn1xzEo3ZutwGXyDFpjzj+HAr8KeBsxZr5tooa0=",
+        "owner": "xifan2333",
+        "repo": "fcitx5-vinput",
+        "rev": "c46f0078de80e493f6ea3040e05c9e3308b76751",
+        "type": "github"
+      },
+      "original": {
+        "owner": "xifan2333",
+        "repo": "fcitx5-vinput",
+        "rev": "c46f0078de80e493f6ea3040e05c9e3308b76751",
         "type": "github"
       }
     },
@@ -638,7 +658,7 @@
       "inputs": {
         "flake-compat": "flake-compat_3",
         "flake-parts": "flake-parts_2",
-        "nixpkgs": "nixpkgs_5"
+        "nixpkgs": "nixpkgs_6"
       },
       "locked": {
         "lastModified": 1790564970,
@@ -723,6 +743,22 @@
     },
     "nixpkgs_10": {
       "locked": {
+        "lastModified": 1789149629,
+        "narHash": "sha256-H6GwaZzZf+4npqv0tph94w9tZddSjFjmQrVsW0z78uk=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "eaad089433ca2bb662274377d33df3d0e51ef28b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_11": {
+      "locked": {
         "lastModified": 1761672384,
         "narHash": "sha256-o9KF3DJL7g7iYMZq9SWgfS1BFlNbsm6xplRjVlOCkXI=",
         "owner": "nixos",
@@ -737,7 +773,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_11": {
+    "nixpkgs_12": {
       "locked": {
         "lastModified": 1782847189,
         "narHash": "sha256-twXPFqFsrrY5r28Zh7Homgcp2gUMBgQ6WDS98Q/3xFI=",
@@ -803,6 +839,22 @@
     },
     "nixpkgs_5": {
       "locked": {
+        "lastModified": 1791048980,
+        "narHash": "sha256-KgItSKML8Xvte0B7/uGnBDsYzSnnKHcOaiUbgWBXLXw=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "a7868a727837f3c09cee2ce0ca671c76b1589fed",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_6": {
+      "locked": {
         "lastModified": 1790505892,
         "narHash": "sha256-/pAz2XfqHS//WRn2xRjoqes7Z92qZ0Q1gufZZ3PtuwA=",
         "owner": "NixOS",
@@ -817,7 +869,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_6": {
+    "nixpkgs_7": {
       "locked": {
         "lastModified": 1791260994,
         "narHash": "sha256-MFBjw66d4h06MvpW6lIl7RwarLteD0sk859CncGwb1Q=",
@@ -830,7 +882,7 @@
         "url": "https://channels.nixos.org/nixos-unstable/nixexprs.tar.zst"
       }
     },
-    "nixpkgs_7": {
+    "nixpkgs_8": {
       "locked": {
         "lastModified": 1772773019,
         "narHash": "sha256-E1bxHxNKfDoQUuvriG71+f+s/NT0qWkImXsYZNFFfCs=",
@@ -846,7 +898,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_8": {
+    "nixpkgs_9": {
       "locked": {
         "lastModified": 1791260994,
         "narHash": "sha256-MFBjw66d4h06MvpW6lIl7RwarLteD0sk859CncGwb1Q=",
@@ -857,22 +909,6 @@
       "original": {
         "type": "tarball",
         "url": "https://channels.nixos.org/nixos-unstable/nixexprs.tar.zst"
-      }
-    },
-    "nixpkgs_9": {
-      "locked": {
-        "lastModified": 1789149629,
-        "narHash": "sha256-H6GwaZzZf+4npqv0tph94w9tZddSjFjmQrVsW0z78uk=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "eaad089433ca2bb662274377d33df3d0e51ef28b",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-unstable",
-        "repo": "nixpkgs",
-        "type": "github"
       }
     },
     "nur-packages": {
@@ -958,7 +994,7 @@
         "agenix": "agenix",
         "crane": "crane",
         "flake-utils": "flake-utils_4",
-        "nixpkgs": "nixpkgs_10",
+        "nixpkgs": "nixpkgs_11",
         "rust-overlay": "rust-overlay"
       },
       "locked": {
@@ -985,11 +1021,12 @@
         "deploy-rs": "deploy-rs",
         "disko": "disko",
         "dms": "dms",
+        "fcitx5-vinput": "fcitx5-vinput",
         "geodb": "geodb",
         "home-manager": "home-manager",
         "nix-cachyos-kernel": "nix-cachyos-kernel",
         "nix-index-database": "nix-index-database",
-        "nixpkgs": "nixpkgs_6",
+        "nixpkgs": "nixpkgs_7",
         "nur-packages": "nur-packages",
         "ragenix": "ragenix",
         "rust-overlay": "rust-overlay_2",
@@ -1036,6 +1073,27 @@
       "original": {
         "owner": "oxalica",
         "repo": "rust-overlay",
+        "type": "github"
+      }
+    },
+    "sherpa-onnx": {
+      "inputs": {
+        "nixpkgs": [
+          "fcitx5-vinput",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1785564218,
+        "narHash": "sha256-B1/qLagKXemMgyrmd7RqPEgz2polrZMUkeBT1dv3hso=",
+        "owner": "xifan2333",
+        "repo": "sherpa-onnx-flake",
+        "rev": "a8ef134239c923420becfa6870538dcc8e9c8eb8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "xifan2333",
+        "repo": "sherpa-onnx-flake",
         "type": "github"
       }
     },
@@ -1191,7 +1249,7 @@
     },
     "vocotype": {
       "inputs": {
-        "nixpkgs": "nixpkgs_11"
+        "nixpkgs": "nixpkgs_12"
       },
       "locked": {
         "lastModified": 1787062804,

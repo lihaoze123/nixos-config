@@ -16,6 +16,7 @@ in
     ./rime.nix
     ./xhup.nix
     ./vocotype.nix
+    ./vinput.nix
     ./doubao.nix
     ./hotwords.nix
     ./vtype.nix

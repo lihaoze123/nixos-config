@@ -18,6 +18,7 @@ fcitx5/
 ├── rime.nix            # Rime 插件、配置部署、缓存失效与用户词库
 ├── xhup.nix            # 查码/加词命令与 DMS 小鹤插件
 ├── vocotype.nix        # VoCoType 语音识别（doubao.nix、hotwords.nix 为其扩展）
+├── vinput.nix          # Vinput Lite：豆包输入法协议与整理，保留官方豆包整句识别
 ├── vtype.nix           # 微信拼音插件
 ├── README.md
 ├── config/             # Fcitx5 profile 与 Rime 配置补丁
@@ -46,9 +47,70 @@ fcitx5/
 再运行 `systemctl --user restart fcitx5-daemon.service` 重启输入法。
 配置工具中的临时修改会在下一次应用配置时被覆盖。
 
-### 离线语音输入
+### Vinput Lite 试用
 
-先启用 `my.desktop.enable` 和 `my.input.speech.enable`。
+`my.input.speech.backend` 选择语音后端，默认是 `"vocotype"`；laptop 改为
+`"vinput"`，home 仍用 VoCoType。Vinput 需要同时启用 `my.input.speech.enable`
+和 `my.input.speech.doubao.enable`。两个后端互斥安装，避免争用快捷键。
+
+恢复之前固定的 Vinput Lite 2.4.1，按住 `F9` 说话、松开提交，默认经
+豆包输入法整理；选中文字后按住 `Ctrl+F9` 说出修改指令（仍使用 DeepSeek）。
+`Shift+F9` 打开菜单，可选择原始听写。运行 `vinput-gui` 查看状态；
+参数由 [vinput.nix](vinput.nix) 管理，GUI 修改不会覆盖声明式配置。
+
+Qt 应用按住快捷键时可能发送带 `Repeat` 标记的模拟松开/按下事件，原版
+Vinput 会因此提前停止或取消录音，表现为“正在录音”约半秒后消失。
+本仓库的 [按键补丁](patches/vinput-key-repeat.patch) 忽略语音、编辑和菜单快捷键的
+自动重复事件。微信的旧 Qt/Fcitx4 接口不带此标记，按住模式会在后续按下到来时
+取消待处理的停止计时，避免把重复按键当成点按切换；真正松开仍按原来的
+500 毫秒防抖延迟停止。不需要关闭整个桌面的按键重复。
+[C++ 回归测试](tests/test-vinput-key-repeat.cpp) 在隔离配置中重放此类事件，
+覆盖 Hold、Tap、Both 模式和普通按键透传，随 Vinput 软件包的检查阶段运行；
+测试不连接实际会话 D-Bus、不录音、不联网。补丁在应用配置并重启 Fcitx5 后生效。
+
+当前默认启用 `provider.doubaoime.streaming`，使用豆包输入法协议实时识别。
+流式识别与整理适配器固定到 `vinput-registry` 提交
+`5b39b073ac1b740aaba0bf104f47202bc9285da1`，由 Nix 校验下载内容，
+流式包装器提供明确的 `libopus` 路径。
+这两个接口使用自动注册的设备身份，共用
+`~/.cache/vinput/doubaoime/credentials.json`（遵循 `XDG_CACHE_HOME`），
+不使用火山引擎 API Key；身份缓存由上游脚本在运行时创建，不进入仓库或 Nix store。
+
+`adapter.doubaoime.organize` 随 Vinput daemon 自动启动，只监听
+`127.0.0.1:18765`。默认场景「豆包输入法整理」使用 `doubaoime-organize` 模型，
+严格沿用上游所需的提示词、单候选、零前文、原文候选/预览及 10 秒超时。
+整理失败或没有改写时由上游返回原文。`Shift+F9` 菜单可选择「原始听写」
+或保留的 DeepSeek「自动润色」场景。
+
+官方豆包整句识别仍保留在配置中。将 `asr.active_provider` 改为
+`provider.doubao.batch` 并应用，可切回录完后整句识别：按住 F9 时仅在本地录音，松开后通过
+`bigmodel_nostream` 一句话识别接口上传整段音频并返回结果，不显示实时转写。
+Vinput 使用 `provider.doubao.batch`（原生 buffered 后端），由
+`vinput-doubao-batch.py` 复用 `doubao-asr-worker.py` 的协议实现。
+这是停止录音后才开始请求的 WebSocket 一句话识别，不是长录音文件转写服务。
+沿用 agenix 的 `doubao-asr` 凭据；
+润色和语音编辑使用 `deepseek-token` 凭据及 `deepseek-v4-flash` 模型。
+凭据仅在运行时读取。热词与别名沿用 `~/.config/vocotype/terms.yaml` 和
+DMS 热词插件，下一次录音会重新加载词库。
+
+应用配置后重启 `fcitx5-daemon.service`。后端服务是 `vinput-daemon.service`，
+可用 `journalctl --user -u vinput-daemon.service -b` 排查。
+切回 VoCoType 时将 laptop 的 `my.input.speech.backend` 改为 `"vocotype"`。
+
+当前不额外放大录音：整句 provider 的 `--gain` 和 Vinput 的 `asr.input_gain`
+均为 1；以后如需调整，入口为 `vinput.nix`。
+
+离线检查（不录音、不联网）：
+
+```bash
+python3 modules/home/desktop/fcitx5/tests/test-vinput-doubao.py
+python3 modules/home/desktop/fcitx5/tests/test-vinput-doubao-batch.py
+python3 modules/home/desktop/fcitx5/tests/test-vinput-doubaoime.py
+```
+
+### VoCoType 离线语音输入
+
+先启用 `my.desktop.enable` 和 `my.input.speech.enable`，后端选择 `"vocotype"`。
 语音功能默认关闭，不会随普通中文输入法安装 worker 或后台服务。
 
 通过 flake 固定 VoCoType-linux `v5.0.1`，作为 Fcitx5 全局插件安装。
