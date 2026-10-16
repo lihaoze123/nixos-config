@@ -10,6 +10,7 @@
   my = {
     configPath = null;
     nix.cacheProfile = "public";
+    virtualisation.docker.enable = true;
     shell.profile = "minimal";
     editor.neovim.profile = "minimal";
     cli.packages = with pkgs; [
@@ -52,7 +53,8 @@
   services.resolved.enable = true;
 
   users.users.${config.my.user.name} = {
-    extraGroups = lib.mkForce [ "wheel" ];
+    linger = true;
+    extraGroups = lib.mkForce [ "wheel" "docker" ];
     openssh.authorizedKeys.keyFiles = [ ./authorized_keys ];
   };
   security.sudo.wheelNeedsPassword = false;

@@ -33,7 +33,9 @@
 - Shell：Fish、Starship（含 JJ 状态）、zoxide；关闭 Atuin、nix-index/comma。
 - 编辑器：简洁 Neovim，无 LazyVim、插件自举、GCC、Node.js 或 clang-tools；共享系统层仍有 Vim。
 
-不启用桌面、AI、容器、代理、Tailscale、Mosh 或业务服务。时区与 locale 沿用共享配置的 `Asia/Shanghai` 和 `zh_CN.UTF-8`。
+启用系统级 Docker 和 rootless Docker，`chumeng` 加入 `docker` 组，Docker CLI 默认连接 rootless 用户 socket。启用 linger，让用户服务在开机时启动、退出 SSH 后保持运行。不启用桌面、AI、代理、Tailscale、Mosh 或业务服务。时区与 locale 沿用共享配置的 `Asia/Shanghai` 和 `zh_CN.UTF-8`。
+
+登录后使用 `docker info` 查看 rootless 状态，通过 `systemctl --user status docker` 查看用户服务状态。加入 `docker` 组后需重新登录，之后可使用 `docker -H unix:///var/run/docker.sock info` 访问系统级 Docker，无需 sudo。
 
 ## 安装前核对（只读）
 
