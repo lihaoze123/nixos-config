@@ -23,6 +23,17 @@ in
   home.packages = lib.concatLists
     (lib.mapAttrsToList (name: ps: lib.optionals cfg.${name}.enable ps) packages);
 
+  xdg.mimeApps = lib.mkIf cfg.edge.enable {
+    enable = true;
+    defaultApplications = lib.genAttrs [
+      "text/html"
+      "application/xhtml+xml"
+      "x-scheme-handler/http"
+      "x-scheme-handler/https"
+    ]
+      (_: [ "microsoft-edge.desktop" ]);
+  };
+
   programs.obs-studio.enable = cfg.obs.enable;
 
   programs.vscode = lib.mkIf cfg.vscode.enable {
