@@ -6,6 +6,7 @@
     ./hardware.nix
     ./disk-config.nix
     ./cloudreve.nix
+    ./wastebin.nix
   ];
 
   my = {
