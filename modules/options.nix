@@ -1,4 +1,4 @@
-{ config, lib, ... }:
+{ config, lib, pkgs, ... }:
 let
   inherit (lib) mkEnableOption mkOption types;
   cfg = config.my;
@@ -42,7 +42,29 @@ in
       description = "Host-specific Home Manager modules for my.user.name.";
     };
 
-    cli.extra.enable = mkEnableOption "commonly used command-line tools beyond the minimal system";
+    cli = {
+      packages = mkOption {
+        type = types.listOf types.package;
+        default = with pkgs; [ yazi fd fzf ripgrep eza bat gh jq just difftastic tmux ];
+        description = "Base CLI packages; hosts may select a smaller set or add individual extra tools.";
+      };
+      extra.enable = mkEnableOption "commonly used command-line tools beyond the minimal system";
+    };
+    shell.profile = mkOption {
+      type = types.enum [ "full" "minimal" ];
+      default = "full";
+      description = "Fish profile; minimal keeps Starship and zoxide but omits Atuin and nix-index/comma.";
+    };
+    editor.neovim.profile = mkOption {
+      type = types.enum [ "full" "minimal" ];
+      default = "full";
+      description = "Neovim profile; minimal ships a basic init without LazyVim or its development tools.";
+    };
+    nix.cacheProfile = mkOption {
+      type = types.enum [ "private" "public" ];
+      default = "private";
+      description = "Cache policy; public uses only cache.nixos.org and requires no private cache credentials.";
+    };
     ai.enable = mkEnableOption "Claude Code, Codex and OpenCode CLI tools";
 
     desktop = {

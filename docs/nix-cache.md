@@ -3,6 +3,7 @@
 R2 按命令启用，默认安装只查询官方缓存和清华镜像。手动上传采用“导出本地签名缓存，再用 rclone 上传”的流程。
 配置位于 [modules/nixos/nix-cache.nix](../modules/nixos/nix-cache.nix)，通过共享模块
 应用到 laptop、home、class、base；nixos 别名继承 laptop，installer 保持独立。
+`vps` 使用 `my.nix.cacheProfile = "public"`，只查询官方缓存，不启用下文的 R2 凭据与私有缓存信任；默认 `"private"` 保持已有主机的行为。
 
 ## 配置在哪里
 

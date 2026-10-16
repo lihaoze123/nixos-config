@@ -25,23 +25,13 @@ in
       ui = {
         default-command = "log";
       };
-      merge-tools.difft.diff-invocation-mode = "file-by-file";
+      merge-tools.difft = lib.mkIf (builtins.elem pkgs.difftastic osConfig.my.cli.packages) {
+        diff-invocation-mode = "file-by-file";
+      };
     };
   };
 
-  home.packages = with pkgs; [
-    yazi
-    fd
-    fzf
-    ripgrep
-    eza
-    bat
-    gh
-    jq
-    just
-    difftastic
-    tmux
-  ] ++ lib.optionals osConfig.my.cli.extra.enable [
+  home.packages = osConfig.my.cli.packages ++ (with pkgs; lib.optionals osConfig.my.cli.extra.enable [
     lazygit
     zellij
     tealdeer
@@ -57,5 +47,5 @@ in
     satty
     grim
     slurp
-  ];
+  ]);
 }

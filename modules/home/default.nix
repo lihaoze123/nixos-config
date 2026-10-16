@@ -16,7 +16,7 @@
   home.homeDirectory = osConfig.my.user.home;
   xdg.configFile."nix/nix.conf".text = ''
     # Project caches are selected explicitly by nur-with-caches.
-    substituters = ${pkgs.lib.concatStringsSep " " inputs.nur-packages.lib.cacheConfig.base}
+    substituters = ${lib.concatStringsSep " " (if osConfig.my.nix.cacheProfile == "public" then [ "https://cache.nixos.org" ] else inputs.nur-packages.lib.cacheConfig.base)}
   '';
 
   home.packages = with pkgs;[

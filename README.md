@@ -1,6 +1,6 @@
 # NixOS 配置仓库
 
-模块化 NixOS + Home Manager 配置，支持 laptop、home、class 三台主机，以及供新机器首次安装的最小配置 `base`。各主机选择一个 profile（`workstation` 或 `personal`），再在自己的 `default.nix` 中覆盖 `my.*` 开关。日常应用全部声明在配置中，`nix profile` 只用于试用；编程环境由各项目自己的 devShell 管理。
+模块化 NixOS + Home Manager 配置，支持 laptop、home、class 桌面主机、ARM64 Oracle Cloud `vps`，以及供新机器首次安装的最小配置 `base`。桌面主机选择一个 profile（`workstation` 或 `personal`），再在自己的 `default.nix` 中覆盖 `my.*` 开关。日常应用全部声明在配置中，`nix profile` 只用于试用；编程环境由各项目自己的 devShell 管理。
 
 ## 安装与构建
 
@@ -18,6 +18,7 @@ nixos-rebuild build --flake .#base
 
 功能开关、应用安装、项目环境及迁移注意事项见 [分阶段安装指南](docs/installation-profiles.md)。
 class 的分区、首次安装和登录命令见 [class 双系统安装指南](docs/class-installation.md)。
+VPS 的整盘 ext4 布局、精简软件与 nixos-anywhere 安装命令见 [Oracle Cloud VPS 安装指南](docs/vps-installation.md)。
 
 ### 自定义安装镜像
 
@@ -61,7 +62,7 @@ ssh root@<IP>
 - `hosts/<主机>/`：选择 profile、覆盖开关，并放置硬件与单主机配置；`home.nix` 为该主机的 Home Manager 覆盖。`hosts/base/` 是功能全关的最小配置，`hosts/installer/` 为独立安装镜像。
 - 自定义软件包在独立 [nur-packages](https://github.com/lihaoze123/nur-packages) 仓库维护；本仓库通过 Flake 输入引用。
 - `templates/project/`：通用 devShell 模板（`#project`）和 Java 8 Servlet/JSP 可执行 JAR 模板（`#java-webapp`）。
-- `secrets/`：系统与 Home Manager 共用的 age 加密凭据，收件人规则见 `secrets/secrets.nix`。
+- `secrets/`：凭据统一由 ragenix 管理，收件人见 `secrets/secrets.nix`。
 
 ## 常用操作
 

@@ -19,6 +19,7 @@ Shared modules, Home Manager and the host name are wired in by `mkHost` in `../l
 - `class/` - Minimal base-derived system with Btrfs partitions alongside Windows; see [installation guide](../docs/class-installation.md)
 - `home/` - Home desktop with NVIDIA, printing and Syncthing
 - `base/` - Minimal configuration for installing a new machine
+- `vps/` - ARM64 Oracle Cloud server with SSH, selected CLI tools and whole-disk disko; see [installation guide](../docs/vps-installation.md)
 - `installer/` - Standalone minimal live ISO with root SSH access using the laptop public key
 
 ## Adding a New Host
@@ -29,6 +30,11 @@ Shared modules, Home Manager and the host name are wired in by `mkHost` in `../l
 4. Copy `hardware-configuration.nix` to the new host directory
 5. Add `nixosConfigurations.new-host = mkHost "new-host";` to `flake.nix`
 6. Add `home.nix` and `my.home.imports = [ ./home.nix ];` if the host needs Home Manager overrides; set `my.configPath = null;` when the machine has no checkout at `~/nixos-config`
+
+`mkHost "name"` defaults to x86_64 Linux. For another architecture use
+`mkHost { name = "vps"; system = "aarch64-linux"; }`; this also passes the correct
+architecture to Home Manager and package inputs. The VPS uses a hand-written
+`hardware.nix` with QEMU guest support and disko-owned filesystems.
 
 ## Usage
 

@@ -10,6 +10,7 @@
 | `home` | `personal` | dae；NVIDIA、打印、Syncthing 在 `hosts/home/` |
 | `class` | `workstation` | 微信拼音；Plymouth、Codex computer use、Windows 字体、CachyOS 内核、dae、Podman、libvirt；Btrfs + 独立 ESP，保留 Windows |
 | `base` | 无 | 最小系统：启动、网络、用户、SSH、防火墙、Shell、Git/Jujutsu、Neovim、direnv，无图形会话 |
+| `vps` | 无 | Oracle ARM64：SSH、精简 CLI/Fish/Neovim、DHCP 双栈、整盘 ext4 + EFI、zram；见 [VPS 安装指南](vps-installation.md) |
 
 三台主机使用同一套桌面：Niri + DankMaterialShell，登录界面为 Dank Greeter（greetd）。niri 布局统一使用 `modules/home/desktop/niri/config.kdl`，各主机只在显示器输出（`my.desktop.outputs`，桌面与 greeter 共用）上不同。改变登录管理器配置时，用 `sudo nixos-rebuild boot` 后重启。
 
@@ -21,6 +22,7 @@ laptop、home、class、base 共用 `modules/nixos/nix-cache.nix` 的缓存信�
 首次构建使用的是机器当前的缓存配置；需要下载 Windows 字体的设备可先关闭
 `fonts.windows`，部署缓存配置后再开启字体并构建。
 日常上传其他输出、校验、密钥轮换与清理见 [私有 R2 缓存维护](nix-cache.md)。
+`vps` 设置 `my.nix.cacheProfile = "public"`，系统与 Home Manager 都只使用官方缓存，不引入 R2 凭据或私有缓存信任。
 
 `base` 有自己的 `hosts/base/`。新机器上安装前，先用目标机器的硬件配置替换占位文件：
 
@@ -45,6 +47,8 @@ nixos-rebuild build --flake .#base
   };
 }
 ```
+
+精简 CLI 时可在主机中设置 `my.cli.packages`，替换默认基础工具列表；`cli.extra.enable` 仍控制整组附加工具。`my.shell.profile = "minimal"` 关闭 Atuin 与 nix-index/comma，保留 Fish、Starship、zoxide；`my.editor.neovim.profile = "minimal"` 使用基础 init，不链接 LazyVim 或携带开发工具链。这些 profile 默认均为 `"full"`，已有主机行为不变。
 
 | 开关 | 管理的内容 | workstation | personal |
 | --- | --- | --- | --- |

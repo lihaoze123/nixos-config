@@ -11,6 +11,10 @@
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    deploy-rs = {
+      url = "github:serokell/deploy-rs";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nur-packages = {
       url = "github:lihaoze123/nur-packages";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -64,6 +68,10 @@
       nixosConfigurations.nixos = self.nixosConfigurations.laptop;
       # Minimal system for new machines; optional features stay off.
       nixosConfigurations.base = mkHost "base";
+      nixosConfigurations.vps = mkHost {
+        name = "vps";
+        system = "aarch64-linux";
+      };
       # Live installer stays independent of the installed hosts' shared modules.
       nixosConfigurations.installer = nixpkgs.lib.nixosSystem {
         inherit system;
@@ -71,7 +79,22 @@
       };
 
       packages.${system}.installer-iso = self.nixosConfigurations.installer.config.system.build.isoImage;
-      apps.${system}.with-caches = inputs.nur-packages.apps.${system}.with-caches;
+      apps.${system} = {
+        with-caches = inputs.nur-packages.apps.${system}.with-caches;
+        deploy = inputs.deploy-rs.apps.${system}.default;
+      };
+      deploy.nodes.vps = {
+        # Logical node name; pass the actual address with --hostname when deploying.
+        hostname = "vps";
+        sshUser = "chumeng";
+        remoteBuild = true;
+        autoRollback = true;
+        magicRollback = true;
+        profiles.system = {
+          user = "root";
+          path = inputs.deploy-rs.lib.aarch64-linux.activate.nixos self.nixosConfigurations.vps;
+        };
+      };
       templates.project = {
         path = ./templates/project/devshell;
         description = "Independent project devShells for Rust, C++, Node.js, Python and Java";

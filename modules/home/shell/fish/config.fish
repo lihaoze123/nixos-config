@@ -18,13 +18,15 @@ if command -q try
     eval (try init ~/src/tries | string collect)
 end
 
-function yy
-    set tmp (mktemp -t "yazi-cwd.XXXXXX")
-    yazi $argv --cwd-file="$tmp"
-    if read -z cwd < "$tmp"; and [ -n "$cwd" ]; and [ "$cwd" != "$PWD" ]
-    builtin cd -- "$cwd"
+if command -q yazi
+    function yy
+        set tmp (mktemp -t "yazi-cwd.XXXXXX")
+        yazi $argv --cwd-file="$tmp"
+        if read -z cwd < "$tmp"; and [ -n "$cwd" ]; and [ "$cwd" != "$PWD" ]
+            builtin cd -- "$cwd"
+        end
+        rm -f -- "$tmp"
     end
-    rm -f -- "$tmp"
 end
 
 direnv hook fish | source

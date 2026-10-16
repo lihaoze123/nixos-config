@@ -1,15 +1,18 @@
-{ config, lib, pkgs, inputs, ... }:
+{ config, lib, pkgs, inputs, osConfig, ... }:
+let
+  full = osConfig.my.shell.profile == "full";
+in
 {
   imports = [ inputs.nix-index-database.homeModules.default ];
 
   programs.nix-index = {
-    enable = true;
+    enable = full;
     package = inputs.nix-index-database.packages.${pkgs.stdenv.hostPlatform.system}.nix-index-with-small-db;
     enableFishIntegration = true;
     enableBashIntegration = false;
     enableZshIntegration = false;
   };
-  programs.nix-index-database.comma.enable = true;
+  programs.nix-index-database.comma.enable = full;
 
   programs.fish = {
     enable = true;
@@ -56,7 +59,7 @@
   };
 
   programs.atuin = {
-    enable = true;
+    enable = full;
     enableFishIntegration = true;
     enableBashIntegration = false;
     # Use Ctrl+R for Atuin; keep Fish's usual up-arrow history behaviour.
