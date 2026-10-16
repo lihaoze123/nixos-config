@@ -17,6 +17,10 @@ Home Manager 把插件加入 Fcitx5 的 addons，并安装上述命令。`~/.con
 由仓库的 `modules/home/desktop/fcitx5/config/profile` 管理，已包含 `wetype-im`，默认中文输入法仍为 Rime。
 更新插件使用 `nix flake update vtype-linux`。
 
+当前锁定上游 2026-10-16 的 `03b011c359a354bd8a790e24ae6e1552ae788359`，
+包含 19 组模糊音、自定义翻页键、输入框内显示拼音、始终使用英文标点，
+以及 GNOME Wayland 剪贴板和常用语导出的修复。
+
 ## 首次初始化
 
 腾讯引擎与词库不进入 Nix 包。切换到新系统后，先退出 Fcitx5，再从腾讯服务器下载微信输入法
@@ -74,6 +78,11 @@ PinyinScheme=小鹤双拼
 由官方引擎处理。其他双拼方案尚未接入图形设置。
 
 `wetype-demo` 跟随这个配置；临时用全拼可运行 `WETYPE_DOUBLE_PIN=0 wetype-demo nihao`。
+
+同一设置界面也可调整 19 组模糊音、上一页/下一页按键、输入框内显示拼音
+和始终使用英文标点。模糊音默认全部关闭，逗号/句号翻页需自行配置；
+更新插件后保留已有设置。
+
 ## 云功能
 
 ```bash

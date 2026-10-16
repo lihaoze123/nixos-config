@@ -1273,11 +1273,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1791942563,
-        "narHash": "sha256-MfdRhqmG/6ULEDO0HcOXtw16+eRKZezRXxbOJhdvrIA=",
+        "lastModified": 1792135511,
+        "narHash": "sha256-s5oCuUin2OovdujD4eXeX1QEOQ+w234ObA9zGx5UxKg=",
         "owner": "zhl-HFUT",
         "repo": "vtype-linux",
-        "rev": "879bbe830d262321031bacb9b1321af2729582b8",
+        "rev": "03b011c359a354bd8a790e24ae6e1552ae788359",
         "type": "github"
       },
       "original": {
