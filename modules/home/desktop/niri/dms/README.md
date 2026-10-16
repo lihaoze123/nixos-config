@@ -7,7 +7,7 @@ Home Manager 通过官方 DMS v1.6.2 模块管理 `dms.service`，运行包使�
 仓库锁定的 `pkgs.dms-shell` 和 `pkgs.quickshell`。DMS 随 Niri 图形会话启动，
 负责状态栏、通知、壁纸、启动器、剪贴板和锁屏。
 `modules/nixos/desktop/default.nix` 提供 Dank Greeter、UPower、电源模式、AccountsService 和 dsearch；
-laptop 的指纹 PAM 在 `hosts/laptop/default.nix`。
+laptop 的指纹驱动及 PAM 开关在 `hosts/laptop/hardware.nix`，目前均已关闭。
 
 `niri/config.kdl` 来自本目录的 `niri.kdl`，它包含 `base.kdl`。所有主机共用
 `modules/home/desktop/niri/config.kdl`（有仓库检出时为可编辑链接，`my.configPath = null` 时为 store 副本）；

@@ -57,12 +57,12 @@ reboot
 - 启动 greetd 前，会从 `/home/chumeng` 复制 DMS 的 `settings.json`、`session.json` 与配色，因此主题和壁纸与桌面一致。
 - greeter 的 niri 配置由 `modules/nixos/desktop/default.nix` 的 `compositor.customConfig` 提供通用部分（触摸板轻触等），输出来自 `hosts/laptop/default.nix` 的 `my.desktop.outputs`（eDP-1、2 倍缩放），桌面与 greeter 共用；`graphical-boot` 模块追加与 Plymouth 一致的背景色。修改缩放只需改这一处；Plymouth 素材缩放仍由 `my.desktop.graphicalBoot.scale` 单独设置。
 - 登录只用密码：greetd 通过 `login` PAM substack 认证，`login.fprintAuth = false`。greetd 只有一个 PAM 会话，`pam_fprintd` 排在密码前面时，回车后要等指纹超时才验证密码，所以登录不启用指纹。用密码登录也能自动解锁 GNOME Keyring。
-- laptop 在 `hosts/laptop/hardware.nix` 中启用指纹驱动，指纹用于锁屏（DMS 自带的 `fprint` 会话，和密码并行）、sudo 和 polkit。TTY 登录同样只用密码。
+- laptop 在 `hosts/laptop/hardware.nix` 中关闭了指纹驱动及 PAM 指纹认证，登录、sudo 和 polkit 均使用密码。已录入的指纹数据保留在 `/var/lib` 中。
 
 ## 锁屏
 
 - 手动锁屏：**Super+L**（HHKB 的 ◇ 键），对应 `dms ipc call lock lock`。没有用 Ctrl+Alt+L，因为它会抢走 JetBrains 的 Reformat Code。
-- 锁屏同时运行两个 PAM 会话：`dankshell` 只验证密码，DMS 自带的 `fprint` 会话负责指纹（DMS 设置中的指纹开关 `enableFprint`）。`dankshell` 不能再开 `fprintAuth`，否则两个会话会抢同一个指纹设备，导致指纹成功率低、键盘输入的密码要等指纹超时才验证。
+- 锁屏使用 `dankshell` PAM 会话验证密码。系统指纹服务已随驱动关闭，DMS 的 `enableFprint` 开关即使仍开启，也无法使用指纹解锁。
 - 系统中没有启动 swayidle/swaylock，锁屏与空闲只由 DMS 管理。
 
 ### 空闲策略（在 DMS 设置界面中手动设置）
@@ -121,7 +121,7 @@ Nautilus 是默认的目录打开程序。udiskie 不显示独立托盘图标，
 | GRUB 隐藏/Esc 调出、Plymouth 开关机画面 | 已实机验证 |
 | Plymouth → greeter 无厂商 logo 闪回（greeter 9.1s 起，Plymouth 10.6s 保留画面退出） | 已实机验证 |
 | Greeter 密码登录（回车立即生效）、注销返回 | 待重启验证（已改为登录只用密码） |
-| Super+L 锁屏，密码/指纹解锁 | 已实机验证 |
+| Super+L 锁屏，密码/指纹解锁 | 此前已实机验证；现已关闭指纹，待部署后验证密码解锁 |
 | 10 分钟锁屏/12 分钟关屏/不自动挂起（AC 与电池两套已在 DMS 界面设置） | 已实机验证 |
 | 挂起/合盖前锁屏 | 已实机验证 |
 | DMS 设置在重启服务、重新登录、重建后保留 | 已实机验证 |
