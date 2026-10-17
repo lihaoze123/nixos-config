@@ -58,7 +58,7 @@ in
   };
 
   nixpkgs.config.allowUnfree = true;
-  nix.settings.substituters = [ "https://mirror.tuna.tsinghua.edu.cn/nix-channels/store" ];
+  nix.settings.substituters = [ "https://mirrors.cernet.edu.cn/nix-channels/store" ];
 
   system.stateVersion = "25.05";
 }

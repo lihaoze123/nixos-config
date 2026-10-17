@@ -11,7 +11,7 @@
 
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
-    substituters = [ "https://mirror.tuna.tsinghua.edu.cn/nix-channels/store" ];
+    substituters = [ "https://mirrors.cernet.edu.cn/nix-channels/store" ];
   };
 
   networking.hostName = "installer";

@@ -1,6 +1,7 @@
 { config, lib, inputs, ... }:
 let
   caches = inputs.nur-packages.lib.cacheConfig;
+  baseCaches = [ "https://mirrors.cernet.edu.cn/nix-channels/store" "https://cache.nixos.org/" ];
   private = config.my.nix.cacheProfile == "private";
   # Permanently revoke lantian after the server compromise (upstream issue #110).
   # Keep this guard while older nur-packages locks still advertise the cache.
@@ -19,7 +20,7 @@ in
   };
 
   nix.settings = {
-    substituters = lib.mkForce (if private then caches.base ++ map (cache: cache.url) projectCaches else [ "https://cache.nixos.org" ]);
+    substituters = lib.mkForce (if private then baseCaches ++ map (cache: cache.url) projectCaches else [ "https://cache.nixos.org" ]);
     extra-substituters = lib.mkForce [ ];
     extra-trusted-public-keys = lib.optionals private (map (cache: cache.key) projectCaches);
     netrc-file = lib.mkIf private config.age.secrets.attic-netrc.path;

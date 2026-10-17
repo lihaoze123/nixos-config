@@ -24,7 +24,7 @@ VPS 的整盘 ext4 布局、精简软件与 nixos-anywhere 安装命令见 [Orac
 
 `installer` 是独立的 x86_64 Linux 安装环境，使用 NixOS minimal ISO，开机启用 SSH，
 并允许 `secrets/keys.nix` 中的 `laptop` 公钥登录 root。镜像包含 Git、Jujutsu（`jj`）、Vim、NetworkManager
-和 Nix flakes 支持，配置了清华 Nix 缓存；不导入日常主机的共享配置和功能模块。
+和 Nix flakes 支持，配置了 CERNET Nix 缓存；不导入日常主机的共享配置和功能模块。
 
 在仓库根目录构建镜像，使用独立的输出链接保留日常系统构建的 `result`：
 
