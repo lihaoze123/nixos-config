@@ -14,7 +14,7 @@
 
 三台主机使用同一套桌面：Niri + DankMaterialShell，登录界面为 Dank Greeter（greetd）。niri 布局统一使用 `modules/home/desktop/niri/config.kdl`，各主机只在显示器输出（`my.desktop.outputs`，桌面与 greeter 共用）上不同。改变登录管理器配置时，用 `sudo nixos-rebuild boot` 后重启。
 
-laptop、home、class、base 共用 `modules/nixos/nix-cache.nix` 的下载源与公钥，默认启用公开项目缓存和私有 Attic。
+laptop、home、class、base 共用 `modules/nixos/nix-cache.nix` 的下载源与公钥，仅启用官方缓存、CERNET 镜像和私有 Attic。
 普通 Nix 命令自动使用这些缓存，私有下载凭据保存在 `secrets/attic-netrc.age`；installer 保持独立。
 凭据由 agenix 解密为 root 可读文件，nix-daemon 在配置激活后使用它，上传仍手动执行。
 新机器须先将解密公钥加入 `secrets/keys.nix` 与凭据收件人规则，重新加密，并配置

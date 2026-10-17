@@ -30,15 +30,17 @@ nur:dJh05Op2+iv3GCHoaF2+1FfQtqcUZzf/4v/ZTaLHomY=
 
 ## 下载与上传
 
-laptop、home、class、base 默认启用官方缓存、[CERNET 镜像](https://help.mirrors.cernet.edu.cn/nix-channels/)、已有公开项目缓存和私有 Attic。
+laptop、home、class、base 仅启用官方缓存、[CERNET 镜像](https://help.mirrors.cernet.edu.cn/nix-channels/)和私有 Attic。
 镜像地址为 `https://mirrors.cernet.edu.cn/nix-channels/store`。
+自定义包统一从私有 Attic 获取，不再启用 Codex、Niri computer-use 和 fcitx5-vinput
+的项目 Cachix 下载源及其签名公钥，减少逐源查询；NUR 新增项目缓存也不会自动启用。
 共享系统模块统一声明下载源、公钥和 daemon 的只读 netrc；Home Manager 不再覆盖下载源。
 普通 `nix build`、`nix develop` 和系统构建命令会直接查询配置中的缓存，无需包装命令或缓存组。
 长期使用的软件仍声明在 NixOS / Home Manager 中；`nix profile` 仅用于临时试用。
 
 上游维护者于 2026-10-15 [确认缓存与构建服务器遭入侵](https://github.com/xddxdd/nix-cachyos-kernel/issues/110#issuecomment-6189203183)。
 永久弃用 `https://attic.xuyh0120.win/lantian` 及 `lantian:` 签名公钥，即使服务恢复也不重新启用。
-共享模块同时按地址和公钥过滤旧 NUR 锁文件中的配置，保留官方、CERNET 及其他项目缓存。
+共享模块仅引用 NUR 的私有 `nur` 缓存地址和公钥，旧锁文件中的 lantian 配置不会被引入。
 CachyOS 内核改由可信环境编译并上传私有 Attic；撤销缓存信任不会替换本地已安装或正在运行的内核。
 
 例如构建单个 NUR 包：
