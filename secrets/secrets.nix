@@ -10,6 +10,7 @@ in
   "media-credentials.age".publicKeys = [ keys.vps keys.laptop keys.class-user ];
   "attic-server-env.age".publicKeys = [ keys.vps keys.laptop keys.class-user ];
   "forgejo-admin-password.age".publicKeys = [ keys.vps keys.laptop keys.class-user ];
+  "memos-admin-password.age".publicKeys = [ keys.vps keys.laptop keys.class-user ];
   "attic-netrc.age".publicKeys = users;
   "attic-upload-token.age".publicKeys = homeUsers;
   "dae-nodes.age".publicKeys = users;

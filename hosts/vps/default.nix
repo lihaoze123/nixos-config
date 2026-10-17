@@ -10,6 +10,7 @@
     ./media.nix
     ./attic.nix
     ./forgejo.nix
+    ./memos.nix
     ./network-tuning.nix
   ];
 

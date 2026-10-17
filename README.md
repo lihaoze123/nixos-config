@@ -18,7 +18,7 @@ nixos-rebuild build --flake .#base
 
 功能开关、应用安装、项目环境及迁移注意事项见 [分阶段安装指南](docs/installation-profiles.md)。
 class 的分区、首次安装和登录命令见 [class 双系统安装指南](docs/class-installation.md)。
-VPS 的整盘 ext4 布局、精简软件与 nixos-anywhere 安装命令见 [Oracle Cloud VPS 安装指南](docs/vps-installation.md)；自动追番与媒体库见 [AutoBangumi + Emby 使用说明](docs/vps-media.md)；私有代码托管见 [Forgejo 使用说明](docs/vps-forgejo.md)。
+VPS 的整盘 ext4 布局、精简软件与 nixos-anywhere 安装命令见 [Oracle Cloud VPS 安装指南](docs/vps-installation.md)；自动追番与媒体库见 [AutoBangumi + Emby 使用说明](docs/vps-media.md)；私有代码托管见 [Forgejo 使用说明](docs/vps-forgejo.md)；笔记服务见 [Memos 使用说明](docs/vps-memos.md)。
 
 ### 自定义安装镜像
 
