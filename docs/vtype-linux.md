@@ -1,7 +1,7 @@
 # VType Linux（微信拼音）
 
-微信拼音 Fcitx5 插件由上游 [vtype-linux](https://github.com/zhl-HFUT/vtype-linux) flake 提供
-（flake 输入 `vtype-linux`），包含插件、ARM64 宿主、AOSP 运行库、静态 QEMU、wxc 以及
+微信拼音 Fcitx5 插件使用 [NUR 配方](https://github.com/lihaoze123/nur-packages/tree/main/pkgs/vtype-linux)
+打包上游 [vtype-linux](https://github.com/zhl-HFUT/vtype-linux)，包含插件、ARM64 宿主、AOSP 运行库、静态 QEMU、wxc 以及
 `wetype-setup`、`wetype-check`、`wetype-demo`、`wetype-cloud` 命令。上游 Nix 说明见
 [docs/NixOS.md](https://github.com/zhl-HFUT/vtype-linux/blob/main/docs/NixOS.md)。
 
@@ -15,11 +15,14 @@ my.input.vtype.enable = true;
 
 Home Manager 把插件加入 Fcitx5 的 addons，并安装上述命令。`~/.config/fcitx5/profile`
 由仓库的 `modules/home/desktop/fcitx5/config/profile` 管理，已包含 `wetype-im`，默认中文输入法仍为 Rime。
-更新插件使用 `nix flake update vtype-linux`。
+NUR 配方更新后，使用 `nix flake update nur-packages` 更新客户端锁定版本。
 
 当前锁定上游 2026-10-16 的 `03b011c359a354bd8a790e24ae6e1552ae788359`，
 包含 19 组模糊音、自定义翻页键、输入框内显示拼音、始终使用英文标点，
 以及 GNOME Wayland 剪贴板和常用语导出的修复。
+云候选有效期使用上游实现，默认 1500ms，可通过 `cloud.json` 的 `cloud_timeout_ms`
+设置为 200–5000ms。NUR 额外保留身份锁竞争修复：后台同步占锁时，云查询最多等待
+300ms，避免短暂竞争使查询立即失败；网络请求超时仍为上游的 1.2 秒。
 
 ## 首次初始化
 

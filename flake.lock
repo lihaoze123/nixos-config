@@ -897,11 +897,11 @@
         "nixpkgs": "nixpkgs_10"
       },
       "locked": {
-        "lastModified": 1792248045,
-        "narHash": "sha256-4XGiN+xubDhCfEQjX9GIVC6H+HEkb95Ny1NA8v9x3oQ=",
+        "lastModified": 1792248468,
+        "narHash": "sha256-iPA729Ej9GMlZYTJIu5U7u67emw2cbqRZZxS9LExv0Q=",
         "owner": "lihaoze123",
         "repo": "nur-packages",
-        "rev": "75dc747139b80347d2867b41184a99c2d7195c8f",
+        "rev": "7d162d0ce92400ef5902ed3e57fd95aa4929baff",
         "type": "github"
       },
       "original": {
@@ -1005,7 +1005,6 @@
         "ragenix": "ragenix",
         "rust-overlay": "rust-overlay_2",
         "vocotype": "vocotype",
-        "vtype-linux": "vtype-linux",
         "xwayland-satellite": "xwayland-satellite"
       }
     },
@@ -1216,26 +1215,6 @@
         "owner": "LeonardNJU",
         "ref": "v5.0.1",
         "repo": "VocoType-linux",
-        "type": "github"
-      }
-    },
-    "vtype-linux": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1792135511,
-        "narHash": "sha256-s5oCuUin2OovdujD4eXeX1QEOQ+w234ObA9zGx5UxKg=",
-        "owner": "zhl-HFUT",
-        "repo": "vtype-linux",
-        "rev": "03b011c359a354bd8a790e24ae6e1552ae788359",
-        "type": "github"
-      },
-      "original": {
-        "owner": "zhl-HFUT",
-        "repo": "vtype-linux",
         "type": "github"
       }
     },

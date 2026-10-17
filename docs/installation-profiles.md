@@ -58,7 +58,7 @@ nixos-rebuild build --flake .#base
 | `desktop.utilities` | ghostty、neovide、pavucontrol、GNOME 磁盘、baobab、Filelight | ✓ | ✓ |
 | `apps.edge` / `apps.mpv` | Microsoft Edge；mpv | ✓ | ✓ |
 | 其他 `apps.*` | `chrome`、`wechat`、`qq`、`telegram`、`vlc`、`obs`、`ytDlp`、`ffmpeg`、`vscode`（含原来的六个扩展）、`anki`、`obsidian`、`typesetting`（Typst、Pandoc、Tectonic），每个应用一个开关 | | |
-| `input.vtype` | 微信拼音 Fcitx5 插件，来自上游 vtype-linux flake，见 [VType Linux](vtype-linux.md) | | |
+| `input.vtype` | 微信拼音 Fcitx5 插件，来自 NUR 的 vtype-linux 包，见 [VType Linux](vtype-linux.md) | | |
 | `fonts.extra` / `fonts.windows` | 额外中文与排版字体；chinese-fonts-overlay 的 Windows 字体 | extra | extra |
 | `hardware.bluetooth` | 蓝牙及桌面小程序 | ✓ | ✓ |
 | `network.edunet` / `network.tailscale` | 校园网认证；Tailscale | edunet | 两者 |
