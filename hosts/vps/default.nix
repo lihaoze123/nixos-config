@@ -9,6 +9,7 @@
     ./wastebin.nix
     ./media.nix
     ./attic.nix
+    ./network-tuning.nix
   ];
 
   my = {

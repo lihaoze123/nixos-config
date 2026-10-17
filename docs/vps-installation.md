@@ -37,6 +37,8 @@
 
 登录后使用 `docker info` 查看 rootless 状态，通过 `systemctl --user status docker` 查看用户服务状态。加入 `docker` 组后需重新登录，之后可使用 `docker -H unix:///var/run/docker.sock info` 访问系统级 Docker，无需 sudo。
 
+网络调优由 [network-tuning.nix](../hosts/vps/network-tuning.nix) 声明，使用内核自带的 BBR 拥塞控制与 fq 队列。`vps-wan-fq.service` 等待 `enp0s6` 出现后更新发送队列，保留网卡的 mq 多队列结构；仅设置 `net.core.default_qdisc` 不会替换已存在的队列。部署后用 `sysctl net.ipv4.tcp_congestion_control net.core.default_qdisc` 和 `tc qdisc show dev enp0s6` 核对，预期分别为 `bbr`、`fq`，以及 mq 下的 fq 子队列。运行中的临时调参不代替配置部署。
+
 ## 防火墙管理
 
 OCI 云侧对本 VPS 放行所有入站协议与端口，服务端口统一由 NixOS 的 `networking.firewall` 管理。2026-10-16 已在仅关联 VPS VNIC 的 `ig-quick-action-NSG` 中添加两条有状态入站规则：来源 `0.0.0.0/0` 和 `::/0`，协议均为“所有协议”。NSG 与子网安全列表的允许规则取并集，子网原有的窄范围规则不限制这两条放行规则。
