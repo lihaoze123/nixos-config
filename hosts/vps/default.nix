@@ -9,6 +9,7 @@
     ./wastebin.nix
     ./media.nix
     ./attic.nix
+    ./forgejo.nix
     ./network-tuning.nix
   ];
 
