@@ -26,6 +26,29 @@ ssh chumeng@<VPS_IP> 'sudo cat /run/agenix/cloudreve-admin-password'
 
 Cloudflare 的 A / AAAA 记录继续指向 VPS，保持仅 DNS 模式。无需修改 DNS，也无需 SSH 隧道。镜像中包含缩略图和媒体处理工具；当前直接启动 Cloudreve 主程序，未启动 Aria2 离线下载服务，也未开放 6888 端口。
 
+### HTTP/2 上传窗口
+
+网盘虚拟主机将 `http2_body_preread_size` 与 `client_body_buffer_size` 均设为 `32m`，
+为经 DMIT 等高延迟线路上传提供更大的 HTTP/2 接收窗口；Nginx 默认预读窗口为 64 KiB。
+上传继续采用流式反代，单次请求上限仍为 10 GiB；缓冲大小不代表上传文件大小限制。
+
+调整前，同一 DMIT 线路、同一个 HTTPS 接口的两轮 2 MiB 请求体测试中，HTTP/1.1 为
+6.5–6.9 Mbps，HTTP/2 为 1.06–1.12 Mbps。此测试用于定位协议差异，不代表网盘文件完整上传速度。
+参数须按 [VPS 更新流程](vps-installation.md#后续更新) 部署后生效，再重新打开网盘页面，
+使用新 HTTP/2 连接复测。上传速度仍受本地上行与两段线路带宽影响。
+
+参数说明：[Nginx HTTP/2 预读窗口](https://nginx.org/en/docs/http/ngx_http_v2_module.html#http2_body_preread_size)、
+[请求体缓冲](https://nginx.org/en/docs/http/ngx_http_core_module.html#client_body_buffer_size)。
+
+2026-10-17 先以运行态 Nginx 覆盖应用了 4 MiB 参数。
+同一 DMIT 线路、同一入口的两轮约 2 MiB HTTP/2 请求体对照中，调整前为
+1.21 / 1.23 Mbps，调整后为 6.52 / 6.62 Mbps；此结果仍不等于大文件持续上传速度。
+随后用户实际上传 256 MB 文件时显示约 3.7 MB/s，约为 30 Mbps。
+按用户要求，最终将两个窗口均增至 32 MiB，通过上述构建预览与正式部署流程持久化。
+正式配置生效后移除 `/run/nginx-http2-window.conf`、
+`/run/systemd/system/nginx.service.d/90-cloudreve-upload-window.conf` 与临时回退脚本，
+服务恢复使用系统生成的 Nginx 配置。上述速度记录对应 4 MiB 阶段，不代表 32 MiB 的测速结果。
+
 ## 数据与维护
 
 所有新数据位于 `/var/lib/cloudreve/`，父目录权限为 `0700 root:root`：

@@ -98,6 +98,11 @@
     virtualHosts."pan.chumeng.xyz" = {
       enableACME = true;
       forceSSL = true;
+      extraConfig = ''
+        # Give HTTP/2 uploads room to progress over the high-latency relay.
+        http2_body_preread_size 32m;
+        client_body_buffer_size 32m;
+      '';
       locations."/" = {
         proxyPass = "http://127.0.0.1:5212";
         proxyWebsockets = true;
