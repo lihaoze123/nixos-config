@@ -53,18 +53,18 @@ fcitx5/
 `"vinput"`，home 仍用 VoCoType。Vinput 需要同时启用 `my.input.speech.enable`
 和 `my.input.speech.doubao.enable`。两个后端互斥安装，避免争用快捷键。
 
-恢复之前固定的 Vinput Lite 2.4.1，按住 `F9` 说话、松开提交，默认经
+使用 NUR 提供的 Vinput Lite 2.4.1，按住 `F9` 说话、松开提交，默认经
 豆包输入法整理；选中文字后按住 `Ctrl+F9` 说出修改指令（仍使用 DeepSeek）。
 `Shift+F9` 打开菜单，可选择原始听写。运行 `vinput-gui` 查看状态；
 参数由 [vinput.nix](vinput.nix) 管理，GUI 修改不会覆盖声明式配置。
 
 Qt 应用按住快捷键时可能发送带 `Repeat` 标记的模拟松开/按下事件，原版
 Vinput 会因此提前停止或取消录音，表现为“正在录音”约半秒后消失。
-本仓库的 [按键补丁](patches/vinput-key-repeat.patch) 忽略语音、编辑和菜单快捷键的
+NUR 中的 [按键补丁](https://github.com/lihaoze123/nur-packages/blob/main/pkgs/fcitx5-vinput-lite/vinput-key-repeat.patch) 忽略语音、编辑和菜单快捷键的
 自动重复事件。微信的旧 Qt/Fcitx4 接口不带此标记，按住模式会在后续按下到来时
 取消待处理的停止计时，避免把重复按键当成点按切换；真正松开仍按原来的
 500 毫秒防抖延迟停止。不需要关闭整个桌面的按键重复。
-[C++ 回归测试](tests/test-vinput-key-repeat.cpp) 在隔离配置中重放此类事件，
+[C++ 回归测试](https://github.com/lihaoze123/nur-packages/blob/main/pkgs/fcitx5-vinput-lite/test-vinput-key-repeat.cpp) 在隔离配置中重放此类事件，
 覆盖 Hold、Tap、Both 模式和普通按键透传，随 Vinput 软件包的检查阶段运行；
 测试不连接实际会话 D-Bus、不录音、不联网。补丁在应用配置并重启 Fcitx5 后生效。
 

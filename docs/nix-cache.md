@@ -50,7 +50,8 @@ nix build github:lihaoze123/nur-packages#dbx
 ```
 
 系统重建沿用现有流程，只有明确准备构建或部署时才执行，不需要额外传入缓存参数。
-缓存命中要求 store path 一致，各设备应尽量使用相同依赖锁定版本。
+缓存命中要求 store path 一致。主机直接使用 NUR 自己锁定的 nixpkgs，不再通过
+`inputs.nur-packages.inputs.nixpkgs.follows` 覆盖它，避免主机更新产生与 NUR CI 不同的产物。
 
 `vps` 与 installer 使用 public 策略，不解密个人设备下载或上传 token。
 其他设备首次应用本次变更后，Nix daemon 的 netrc 路径和 Home Manager 的客户端配置才生效。
@@ -131,7 +132,11 @@ attic push private:nur --stdin --jobs 4 < cachyos-paths.txt
 
 ## CI
 
-NUR CI 的求值、构建目标保持原有范围；读取和上传改用 Attic。
+NUR 私有 CI 自动发现全部可构建包及其输出，包括 Codex、VS Code 等非自由包。
+包级任务独立构建、上传，只有全部输出在私有 Attic 命中才跳过；上游 Cachix 命中
+不会跳过转存。每次上传校验路径、哈希、大小和引用，每周以空 store 下载验证运行时闭包。
+vinput 的原版、按键重复补丁版及回归测试集中维护在 NUR；客户端直接引用
+NUR 的补丁版配方，不再引入单独的上游 Flake 或维护本地覆盖。
 `ATTIC_TOKEN` 允许 pull/push `nur`，没有缓存管理或删除权限。
 上传脚本为 NUR 的 `scripts/cache-attic.sh`，它使用 token 文件运行 `attic push`，
 不再导出暂存二进制缓存、不运行 rclone，也不向 CI 分发缓存签名私钥。

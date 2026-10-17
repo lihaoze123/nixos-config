@@ -1,21 +1,7 @@
 { config, lib, pkgs, inputs, osConfig, ... }:
 let
   enabled = osConfig.my.desktop.enable && osConfig.my.input.speech.enable && osConfig.my.input.speech.backend == "vinput";
-  vinput = inputs.fcitx5-vinput.packages.${pkgs.stdenv.hostPlatform.system}.fcitx5-vinput-lite.overrideAttrs (old: {
-    patches = (old.patches or [ ]) ++ [ ./patches/vinput-key-repeat.patch ];
-    postPatch = (old.postPatch or "") + ''
-      cp ${./tests/test-vinput-key-repeat.cpp} tests/test_vinput_key_repeat.cpp
-      cat ${./tests/vinput-key-repeat.cmake} >> tests/CMakeLists.txt
-    '';
-    cmakeFlags = (old.cmakeFlags or [ ]) ++ [ "-DBUILD_TESTING=ON" ];
-    doCheck = true;
-    checkPhase = ''
-      runHook preCheck
-      cmake --build . --target test_vinput_key_repeat -j$NIX_BUILD_CORES
-      ctest --output-on-failure -R '^vinput_key_repeat$'
-      runHook postCheck
-    '';
-  });
+  vinput = inputs.nur-packages.packages.${pkgs.stdenv.hostPlatform.system}.fcitx5-vinput-lite;
   daemon = pkgs.writeShellScript "vinput-daemon-with-deepseek" ''
     set -euo pipefail
     # agenix uses an XDG_RUNTIME_DIR placeholder; expand it at runtime.
