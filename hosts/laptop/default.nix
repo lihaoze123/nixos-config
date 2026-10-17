@@ -51,8 +51,6 @@
   # System secrets must be available before /home is mounted.
   age.identityPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
 
-  home-manager.backupFileExtension = "backup";
-
   # Wi-Fi Display discovery on the built-in Wi-Fi interface.
   networking.firewall.interfaces."wlp0s20f3" = lib.mkIf config.my.desktop.screenCast.enable {
     allowedTCPPorts = [ 45545 ];
