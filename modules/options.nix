@@ -146,7 +146,7 @@ in
     };
 
     hardware.bluetooth.enable = mkEnableOption "Bluetooth and its desktop applet";
-    kernel.cachyos.enable = mkEnableOption "CachyOS BORE kernel and binary cache";
+    kernel.cachyos.enable = mkEnableOption "CachyOS BORE kernel (cached in our private Attic)";
 
     network = {
       tailscale.enable = mkEnableOption "Tailscale networking";

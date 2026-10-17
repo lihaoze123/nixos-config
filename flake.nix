@@ -3,7 +3,7 @@
 
   inputs = {
     nixpkgs.url = "https://channels.nixos.org/nixos-unstable/nixexprs.tar.zst";
-    # Keep upstream's nixpkgs pin so the CachyOS binary cache matches.
+    # Keep upstream's nixpkgs pin for CachyOS patch compatibility and our Attic cache.
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";

@@ -35,6 +35,11 @@ laptop、home、class、base 默认启用官方缓存、清华镜像、已有公
 普通 `nix build`、`nix develop` 和系统构建命令会直接查询配置中的缓存，无需包装命令或缓存组。
 长期使用的软件仍声明在 NixOS / Home Manager 中；`nix profile` 仅用于临时试用。
 
+上游维护者于 2026-10-15 [确认缓存与构建服务器遭入侵](https://github.com/xddxdd/nix-cachyos-kernel/issues/110#issuecomment-6189203183)。
+永久弃用 `https://attic.xuyh0120.win/lantian` 及 `lantian:` 签名公钥，即使服务恢复也不重新启用。
+共享模块同时按地址和公钥过滤旧 NUR 锁文件中的配置，保留官方、清华及其他项目缓存。
+CachyOS 内核改由可信环境编译并上传私有 Attic；撤销缓存信任不会替换本地已安装或正在运行的内核。
+
 例如构建单个 NUR 包：
 
 ```bash
@@ -60,6 +65,66 @@ attic push personal:nur /nix/store/替换为实际输出路径
 Attic 默认连同依赖闭包上传，并跳过已有官方缓存签名的路径；其他机器继续从官方缓存
 获取这些公共依赖。缓存命中要求输出路径一致，主机架构和依赖版本仍会影响命中。
 ARM VPS 可以保存、分发 x86_64 输出，不能因此替代 x86_64 原生构建机。
+
+## CachyOS 内核
+
+保留 `nix-cachyos-kernel` 源码 input 和 `overlays.pinned`，不接受其上游缓存配置。
+内核输出保存在现有私有 `nur` 缓存，不新增凭据或签名密钥。更新锁文件后，
+先在可信的 x86_64 环境编译，再上传供其他设备复用；NUR 软件包 CI 不会自动构建此内核。
+
+首次撤销上游缓存信任时，不能直接上传本地旧产物；普通构建也可能复用它们。
+可在仓库根目录创建全新 chroot store，仅使用官方缓存及公钥获取工具链和公共依赖。
+以下命令需要 Linux 用户命名空间；不需要 sudo，不构建完整系统，也不激活内核：
+
+```bash
+build_root=$(mktemp -d "$HOME/.cache/cachyos-build.XXXXXX")
+nix build --store "local?root=$build_root" \
+  '.#nixosConfigurations.laptop.config.boot.kernelPackages.kernel^*' \
+  --no-update-lock-file --out-link "$build_root/result-cachyos" \
+  --print-out-paths -L \
+  --option build-users-group '' \
+  --option sandbox true --option sandbox-fallback false \
+  --option builders '' --option max-jobs 2 --option cores 12 \
+  --option accept-flake-config false --option require-sigs true \
+  --option substituters 'https://cache.nixos.org/' \
+  --option extra-substituters '' \
+  --option trusted-public-keys \
+    'cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=' \
+  --option extra-trusted-public-keys '' \
+  > "$build_root/cachyos-paths.txt"
+
+# 让 Attic 读取刚才的隔离 store，避免误上传系统 store 中的旧产物。
+NIX_REMOTE="local?root=$build_root" \
+  attic push personal:nur --stdin < "$build_root/cachyos-paths.txt"
+```
+
+云主机也应使用全新 store，仅配置官方缓存和公钥，并先核对内核 `drvPath`。
+上传直接在编译机执行，避免通过本机 SSH store 中转大型产物。若编译机和 Attic
+位于不同 OCI 区域，先通过临时 DRG/RPC 建立 VCN 私网互联，添加对端主机的 `/32`
+路由；编译机将缓存域名解析到 Attic 的私网 IP，HTTPS 仍使用原域名并校验证书。
+为临时编译机签发仅有目标缓存 push/pull 权限、短期有效的 token，以 `token-file`
+方式配置客户端，不复制个人长期上传 token。随后在编译机直接执行：
+
+```bash
+attic push private:nur --stdin --jobs 4 < cachyos-paths.txt
+```
+
+空 store 下载验证也在云上执行。验证成功后移除临时 token、私网路由与 DRG/RPC，
+并删除临时编译机及其引导卷，避免持续计费。
+
+`^*` 包含 `out`、`dev` 和 `modules`，不能只上传内核镜像而漏掉模块或开发输出。
+构建并发按机器资源调整；若其他主机的内核 derivation 不同，应另行构建其目标。
+上传后需要从另一个空 store 实际下载并验证签名、内容与依赖闭包；仅查询 narinfo
+或在已有产物的机器上构建成功，不能证明缓存完整。NVIDIA、ZFS 等外部模块属于独立产物。
+
+2026-10-17 已在全新 OCI 东京 E6 实例（32 OCPU、64 线程、128 GB 内存）重新构建
+当前 laptop/class 共用的 CachyOS BORE 7.2.8，源码 input 固定为 `b1332396df6e880d7e3b6b451c6a74132ce8cf66`。
+北京时间 13:38:54 开始、13:52:39 完成，总耗时约 13 分 45 秒，主体编译阶段为 9 分钟。
+三个输出已保存到现有 `nur` 缓存；切换至 OCI 跨区域私网后完成剩余上传，并从
+另一个空 store 下载其 73 个路径的闭包。官方或自建签名均通过校验，NarHash、NarSize 和 References 与
+远端构建结果逐项一致。三个输出的 NarHash、NarSize 也与本机原有同版本产物一致。
+临时实例、引导卷、专用网络及两端 DRG/RPC 已删除，原有路由已恢复。
+本次仅重新构建和缓存内核，没有构建或激活完整系统。
 
 ## CI
 

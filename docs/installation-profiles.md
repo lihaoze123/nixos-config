@@ -69,7 +69,7 @@ nixos-rebuild build --flake .#base
 | `services.aria2` | aria2 RPC、AriaNg 和本地 Caddy | | ✓ |
 | `virtualisation.docker` / `podman` / `libvirt` / `waydroid` | rootless Docker；Podman + Distrobox；QEMU/libvirt；Waydroid | | docker |
 | `desktop.graphicalBoot` / `codexComputerUse` / `phone` / `screenCast` / `wallpaperEngine` | Plymouth；Codex Desktop computer use；Valent；Wi-Fi 投屏；动态壁纸 | | |
-| `kernel.cachyos` | CachyOS BORE 内核及二进制缓存 | | |
+| `kernel.cachyos` | CachyOS BORE 内核，使用自建私有 Attic 缓存 | | |
 
 依赖不满足时求值会给出断言错误（例如图形类 `apps.*`、`desktop.*`、`input.speech`、`input.vtype` 需要 `desktop`，`input.speech.doubao` 需要 `input.speech`，`fonts.windows` 需要 `fonts.extra`）。开关只控制安装与服务，关闭不会删除原有用户数据。只在一台主机上存在的配置（指纹、打印、Syncthing、NVIDIA）直接写在该主机目录，不设共享开关。
 
@@ -77,13 +77,10 @@ nixos-rebuild build --flake .#base
 
 没有启用 `kernel.cachyos` 时使用 NixOS 默认内核。启用后先运行 `nixos-rebuild build --flake .#class` 验证构建，再运行 `sudo nixos-rebuild boot --flake .#class` 并重启（其他主机替换 `class`）；新内核在重启后生效。第三方指纹驱动的开关保留在 laptop 的 `hosts/laptop/hardware.nix` 中，目前已关闭，不引入其内核开发闭包。
 
-首次启用时，当前系统尚未信任 CachyOS 缓存，可先使用以下命令构建，避免本地编译内核；写入启动配置后，缓存设置会在新系统启动时生效：
-
-```bash
-sudo nix build .#nixosConfigurations.class.config.system.build.toplevel --no-link \
-  --extra-substituters https://attic.xuyh0120.win/lantian \
-  --extra-trusted-public-keys 'lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc='
-```
+上游维护者于 2026-10-15 [确认缓存与构建服务器遭入侵](https://github.com/xddxdd/nix-cachyos-kernel/issues/110#issuecomment-6189203183)。
+永久弃用 lantian 缓存及其签名公钥；即使服务恢复也不重新启用。
+保留源码 input 与 `overlays.pinned`，由可信的 x86_64 构建环境重新编译内核，上传自建私有 Attic。
+下载配置沿用共享缓存模块；内核缓存缺失时会本地编译，构建与上传流程见 [私有缓存文档](nix-cache.md#cachyos-内核)。
 
 ## 应用：声明式安装，profile 只用于试用
 

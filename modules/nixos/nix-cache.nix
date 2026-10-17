@@ -2,7 +2,11 @@
 let
   caches = inputs.nur-packages.lib.cacheConfig;
   private = config.my.nix.cacheProfile == "private";
-  projectCaches = lib.attrValues caches.caches;
+  # Permanently revoke lantian after the server compromise (upstream issue #110).
+  # Keep this guard while older nur-packages locks still advertise the cache.
+  projectCaches = lib.filter
+    (cache: cache.url != "https://attic.xuyh0120.win/lantian" && !(lib.hasPrefix "lantian:" cache.key))
+    (lib.attrValues caches.caches);
 in
 {
   age.secrets.attic-netrc = lib.mkIf private {
