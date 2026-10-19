@@ -1,4 +1,3 @@
-set -gx EDITOR nvim
 set fish_greeting
 
 set -gx PATH "$HOME/.cargo/bin" $PATH

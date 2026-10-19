@@ -102,6 +102,8 @@ nix profile remove obsidian
 
 系统不再全局安装 GCC、Clang、Rust、JDK、Node、Bun、Python 开发环境和 IDE。Neovim 只为自身附带 tree-sitter、gcc、Node.js 和 clangd，不启用 Node/Python/Ruby provider；项目需要的其他 LSP、编译器放入项目 devShell。
 
+桌面主机通过 Home Manager 配置 Helix，作为默认的 `EDITOR` 和 `VISUAL`，Fish 与 Kitty 使用该设置。Helix 使用 Dracula 主题，配置 `Ctrl+[` 返回普通模式，启用相对行号、当前行高亮、多文件标签栏与分模式光标。Rust、C/C++、Nix 保存时自动格式化；Nix 自带 `nil` 和 `nixpkgs-fmt`，Rust、C/C++ 使用项目 devShell 的 `rust-analyzer`（调用 `rustfmt`）和 `clangd`。配置入口为 `modules/home/shell/helix/default.nix`。
+
 仓库提供项目模板，包含 Rust、C++、Node、Python、Java 五种独立 shell。进入新建或没有 flake 的项目目录：
 
 ```bash
@@ -126,4 +128,4 @@ java -jar target/my-jsp-project.jar
 
 访问 `http://localhost:8080/` 和 `/hello`。初始化后的默认 devShell 为 Temurin JDK 8，Maven 和 `JAVA_HOME` 均使用同一个 JDK。只需复制打包后的 JAR，即可在其他装有 Java 8 或以上版本的机器上运行。
 
-direnv 示例：项目 `.envrc` 写 `use flake .#rust`，再执行 `direnv allow`。从该环境启动 `nvim`，项目 LSP 与编译器会出现在 PATH 中。工具链只在使用该项目时实现，不参与首次系统构建。
+direnv 示例：项目 `.envrc` 写 `use flake .#rust`，再执行 `direnv allow`。从该环境启动 `hx` 或 `nvim`，项目 LSP 与编译器会出现在 PATH 中。Rust 使用 `nix develop .#rust -c hx`，C/C++ 使用 `nix develop .#cpp -c hx`；运行 `hx --health rust`、`hx --health c`、`hx --health cpp` 和 `hx --health nix` 可查看语言工具是否就绪。工具链只在使用该项目时实现，不参与首次系统构建。

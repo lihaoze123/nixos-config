@@ -18,6 +18,8 @@ in
     enable = true;
     shellInit = lib.mkBefore ''
       set -gx SHELL ${pkgs.fish}/bin/fish
+      set -gx EDITOR ${config.home.sessionVariables.EDITOR or "nvim"}
+      set -gx VISUAL ${config.home.sessionVariables.VISUAL or "nvim"}
       source ${./config.fish}
     '';
   };
