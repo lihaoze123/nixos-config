@@ -60,7 +60,7 @@ ssh root@<IP>
 - `modules/home/`：Home Manager 层。`shell/`、`desktop/`（Niri、DMS、输入法、文件管理等）、`ai/` 与 `apps.nix`。
 - `profiles/`：`workstation.nix`（所有桌面主机共用）与 `personal.nix`（laptop、home 的个人功能），均以 `mkDefault` 设置，主机可直接覆盖。
 - `hosts/<主机>/`：选择 profile、覆盖开关，并放置硬件与单主机配置；`home.nix` 为该主机的 Home Manager 覆盖。`hosts/base/` 是功能全关的最小配置，`hosts/installer/` 为独立安装镜像。
-- 自定义软件包在独立 [nur-packages](https://github.com/lihaoze123/nur-packages) 仓库维护；本仓库通过 Flake 输入引用。
+- 自定义软件包在独立 [nur-packages](https://github.com/lihaoze123/nur-packages) 仓库维护；全部通过官方 [NUR](https://github.com/nix-community/NUR) 输入与 `pkgs.nur.repos.lihaoze123` 引用，NixOS 模块使用 `inputs.nur.repos.lihaoze123.modules.nixos`。更新配方或模块时运行 `nix flake update nur`。
 - `templates/project/`：通用 devShell 模板（`#project`）和 Java 8 Servlet/JSP 可执行 JAR 模板（`#java-webapp`）。
 - `secrets/`：凭据统一由 ragenix 管理，收件人见 `secrets/secrets.nix`。
 

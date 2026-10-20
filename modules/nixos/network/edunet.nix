@@ -1,7 +1,7 @@
 { config, lib, pkgs, inputs, ... }:
 {
   imports = [
-    inputs.nur-packages.nixosModules.edunet
+    inputs.nur.repos.lihaoze123.modules.nixos.edunet
   ];
 
   config = lib.mkIf config.my.network.edunet.enable {

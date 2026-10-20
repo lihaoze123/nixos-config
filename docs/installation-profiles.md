@@ -91,12 +91,12 @@ nixos-rebuild build --flake .#base
 ```bash
 nix shell nixpkgs#obsidian                    # 只在当前 shell 中可用
 nix profile install nixpkgs#obsidian          # 临时保留，可随时移除
-nix profile install github:lihaoze123/nur-packages#vscode
+NIXPKGS_ALLOW_UNFREE=1 nix profile install --impure github:nix-community/NUR#legacyPackages.x86_64-linux.repos.lihaoze123.vscode
 nix profile list
 nix profile remove obsidian
 ```
 
-确定长期使用后，把软件写进配置，切换到新系统，再从 profile 中移除，避免同一程序有两份。本仓库不再导出 `packages` / `legacyPackages` 供 profile 安装；自定义包直接从 nur-packages 安装。
+确定长期使用后，把软件写进配置，切换到新系统，再从 profile 中移除，避免同一程序有两份。本仓库不再导出 `packages` / `legacyPackages` 供 profile 安装；自定义包从官方 NUR 的 `repos.lihaoze123` 安装。配置内使用 `pkgs.nur.repos.lihaoze123.<包名>`，更新索引运行 `nix flake update nur`；新配方需要先被官方索引收录。
 
 ## 开发环境：各项目自己的 flake
 

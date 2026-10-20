@@ -1,7 +1,7 @@
-{ config, lib, pkgs, inputs, osConfig, ... }:
+{ config, lib, pkgs, osConfig, ... }:
 let
   enabled = osConfig.my.desktop.enable && osConfig.my.input.speech.enable && osConfig.my.input.speech.backend == "vinput";
-  vinput = inputs.nur-packages.packages.${pkgs.stdenv.hostPlatform.system}.fcitx5-vinput-lite;
+  vinput = pkgs.nur.repos.lihaoze123.fcitx5-vinput-lite;
   daemon = pkgs.writeShellScript "vinput-daemon-with-deepseek" ''
     set -euo pipefail
     # agenix uses an XDG_RUNTIME_DIR placeholder; expand it at runtime.

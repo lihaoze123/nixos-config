@@ -1,10 +1,10 @@
-{ config, pkgs, lib, inputs, system, ... }:
+{ config, pkgs, lib, inputs, ... }:
 let
   cfg = config.my.desktop;
 in
 {
   imports = [
-    inputs.nur-packages.nixosModules.computer-use
+    inputs.nur.repos.lihaoze123.modules.nixos.computer-use
     ./graphical-boot.nix
     ./fonts.nix
     ./phone.nix
@@ -20,7 +20,7 @@ in
     programs.codexComputerUse = {
       enable = cfg.codexComputerUse.enable;
       users = [ config.my.user.name ];
-      package = inputs.nur-packages.packages.${system}.codex-desktop;
+      package = pkgs.nur.repos.lihaoze123.codex-desktop;
     };
 
     # Dank Greeter on greetd. Switching display managers stops the running

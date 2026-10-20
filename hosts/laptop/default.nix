@@ -4,7 +4,7 @@
     ./hardware-configuration.nix
     ./hardware.nix
     ../../profiles/personal.nix
-    inputs.nur-packages.nixosModules.gxfp5130-chicago
+    inputs.nur.repos.lihaoze123.modules.nixos.gxfp5130-chicago
   ];
 
   my = {

@@ -1,6 +1,10 @@
-{ config, lib, inputs, ... }:
+{ config, lib, ... }:
 let
-  privateCache = inputs.nur-packages.lib.cacheConfig.caches.nur;
+  # Keep cache trust local; NUR repositories do not configure substituters.
+  privateCache = {
+    url = "https://cache.chumeng.xyz/nur";
+    key = "nur:dJh05Op2+iv3GCHoaF2+1FfQtqcUZzf/4v/ZTaLHomY=";
+  };
   baseCaches = [ "https://mirrors.cernet.edu.cn/nix-channels/store" "https://cache.nixos.org/" ];
   private = config.my.nix.cacheProfile == "private";
 in

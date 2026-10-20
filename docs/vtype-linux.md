@@ -15,7 +15,7 @@ my.input.vtype.enable = true;
 
 Home Manager 把插件加入 Fcitx5 的 addons，并安装上述命令。`~/.config/fcitx5/profile`
 由仓库的 `modules/home/desktop/fcitx5/config/profile` 管理，已包含 `wetype-im`，默认中文输入法仍为 Rime。
-NUR 配方更新后，使用 `nix flake update nur-packages` 更新客户端锁定版本。
+NUR 官方索引收录配方更新后，使用 `nix flake update nur` 更新客户端锁定版本。
 
 当前锁定上游 2026-10-16 的 `03b011c359a354bd8a790e24ae6e1552ae788359`，
 包含 19 组模糊音、自定义翻页键、输入框内显示拼音、始终使用英文标点，

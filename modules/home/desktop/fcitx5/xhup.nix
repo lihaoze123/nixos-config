@@ -1,4 +1,4 @@
-{ config, lib, pkgs, inputs, osConfig, ... }:
+{ config, lib, pkgs, osConfig, ... }:
 let
   inherit (import ./packages.nix { inherit pkgs lib; inherit (config.home) homeDirectory; })
     rime-crane fcitx5-rime-crane rime-user-data-dir rime-user-dictionary-dir
@@ -35,7 +35,7 @@ let
   # DMS plugin (github:lihaoze123/dms-xhup): lookup, quick add and the
   # part-root chart. The Rime shared data lives in the store, so pass it here;
   # directories set in the plugin settings would take precedence.
-  xhup-dms-plugin = inputs.nur-packages.packages.${pkgs.stdenv.hostPlatform.system}.dms-xhup.override {
+  xhup-dms-plugin = pkgs.nur.repos.lihaoze123.dms-xhup.override {
     serviceArgs = [
       "--data-dir"
       "${rime-crane}/share/rime-data"

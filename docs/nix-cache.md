@@ -22,7 +22,7 @@ Nginx 与 ACME 管理，上传和响应均不缓冲到 Nginx 临时文件。
 更换服务端 JWT 密钥会使全部旧 token 失效；更换缓存签名密钥则需要同步更新客户端公钥。
 凭据加密收件人规则见 [secrets/secrets.nix](../secrets/secrets.nix)，私钥不进入仓库或 Nix store。
 
-当前缓存公钥由 NUR `lib/cache-config.nix` 维护：
+客户端缓存地址与公钥在 `modules/nixos/nix-cache.nix` 中显式维护，不从 NUR 自动导入缓存信任：
 
 ```text
 nur:dJh05Op2+iv3GCHoaF2+1FfQtqcUZzf/4v/ZTaLHomY=
@@ -40,18 +40,21 @@ laptop、home、class、base 仅启用官方缓存、[CERNET 镜像](https://hel
 
 上游维护者于 2026-10-15 [确认缓存与构建服务器遭入侵](https://github.com/xddxdd/nix-cachyos-kernel/issues/110#issuecomment-6189203183)。
 永久弃用 `https://attic.xuyh0120.win/lantian` 及 `lantian:` 签名公钥，即使服务恢复也不重新启用。
-共享模块仅引用 NUR 的私有 `nur` 缓存地址和公钥，旧锁文件中的 lantian 配置不会被引入。
+共享模块仅声明私有 `nur` 缓存地址和公钥，不引入 NUR 或其他上游的缓存配置。
 CachyOS 内核改由可信环境编译并上传私有 Attic；撤销缓存信任不会替换本地已安装或正在运行的内核。
 
 例如构建单个 NUR 包：
 
 ```bash
-nix build github:lihaoze123/nur-packages#dbx
+nix build github:nix-community/NUR#legacyPackages.x86_64-linux.repos.lihaoze123.dbx
 ```
 
 系统重建沿用现有流程，只有明确准备构建或部署时才执行，不需要额外传入缓存参数。
-缓存命中要求 store path 一致。主机直接使用 NUR 自己锁定的 nixpkgs，不再通过
-`inputs.nur-packages.inputs.nixpkgs.follows` 覆盖它，避免主机更新产生与 NUR CI 不同的产物。
+缓存命中要求 store path 一致。主机通过官方 NUR overlay 使用
+`pkgs.nur.repos.lihaoze123`，与主机共用 nixpkgs；官方 NUR 输入的 nixpkgs 也 follows
+主机输入。NUR 仓库版本由官方索引固定，使用 `nix flake update nur` 更新。
+私有 CI 与主机必须使用一致的仓库版本、nixpkgs 和包参数才能复用产物；
+单独更新主机 nixpkgs 或官方索引后，可能需要重新构建并上传相应包。
 
 `vps` 与 installer 使用 public 策略，不解密个人设备下载或上传 token。
 其他设备首次应用本次变更后，Nix daemon 的 netrc 路径和 Home Manager 的客户端配置才生效。

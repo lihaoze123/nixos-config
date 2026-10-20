@@ -1,4 +1,4 @@
-{ lib, pkgs, osConfig, inputs, system, ... }:
+{ lib, pkgs, osConfig, ... }:
 let
   # Commit identity shared by Git and Jujutsu.
   identity = {
@@ -41,9 +41,9 @@ in
     iperf
     jjui
     nh
-    inputs.nur-packages.packages.${system}.cloudflare-cli
+    nur.repos.lihaoze123.cloudflare-cli
     # tobi/try with the NixOS shebang fix.
-    inputs.nur-packages.packages.${system}.try
+    nur.repos.lihaoze123.try
   ] ++ lib.optionals osConfig.my.desktop.enable [
     satty
     grim

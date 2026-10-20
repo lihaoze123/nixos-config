@@ -15,8 +15,9 @@
       url = "github:serokell/deploy-rs";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nur-packages = {
-      url = "github:lihaoze123/nur-packages";
+    nur = {
+      url = "github:nix-community/NUR";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-index-database = {
       url = "github:nix-community/nix-index-database";

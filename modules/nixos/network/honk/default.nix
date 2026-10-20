@@ -1,6 +1,6 @@
 { config, lib, pkgs, inputs, ... }:
 let
-  honk = inputs.nur-packages.packages.${pkgs.stdenv.hostPlatform.system}.honk;
+  honk = pkgs.nur.repos.lihaoze123.honk;
   runtimeConfig = pkgs.writeText "honk-config.dae"
     ((import ../dae/render-config.nix { inherit config lib; }) + builtins.readFile ./config.dae);
 in

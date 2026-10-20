@@ -1,7 +1,7 @@
-{ lib, pkgs, inputs, osConfig, ... }:
+{ lib, pkgs, osConfig, ... }:
 let
   # WeChat Pinyin; wetype-setup downloads the engine into the user directory.
-  vtype = inputs.nur-packages.packages.${pkgs.stdenv.hostPlatform.system}.vtype-linux;
+  vtype = pkgs.nur.repos.lihaoze123.vtype-linux;
 in
 lib.mkIf (osConfig.my.desktop.enable && osConfig.my.input.vtype.enable) {
   home.packages = [ vtype ];
