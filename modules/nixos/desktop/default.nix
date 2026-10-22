@@ -1,10 +1,11 @@
 { config, pkgs, lib, inputs, ... }:
 let
   cfg = config.my.desktop;
+  desktopPackages = inputs.nur-desktop.packages.${pkgs.stdenv.hostPlatform.system};
 in
 {
   imports = [
-    inputs.nur.repos.lihaoze123.modules.nixos.computer-use
+    inputs.nur-desktop.nixosModules.computer-use
     ./graphical-boot.nix
     ./fonts.nix
     ./phone.nix
@@ -14,13 +15,19 @@ in
   config = lib.mkIf cfg.enable {
     programs.niri = {
       enable = true;
+      # The imported module otherwise rebuilds niri with the host's pkgs.
+      # Keep its feature flags while selecting the exact CI-cached package set.
+      package = lib.mkIf (config.programs.codexComputerUse.enable && config.programs.codexComputerUse.patchNiri)
+        (lib.mkForce (desktopPackages.niri-patched.override {
+          agentInput = config.programs.codexComputerUse.agentInput;
+        }));
     };
 
     # Share the desktop and native niri backend across hosts.
     programs.codexComputerUse = {
       enable = cfg.codexComputerUse.enable;
       users = [ config.my.user.name ];
-      package = pkgs.nur.repos.lihaoze123.codex-desktop;
+      package = desktopPackages.codex-desktop;
     };
 
     # Dank Greeter on greetd. Switching display managers stops the running

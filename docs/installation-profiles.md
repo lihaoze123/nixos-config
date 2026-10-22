@@ -96,7 +96,7 @@ nix profile list
 nix profile remove obsidian
 ```
 
-确定长期使用后，把软件写进配置，切换到新系统，再从 profile 中移除，避免同一程序有两份。本仓库不再导出 `packages` / `legacyPackages` 供 profile 安装；自定义包从官方 NUR 的 `repos.lihaoze123` 安装。配置内使用 `pkgs.nur.repos.lihaoze123.<包名>`，更新索引运行 `nix flake update nur`；新配方需要先被官方索引收录。
+确定长期使用后，把软件写进配置，切换到新系统，再从 profile 中移除，避免同一程序有两份。普通自定义包在配置内使用 `pkgs.nur.repos.lihaoze123.<包名>`，更新索引运行 `nix flake update nur`；新配方需要先被官方索引收录。Niri 和 Codex Desktop 使用单独固定的 `nur-desktop` 包集以复用 CI 缓存，见[缓存说明](nix-cache.md)。
 
 ## 开发环境：各项目自己的 flake
 

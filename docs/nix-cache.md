@@ -35,6 +35,8 @@ laptop、home、class、base 仅启用官方缓存、[CERNET 镜像](https://hel
 自定义包统一从私有 Attic 获取，不再启用 Codex、Niri computer-use 和 fcitx5-vinput
 的项目 Cachix 下载源及其签名公钥，减少逐源查询；NUR 新增项目缓存也不会自动启用。
 共享系统模块统一声明下载源、公钥和 daemon 的只读 netrc；Home Manager 不再覆盖下载源。
+用户级 `~/.config/nix/nix.conf` 应继承系统缓存设置；可用
+`nix config show | rg '^substituters'` 检查实际生效的下载源。
 普通 `nix build`、`nix develop` 和系统构建命令会直接查询配置中的缓存，无需包装命令或缓存组。
 长期使用的软件仍声明在 NixOS / Home Manager 中；`nix profile` 仅用于临时试用。
 
@@ -50,11 +52,29 @@ nix build github:nix-community/NUR#legacyPackages.x86_64-linux.repos.lihaoze123.
 ```
 
 系统重建沿用现有流程，只有明确准备构建或部署时才执行，不需要额外传入缓存参数。
-缓存命中要求 store path 一致。主机通过官方 NUR overlay 使用
-`pkgs.nur.repos.lihaoze123`，与主机共用 nixpkgs；官方 NUR 输入的 nixpkgs 也 follows
-主机输入。NUR 仓库版本由官方索引固定，使用 `nix flake update nur` 更新。
-私有 CI 与主机必须使用一致的仓库版本、nixpkgs 和包参数才能复用产物；
-单独更新主机 nixpkgs 或官方索引后，可能需要重新构建并上传相应包。
+缓存命中要求 store path 一致，软件版本号相同不足以保证复用。
+普通自定义包通过官方 NUR overlay 的 `pkgs.nur.repos.lihaoze123` 使用主机
+nixpkgs；仓库版本由官方索引固定，使用 `nix flake update nur` 更新。
+
+Niri 与 Codex Desktop 使用单独锁定的 `nur-desktop` input。它固定 NUR 仓库
+提交，并保留该仓库自己的 nixpkgs 锁，直接使用与私有缓存 CI 相同的 Flake 包输出。
+Computer Use 模块也来自这个提交；其 `agentInput` 和 `patchNiri` 开关仍然有效。
+不要给 `nur-desktop.inputs.nixpkgs` 添加 `follows = "nixpkgs"`，也不要将这两个包
+改回通过主机 `pkgs.callPackage` 或普通 NUR overlay 实例化，否则会改变依赖与产物路径。
+系统其余软件、Home Manager 与 CachyOS 的输入不随这个包集更新。
+
+更新桌面包时，先确认目标 NUR 提交的 CI 构建及私有缓存上传成功，再修改
+`flake.nix` 中 `nur-desktop` 的提交并仅更新它的锁：
+
+```bash
+nix flake update nur-desktop
+nix build --dry-run --no-link --inputs-from . nur-desktop#niri-patched nur-desktop#codex-desktop
+```
+
+第二条只预演这两个包，不构建系统；正常应只有下载，没有待编译项。
+主机与 CI 必须同时匹配仓库版本、nixpkgs、源码引用方式和包参数；例如关闭
+`agentInput` 会选择另一种 Niri 变体，需要该变体自己的缓存。
+不要通过改写 store 路径或丢弃依赖上下文强行复用内容不同的产物。
 
 `vps` 与 installer 使用 public 策略，不解密个人设备下载或上传 token。
 其他设备首次应用本次变更后，Nix daemon 的 netrc 路径和 Home Manager 的客户端配置才生效。
