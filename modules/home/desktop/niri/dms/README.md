@@ -19,6 +19,7 @@ laptop 的指纹驱动及 PAM 开关在 `hosts/laptop/hardware.nix`，目前均�
 | --- | --- |
 | `~/.config/niri/config.kdl` | Home Manager 部署本目录的 `niri.kdl`，负责加载下列文件 |
 | `~/.config/niri/base.kdl` | 链接到仓库的 `modules/home/desktop/niri/config.kdl`，保留原有窗口管理配置 |
+| `~/.config/niri/scratchpad.kdl`、`scratchpad.py` | Home Manager 部署通用 IPC scratchpad 的工作区、快捷键和会话脚本 |
 | `~/.config/niri/outputs.kdl` | Home Manager 由主机的 `my.desktop.outputs` 生成，greeter 使用同一份输出 |
 | `~/.config/niri/computer-use.kdl` | 仅 `my.desktop.codexComputerUse` 主机部署，为 agent 驱动的窗口加边框 |
 | `~/.config/niri/dms-bindings.kdl` | Home Manager 部署本目录的 `binds.kdl` |
@@ -70,6 +71,34 @@ Niri 的固定默认值可写入仓库的 KDL，DMS 生成的片段拥有更后�
 | `Alt+Shift+X` | 小鹤反查：打开启动器并填入 `;` |
 | `Alt+Ctrl+X` | 小鹤加词：打开启动器并填入 `;+` |
 | `Alt+Ctrl+T` | 语音加热词：打开启动器并填入 `热+` |
+| `Alt+Shift+反引号` | 将任意当前窗口收进 scratchpad |
+| `Alt+反引号` | 呼出最近收起的窗口；聚焦后再按则收起 |
+| `Alt+Ctrl+反引号` | 循环呼出下一个 scratchpad 窗口 |
+
+### 通用 scratchpad
+
+所有桌面主机使用普通命名工作区 `scratch` 暂存窗口，不绑定应用，不启动新程序，
+无需修改 patched Niri。先收起一个或多个窗口，再在任意显示器的工作区呼出。
+呼出窗口会转为浮动并居中；窗口原来的应用、进程和内容保持运行。
+多个窗口按最近收起优先排列，循环快捷键会收起当前聚焦的 scratchpad 后显示下一个。
+如果呼出的窗口失去焦点，切换快捷键先重新聚焦它，再按一次才收起。
+
+`scratch` 仍会出现在 Overview、工作区列表和上下切换中，并影响数字工作区索引。
+误进暂存区时，先切回普通工作区再呼出；也可用原有窗口移动操作直接移出。
+脚本按全局工作区 ID 跨屏移动窗口，收起时留在当前工作区；之前聚焦的窗口
+仍在同一工作区时会恢复焦点。
+
+要将当前呼出的窗口移出管理，执行：
+
+```bash
+python3 ~/.config/niri/scratchpad.py release
+```
+
+窗口保持当前位置及浮动状态，可用 `Alt+Shift+V` 切回平铺。
+成员和顺序保存在 `$XDG_RUNTIME_DIR/niri-scratchpad-*.json`，按 Niri socket
+区分会话，不依赖后台守护进程。丢失状态后会从暂存区恢复成员；退出 Niri 后不保留。
+
+回归检查：`python3 modules/home/desktop/niri/tests/test-scratchpad.py`。
 
 剪贴板历史由 DMS 自带的服务记录。
 截图快捷键通过 IPC 调用已安装并启用的 `quickCapture` 插件，与状态栏部件

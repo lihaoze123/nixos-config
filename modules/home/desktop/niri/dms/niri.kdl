@@ -1,5 +1,6 @@
 // Preserve the existing Niri layout and shortcuts, then apply DMS overrides.
 include "base.kdl"
+include "scratchpad.kdl"
 include optional=true "wallpaper-engine.kdl"
 include "dms-bindings.kdl"
 

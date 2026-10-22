@@ -1,6 +1,6 @@
 { lib, pkgs, osConfig, ... }:
 {
-  imports = [ ./dms ];
+  imports = [ ./dms ./scratchpad.nix ];
 
   config = lib.mkIf osConfig.my.desktop.enable {
     home.file.".background/wallpaper.jpg".source = ./wallpaper.jpg;
