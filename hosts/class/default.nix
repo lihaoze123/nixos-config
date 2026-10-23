@@ -25,7 +25,7 @@
     kernel.cachyos.enable = true;
     network.proxy.backend = "dae";
     virtualisation = {
-      podman.enable = true;
+      docker.enable = true;
       libvirt.enable = true;
     };
   };

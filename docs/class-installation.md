@@ -118,7 +118,7 @@ nixos-rebuild switch --flake .#class --target-host root@<IP>
 
 ## 桌面配置
 
-`hosts/class/default.nix` 导入 `profiles/workstation.nix`（桌面、常用工具与图形工具、浏览器、蓝牙、校园网认证、AI CLI），另开启 `desktop.graphicalBoot`、`desktop.codexComputerUse`、dae 代理、Podman、libvirt、Windows 字体和 CachyOS 内核。
+`hosts/class/default.nix` 导入 `profiles/workstation.nix`（桌面、常用工具与图形工具、浏览器、蓝牙、校园网认证、AI CLI），另开启 `desktop.graphicalBoot`、`desktop.codexComputerUse`、dae 代理、Docker、libvirt、Windows 字体和 CachyOS 内核。
 内屏 eDP-1 固定使用 `1920x1080@60.000`、100% 缩放，greeter 与桌面一致。
 这是屏幕 EDID 的首选模式。此前固定为 50.002 Hz 的配置在开机黑屏排查中
 已恢复为 60 Hz；50 Hz 暂不作为黑屏的修复方案。

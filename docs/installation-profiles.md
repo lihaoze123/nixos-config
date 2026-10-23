@@ -6,9 +6,9 @@
 
 | Flake 入口 | Profile | 主机额外开启 |
 | --- | --- | --- |
-| `laptop`（别名 `nixos`） | `personal` | Chrome、微信、QQ、Telegram、VLC、OBS、yt-dlp、FFmpeg、微信拼音；Plymouth、Codex computer use、手机集成、投屏、Windows 字体、CachyOS 内核、honk、Podman、libvirt、Waydroid、Steam；指纹已在 `hosts/laptop/hardware.nix` 关闭 |
+| `laptop`（别名 `nixos`） | `personal` | Chrome、微信、QQ、Telegram、VLC、OBS、yt-dlp、FFmpeg、微信拼音；Plymouth、Codex computer use、手机集成、投屏、Windows 字体、CachyOS 内核、honk、libvirt、Waydroid、Steam；指纹已在 `hosts/laptop/hardware.nix` 关闭 |
 | `home` | `personal` | dae；NVIDIA、打印、Syncthing 在 `hosts/home/` |
-| `class` | `workstation` | 微信拼音；Plymouth、Codex computer use、Windows 字体、CachyOS 内核、dae、Podman、libvirt；Btrfs + 独立 ESP，保留 Windows |
+| `class` | `workstation` | 微信拼音；Plymouth、Codex computer use、Windows 字体、CachyOS 内核、dae、Docker、libvirt；Btrfs + 独立 ESP，保留 Windows |
 | `base` | 无 | 最小系统：启动、网络、用户、SSH、防火墙、Shell、Git/Jujutsu、Neovim、direnv，无图形会话 |
 | `vps` | 无 | Oracle ARM64：SSH、精简 CLI/Fish/Neovim、DHCP 双栈、整盘 ext4 + EFI、zram；见 [VPS 安装指南](vps-installation.md) |
 
@@ -73,7 +73,9 @@ nixos-rebuild build --flake .#base
 
 依赖不满足时求值会给出断言错误（例如图形类 `apps.*`、`desktop.*`、`input.speech`、`input.vtype` 需要 `desktop`，`input.speech.doubao` 需要 `input.speech`，`fonts.windows` 需要 `fonts.extra`）。开关只控制安装与服务，关闭不会删除原有用户数据。只在一台主机上存在的配置（指纹、打印、Syncthing、NVIDIA）直接写在该主机目录，不设共享开关。
 
-启用 `podman` 时，未指定仓库域名的镜像名按 `docker.io`、`quay.io`、`ghcr.io` 的顺序搜索，配置由 NixOS 写入 `/etc/containers/registries.conf`。例如 `podman pull alpine` 使用此搜索列表；`podman pull docker.io/library/alpine` 则直接使用指定仓库。Podman 可能提示选择仓库并记住选择；用户自己的 `~/.config/containers/registries.conf` 会覆盖系统配置。
+laptop、home 通过 `personal` 启用 Docker，class 在主机配置中启用 Docker；三台主机均关闭 Podman，Docker CLI 默认连接 rootless 用户 socket。可用 `docker info` 和 `systemctl --user status docker` 检查。Distrobox 随 Podman 开关关闭，已有 Podman 镜像、容器和卷不会自动迁移或删除。
+
+可选的 `podman` 开关仍保留。启用时，未指定仓库域名的镜像名按 `docker.io`、`quay.io`、`ghcr.io` 的顺序搜索，配置由 NixOS 写入 `/etc/containers/registries.conf`。例如 `podman pull alpine` 使用此搜索列表；`podman pull docker.io/library/alpine` 则直接使用指定仓库。Podman 可能提示选择仓库并记住选择；用户自己的 `~/.config/containers/registries.conf` 会覆盖系统配置。
 
 没有启用 `kernel.cachyos` 时使用 NixOS 默认内核。启用后先运行 `nixos-rebuild build --flake .#class` 验证构建，再运行 `sudo nixos-rebuild boot --flake .#class` 并重启（其他主机替换 `class`）；新内核在重启后生效。第三方指纹驱动的开关保留在 laptop 的 `hosts/laptop/hardware.nix` 中，目前已关闭，不引入其内核开发闭包。
 

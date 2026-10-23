@@ -41,7 +41,6 @@
     kernel.cachyos.enable = true;
     network.proxy.backend = "honk";
     virtualisation = {
-      podman.enable = true;
       libvirt.enable = true;
       waydroid.enable = true;
     };
