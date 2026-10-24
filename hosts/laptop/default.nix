@@ -39,7 +39,7 @@
     };
     fonts.windows.enable = true;
     kernel.cachyos.enable = true;
-    network.proxy.backend = "honk";
+    network.proxy.backend = "dae";
     virtualisation = {
       libvirt.enable = true;
       waydroid.enable = true;
