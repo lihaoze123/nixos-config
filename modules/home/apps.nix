@@ -8,7 +8,6 @@ let
     wechat = [ wechat ];
     qq = [ qq ];
     telegram = [ telegram-desktop ];
-    mpv = [ mpv ];
     vlc = [ vlc ];
     ytDlp = [ yt-dlp ];
     ffmpeg = [ ffmpeg ];
