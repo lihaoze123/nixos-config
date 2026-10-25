@@ -44,7 +44,10 @@
     timeServers = [ "169.254.169.254" ];
     # OCI's NSG allows all IPv4/IPv6 ingress; filter service ports in NixOS.
     firewall = {
-      allowedUDPPortRanges = lib.mkForce [ ];
+      # Limit the shared module's wider range to Mosh's default server ports.
+      allowedUDPPortRanges = lib.mkForce [
+        { from = 60000; to = 61000; }
+      ];
       # Keep NixOS's loopback allowance for the local DNS stub and other IPC.
       trustedInterfaces = lib.mkForce [ "lo" ];
     };
@@ -71,7 +74,6 @@
     PasswordAuthentication = false;
     KbdInteractiveAuthentication = false;
   };
-  programs.mosh.enable = lib.mkForce false;
 
   zramSwap = {
     enable = true;
