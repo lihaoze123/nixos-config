@@ -18,6 +18,7 @@
     configPath = null;
     nix.cacheProfile = "public";
     virtualisation.docker.enable = true;
+    programs.nixLd.enable = true;
     shell.profile = "minimal";
     editor.neovim.profile = "minimal";
     cli.packages = with pkgs; [
