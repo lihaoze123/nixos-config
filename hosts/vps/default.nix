@@ -12,6 +12,7 @@
     ./forgejo.nix
     ./memos.nix
     ./libretv.nix
+    ./karakeep.nix
     ./network-tuning.nix
   ];
 

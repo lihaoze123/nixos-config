@@ -47,6 +47,8 @@ Mosh 沿用 SSH 公钥认证，由 SSH 按需启动 `mosh-server`，无需常驻
 
 LibreTV 部署在 `https://tv.chumeng.xyz`，使用独立的访问密码及固定摘要的 ARM64 容器；数据源配置和使用方法见 [LibreTV](vps-libretv.md)。
 
+Karakeep 收藏服务部署在 `https://keep.chumeng.xyz`，配有浏览器抓取和全文搜索，见 [Karakeep 使用说明](vps-karakeep.md)。Karakeep 使用固定摘要的 ARM64 容器与原生 Nginx/ACME，应用端口仅绑定回环地址，初始账号密码通过 ragenix 加密管理。
+
 ## 防火墙管理
 
 OCI 云侧对本 VPS 放行所有入站协议与端口，服务端口统一由 NixOS 的 `networking.firewall` 管理。2026-10-16 已在仅关联 VPS VNIC 的 `ig-quick-action-NSG` 中添加两条有状态入站规则：来源 `0.0.0.0/0` 和 `::/0`，协议均为“所有协议”。NSG 与子网安全列表的允许规则取并集，子网原有的窄范围规则不限制这两条放行规则。
