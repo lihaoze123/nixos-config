@@ -47,7 +47,7 @@ Mosh 沿用 SSH 公钥认证，由 SSH 按需启动 `mosh-server`，无需常驻
 
 LibreTV 部署在 `https://tv.chumeng.xyz`，使用独立的访问密码及固定摘要的 ARM64 容器；数据源配置和使用方法见 [LibreTV](vps-libretv.md)。
 
-Karakeep 收藏服务部署在 `https://keep.chumeng.xyz`，配有浏览器抓取和全文搜索，见 [Karakeep 使用说明](vps-karakeep.md)。Karakeep 使用固定摘要的 ARM64 容器与原生 Nginx/ACME，应用端口仅绑定回环地址，初始账号密码通过 ragenix 加密管理。
+Karakeep 收藏服务部署在 `https://keep.chumeng.xyz`，配有浏览器抓取和全文搜索，见 [Karakeep 使用说明](vps-karakeep.md)。Uptime Kuma 部署在 `https://uptime.chumeng.xyz`，用于检查现有站点的可用性，见 [监控说明](vps-uptime-kuma.md)。两者使用固定摘要的 ARM64 容器与原生 Nginx/ACME，应用端口仅绑定回环地址，初始账号密码通过 ragenix 加密管理。
 
 ## 防火墙管理
 

@@ -13,6 +13,7 @@
     ./memos.nix
     ./libretv.nix
     ./karakeep.nix
+    ./uptime-kuma.nix
     ./network-tuning.nix
   ];
 
