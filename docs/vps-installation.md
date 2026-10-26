@@ -27,7 +27,7 @@
 
 ## 软件范围
 
-Hexo CMS 与私密预览已部署，见 [博客 CMS](vps-blog-cms.md)；正式博客保留 GitHub Pages。
+博客使用 Pages CMS 官方托管版，VPS 仅保留 CMS 域名跳转；见 [博客管理](vps-blog-cms.md)。
 
 - 基础工具：归档解压、file、which、tree、GNU 文本工具、GnuPG、DNS 查询、wget、direnv/nix-direnv、ragenix、nix-output-monitor。
 - CLI：Git、Jujutsu、delta、fd、fzf、ripgrep、eza、bat、jq、tmux。

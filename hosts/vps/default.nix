@@ -12,9 +12,14 @@
     ./forgejo.nix
     ./memos.nix
     ./libretv.nix
-    ./blog-cms.nix
     ./network-tuning.nix
   ];
+
+  services.nginx.virtualHosts."cms.chumeng.xyz" = {
+    enableACME = true;
+    forceSSL = true;
+    locations."/".return = "302 https://app.pagescms.org/";
+  };
 
   my = {
     configPath = null;

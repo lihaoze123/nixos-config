@@ -12,8 +12,7 @@ in
   "forgejo-admin-password.age".publicKeys = [ keys.vps keys.laptop keys.class-user ];
   "memos-admin-password.age".publicKeys = [ keys.vps keys.laptop keys.class-user ];
   "libretv-env.age".publicKeys = [ keys.vps keys.laptop keys.class-user ];
-  "blog-preview-htpasswd.age".publicKeys = [ keys.vps keys.laptop keys.class-user ];
-  "blog-cms-credentials.age".publicKeys = [ keys.vps keys.laptop keys.class-user ];
+  "blog-pages-deploy-key.age".publicKeys = [ keys.laptop keys.class-user ];
   "attic-netrc.age".publicKeys = users;
   "attic-upload-token.age".publicKeys = homeUsers;
   "dae-nodes.age".publicKeys = users;
