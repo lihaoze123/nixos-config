@@ -11,6 +11,7 @@
     ./attic.nix
     ./forgejo.nix
     ./memos.nix
+    ./libretv.nix
     ./network-tuning.nix
   ];
 

@@ -11,6 +11,7 @@ in
   "attic-server-env.age".publicKeys = [ keys.vps keys.laptop keys.class-user ];
   "forgejo-admin-password.age".publicKeys = [ keys.vps keys.laptop keys.class-user ];
   "memos-admin-password.age".publicKeys = [ keys.vps keys.laptop keys.class-user ];
+  "libretv-env.age".publicKeys = [ keys.vps keys.laptop keys.class-user ];
   "attic-netrc.age".publicKeys = users;
   "attic-upload-token.age".publicKeys = homeUsers;
   "dae-nodes.age".publicKeys = users;
