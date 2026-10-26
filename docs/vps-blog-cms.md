@@ -1,6 +1,6 @@
 # Hexo 博客管理与私密预览
 
-本配置准备了 Sveltia CMS 的 VPS 静态托管和 PR 预览接收端；**尚未部署上线**。
+Sveltia CMS 与私密预览已部署至 VPS。CMS 登录地址为 **https://cms.chumeng.xyz**。
 CMS 与 GitHub Actions 的源码位于独立仓库
 [lihaoze123/hexo-blog](https://github.com/lihaoze123/hexo-blog)，本地检出路径为
 `/home/chumeng/src/hexo-blog`。正式博客继续由公开产物仓库
@@ -47,8 +47,17 @@ CMS 保存文章或关于页时建立草稿分支和 PR。Actions 在该分支�
 
 `secrets/blog-preview-htpasswd.age` 是 Nginx 使用的密码哈希；运行时路径为
 `/run/agenix/blog-preview-htpasswd`，仅 Nginx 可读。
-`secrets/blog-cms-credentials.age` 保存预览密码及两把独立部署私钥，仅作为加密备份，
+`secrets/blog-cms-credentials.age` 保存预览密码、两把独立部署私钥及 GitHub OAuth 凭据，仅作为加密备份，
 不会挂载到 VPS 服务；收件人沿用 VPS、laptop、class-user。
+
+预览用户名为 `chumeng`。在本配置仓库查看预览密码（会输出到自己的终端）：
+
+```bash
+nix shell nixpkgs#age --command age --decrypt -i ~/.ssh/id_ed25519 \
+  secrets/blog-cms-credentials.age | jq -r .preview_password
+```
+
+使用其他授权密钥时，替换 `-i` 后的路径。CMS 的 GitHub 授权令牌到期后，重新登录即可。
 
 | 凭据/公钥 | 用途 |
 | --- | --- |
@@ -60,6 +69,9 @@ CMS 保存文章或关于页时建立草稿分支和 PR。Actions 在该分支�
 默认 `GITHUB_TOKEN` 只限源码仓库，不能代替跨仓库发布凭据。公开产物仓库使用单独可写
 deploy key，不给 CMS 登录令牌承担部署职责。轮换任一 SSH key 时，需同时更新对应公钥、
 Actions Secret 和加密备份；轮换预览密码时同步更新加密密码哈希与备份。
+
+构建任务使用 `contents: read`、`pull-requests: read` 和 `statuses: write`；其中 PR 读取权限
+用于确认预览仍对应打开的 PR 最新提交，状态写入权限用于把预览地址报告给 CMS。
 
 ## 上线顺序
 
@@ -135,3 +147,25 @@ CMS 使用原始 Markdown 编辑模式；编辑器即时预览只作为参考，
 CMS 更新由博客仓库锁定的 `@sveltia/cms` 版本控制；Worker 另按固定上游提交更新。
 VPS 只托管静态文件，无数据库或常驻 Hexo 进程；关闭 `BLOG_DEPLOY_ENABLED` 可暂停全部
 自动发布，已经上线的博客和静态页面继续保留。
+
+## 部署验收记录
+
+2026-10-26 已完成 ARM VPS 远端构建、激活预览和正式部署；Nginx、HTTPS 证书及续期
+计时器正常，CMS 返回 200，GitHub OAuth 登录已由用户在浏览器验证。认证 Worker 使用
+自有 Cloudflare 账号，应用凭据存于 Worker Secret，并已加入现有加密备份。
+
+正式发布 [Actions #2](https://github.com/lihaoze123/hexo-blog/actions/runs/40285140152)
+与权限修复后的 [Actions #4](https://github.com/lihaoze123/hexo-blog/actions/runs/40287119965)
+成功；公开产物仓库仍使用 `main:/`，Pages 状态为 `built`，域名继续为 `chumeng.xyz`。
+
+临时草稿 [PR #3](https://github.com/lihaoze123/hexo-blog/pull/3) 的
+[预览构建 #5](https://github.com/lihaoze123/hexo-blog/actions/runs/40287214831) 成功，
+`hexo-preview` 状态包含真实预览 URL。匿名读取文章、图片、CSS 和关于页均返回 401，
+正确密码返回 200；中文、数学矩阵、脚注、图片和内部链接均已核对。
+关闭 PR 后 [清理任务 #6](https://github.com/lihaoze123/hexo-blog/actions/runs/40287846589)
+成功，文章与图片返回 404；较旧的上传任务被接收端拒绝。测试内容未合并到正式分支，
+临时分支已删除。
+
+Cloudreve、wastebin、Forgejo、Memos、LibreTV 的 HTTPS 抽查均返回 200，系统失败服务为 0。
+运行中内核与 initrd 未变化，无需重启；旧系统代际保留。部署前已同步远端新提交，保留
+LibreTV、Mosh 和 nix-ld 配置，CMS 变更接在已有最新提交之后。

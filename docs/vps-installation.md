@@ -27,7 +27,7 @@
 
 ## 软件范围
 
-Hexo CMS 与私密预览的待部署配置见 [博客 CMS](vps-blog-cms.md)；正式博客保留 GitHub Pages。
+Hexo CMS 与私密预览已部署，见 [博客 CMS](vps-blog-cms.md)；正式博客保留 GitHub Pages。
 
 - 基础工具：归档解压、file、which、tree、GNU 文本工具、GnuPG、DNS 查询、wget、direnv/nix-direnv、ragenix、nix-output-monitor。
 - CLI：Git、Jujutsu、delta、fd、fzf、ripgrep、eza、bat、jq、tmux。
