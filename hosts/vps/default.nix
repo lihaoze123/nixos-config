@@ -12,6 +12,7 @@
     ./forgejo.nix
     ./memos.nix
     ./libretv.nix
+    ./blog-cms.nix
     ./network-tuning.nix
   ];
 
