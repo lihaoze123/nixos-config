@@ -21,7 +21,7 @@
     };
     # Desktop binaries must use the same package set as their cache CI.
     # Keep this input's own nixpkgs lock; following the host changes store paths.
-    nur-desktop.url = "github:lihaoze123/nur-packages/ee1464765d3af04289dd82e1fdd0cea924f79fdb";
+    nur-desktop.url = "github:lihaoze123/nur-packages/f5c3c15b68aac755aba59b3384e53112bdd4c499";
     nix-index-database = {
       url = "github:nix-community/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
