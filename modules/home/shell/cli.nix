@@ -41,6 +41,7 @@ in
     iperf
     jjui
     nh
+    nix-search-tv
     nur.repos.lihaoze123.cloudflare-cli
     # tobi/try with the NixOS shebang fix.
     nur.repos.lihaoze123.try

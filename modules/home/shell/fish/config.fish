@@ -10,6 +10,12 @@ alias ls="eza --git --icons --color=always --group-directories-first"
 alias la="ls -la"
 alias vim="nvim"
 alias grep="rg"
+if command -q nix-search-tv; and command -q fzf
+    alias ns="nix-search-tv print | fzf \
+        --preview 'nix-search-tv preview {}' \
+        --preview-window 'right:60%:wrap' \
+        --scheme history"
+end
 if command -q lazygit
     alias lg="lazygit"
 end
