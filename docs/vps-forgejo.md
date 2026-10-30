@@ -1,10 +1,10 @@
-# VPS 私有 Git 服务：Forgejo
+# VPS Git 服务：Forgejo
 
 配置位于 [hosts/vps/forgejo.nix](../hosts/vps/forgejo.nix)，由 NixOS 原生 `services.forgejo` 管理，使用锁定 Nixpkgs 中的默认 LTS 软件包。访问地址为 **https://git.chumeng.xyz**，域名必须先解析至 VPS；HTTPS 沿用现有 Nginx 与 ACME 配置。
 
 ## 访问与账号
 
-关闭公开注册和 OpenID 登录、注册，要求登录后访问，新建仓库默认私有。该设置控制账号和仓库访问，服务地址仍可从公网连接。尚未配置邮件发送和 CI runner，Actions 暂时关闭。
+允许访客浏览公开内容（`REQUIRE_SIGNIN_VIEW = false`），关闭公开注册（`DISABLE_REGISTRATION = true`）和 OpenID 登录、注册，新建仓库默认私有。访客只能访问公开仓库；需要对外展示的仓库须在仓库设置中改为公开，现有私有仓库不会自动公开。服务地址可从公网连接。尚未配置邮件发送和 CI runner，Actions 暂时关闭。
 
 本次部署创建管理员 `chumeng`，随机初始密码加密保存在 `secrets/forgejo-admin-password.age`，收件人沿用 VPS、laptop 与 class-user。持有对应私钥时，在仓库根目录执行以下命令查看（会把初始密码显示到当前终端）：
 
@@ -62,6 +62,8 @@ systemctl --failed
 curl --fail https://git.chumeng.xyz/user/login
 ```
 
-按 [VPS 更新流程](vps-installation.md#后续更新) 先构建、预览，再激活。部署后需核对证书、注册关闭和匿名访问限制，并用临时私有仓库验证 SSH 推送与拉取、未授权密钥拒绝访问，以及服务重启后数据保留。
+按 [VPS 更新流程](vps-installation.md#后续更新) 先构建、预览，再激活。部署后需核对证书、注册关闭、访客可浏览公开仓库且无法访问私有仓库，并用临时私有仓库验证 SSH 推送与拉取、未授权密钥拒绝访问，以及服务重启后数据保留。
 
-2026-10-17 已完成选项求值、远端构建、激活预览与正式部署。Forgejo LTS 15.0.9 登录页 HTTPS 返回 200，证书校验通过，HTTP 跳转为 301；注册页面显示注册关闭。临时私有仓库通过 Jujutsu SSH 推送、克隆及字节比对；匿名 API 返回 403、匿名 Git HTTP 返回 401，未登记 SSH 密钥被拒绝。服务重启后仓库、文件与应用密钥均保留；手动 dump 成功，每日计时器正常。测试账号和仓库已清理，Cloudreve 与 wastebin HTTPS 均为 200，失败服务为 0，无需重启 VPS。Cloudflare 已添加 DNS-only A 记录，公共解析指向 VPS；本机 NSS 曾保留旧的不存在结果，HTTPS 校验使用 `curl --resolve` 指向公共 DNS 返回的地址。
+2026-10-30 已完成开放访客浏览的远端构建、激活预览与 deploy-rs 正式部署。匿名首页、仓库浏览页和仓库搜索 API 均返回 200，现有公开仓库页面及 Git HTTP 引用读取正常；两个现有私有仓库的匿名页面和 API 均返回 404，Git HTTP 返回 401。注册页面显示注册关闭，且没有账号注册表单；运行配置确认 `REQUIRE_SIGNIN_VIEW = false`、`DISABLE_REGISTRATION = true`，新建仓库仍默认私有。Forgejo、Nginx 与 Home Manager 服务正常，系统失败服务为 0；本机 DNS 与 IPv4/IPv6 官方缓存访问通过，无需重启 VPS，旧系统代际保留。
+
+2026-10-17 首次部署时全站要求登录，已完成选项求值、远端构建、激活预览与正式部署。Forgejo LTS 15.0.9 登录页 HTTPS 返回 200，证书校验通过，HTTP 跳转为 301；注册页面显示注册关闭。临时私有仓库通过 Jujutsu SSH 推送、克隆及字节比对；匿名 API 返回 403、匿名 Git HTTP 返回 401，未登记 SSH 密钥被拒绝。服务重启后仓库、文件与应用密钥均保留；手动 dump 成功，每日计时器正常。测试账号和仓库已清理，Cloudreve 与 wastebin HTTPS 均为 200，失败服务为 0，无需重启 VPS。Cloudflare 已添加 DNS-only A 记录，公共解析指向 VPS；本机 NSS 曾保留旧的不存在结果，HTTPS 校验使用 `curl --resolve` 指向公共 DNS 返回的地址。
