@@ -4,7 +4,6 @@
   imports = [
     ./hardware-configuration.nix
     ./display.nix
-    ./virtualisation.nix
     ../../disko/btrfs-partitions.nix
     ../../profiles/workstation.nix
   ];

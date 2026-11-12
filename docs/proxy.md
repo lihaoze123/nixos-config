@@ -30,23 +30,23 @@ ragenix -e dae-nodes.age -i ~/.ssh/id_ed25519
 my.network.proxy.backend = "honk";
 ```
 
-两个引擎共用 `modules/nixos/network/dae/render-config.nix` 生成配置，保留 `wan_interface: auto`。`my.network.proxy.lanInterfaces` 默认为空列表，不生成 `lan_interface`，仅代理本机流量。启用 Docker 或 libvirt 不会自动加入 `docker0`、`virbr0`，因为服务启用并不保证这些网桥已经存在；例如 libvirt 的默认网络可能尚未启动，否则 honk 会因绑定不存在的接口而启动失败。
+两个引擎共用 `modules/nixos/network/dae/render-config.nix` 生成配置，保留 `wan_interface: auto`。`my.network.proxy.lanInterfaces` 默认为空列表，仅代理本机流量。启用 `my.virtualisation.libvirt.enable` 时，共享虚拟化模块会自动加入 `virbr0`，并保证 libvirt 默认网络先于代理启动。Docker 等其他网桥仍需显式配置。
 
-需要代理虚拟机或局域网转发流量时，在主机配置中显式指定接口：
+需要代理其他网桥或局域网转发流量时，在主机配置中显式指定接口，例如：
 
 ```nix
-my.network.proxy.lanInterfaces = [ "virbr0" ];
+my.network.proxy.lanInterfaces = [ "br0" ];
 ```
 
-显式配置的接口必须在代理启动前存在。对于 libvirt 的默认网络，先用 `sudo virsh -c qemu:///system net-start default` 启动网络，并用 `sudo virsh -c qemu:///system net-autostart default` 设置自动启动；自动启动仍不保证网桥先于代理就绪，若需要开机即代理虚拟机流量，还应配置相应的服务启动依赖。
+显式配置的接口必须在代理启动前存在，并由对应的网络配置保证启动顺序；libvirt 默认网络的依赖已由共享模块处理。
 
-### class 的虚拟机代理
+### libvirt 的虚拟机代理
 
-`hosts/class/virtualisation.nix` 在启用虚拟机功能时将 `virbr0` 加入代理接口。`libvirt-default-network.service` 为 libvirt 的 `default` 网络设置自动启动，按需启动网络并确认 `virbr0` 已存在；dae 或 honk 都必须等待这个服务完成后才能启动。网桥上的 DNS TCP/UDP 53 与 DHCP UDP 67 已放行。
+`modules/nixos/virtualisation.nix` 在启用 libvirt 时将 `virbr0` 加入代理接口，对 `laptop` 和 `class` 均生效。`libvirt-default-network.service` 为 libvirt 的 `default` 网络设置自动启动，按需启动网络并确认 `virbr0` 已存在；dae 或 honk 都必须等待这个服务完成后才能启动。网桥上的 DNS TCP/UDP 53 与 DHCP UDP 67 已放行。
 
 在 virt-manager 中使用 `QEMU/KVM` 系统连接（`qemu:///system`），将虚拟机网卡的网络源选为 `Virtual network 'default': NAT`，网卡型号建议为 `virtio`。虚拟机通过 DHCP 获取 `192.168.122.0/24` 内的地址、网关和 DNS，即可沿用宿主机的代理分流规则，无需在虚拟机内另设 HTTP/SOCKS 代理。其他虚拟网络不包含在这项配置中。
 
-构建并激活 `class` 后可检查：
+构建并激活对应主机配置后可检查：
 
 ```bash
 systemctl is-active libvirt-default-network dae

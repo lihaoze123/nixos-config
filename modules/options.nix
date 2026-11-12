@@ -163,8 +163,9 @@ in
           example = [ "virbr0" ];
           description = ''
             LAN interfaces whose forwarded traffic dae or honk should proxy.
-            These interfaces must exist before the proxy starts. Enabling Docker
-            or libvirt does not automatically add their bridges to this list.
+            These interfaces must exist before the proxy starts. The libvirt
+            module adds virbr0 and starts its default network before the proxy.
+            Docker bridges must be added explicitly.
           '';
         };
       };
