@@ -145,13 +145,98 @@ attic push private:nur --stdin --jobs 4 < cachyos-paths.txt
 或在已有产物的机器上构建成功，不能证明缓存完整。NVIDIA、ZFS 等外部模块属于独立产物。
 
 2026-10-17 已在全新 OCI 东京 E6 实例（32 OCPU、64 线程、128 GB 内存）重新构建
-当前 laptop/class 共用的 CachyOS BORE 7.2.8，源码 input 固定为 `b1332396df6e880d7e3b6b451c6a74132ce8cf66`。
+当时 laptop/class 共用的 CachyOS BORE 7.2.8，源码 input 固定为 `b1332396df6e880d7e3b6b451c6a74132ce8cf66`。
 北京时间 13:38:54 开始、13:52:39 完成，总耗时约 13 分 45 秒，主体编译阶段为 9 分钟。
 三个输出已保存到现有 `nur` 缓存；切换至 OCI 跨区域私网后完成剩余上传，并从
 另一个空 store 下载其 73 个路径的闭包。官方或自建签名均通过校验，NarHash、NarSize 和 References 与
 远端构建结果逐项一致。三个输出的 NarHash、NarSize 也与本机原有同版本产物一致。
 临时实例、引导卷、专用网络及两端 DRG/RPC 已删除，原有路由已恢复。
 本次仅重新构建和缓存内核，没有构建或激活完整系统。
+
+## 2026-11-12/13：OCI 完整构建与缓存维护
+
+在 OCI 东京 `VM.Standard.E6.Flex`（32 OCPU / 64 vCPU、128 GB 内存、500 GB 引导卷）
+完整构建 laptop，使用本机工作区求值出的同一份 derivation 图，没有激活系统。
+最后一轮构建耗时 22 分 52 秒；从首次发起至完成共 25 分 4 秒，记录到 854 项实际执行的
+derivation，包含配置生成和固定输出下载。监控采集期间，1 分钟平均 CPU 使用率峰值约
+95.1%，内存峰值约 42.1 GiB。
+
+按单项耗时至少 60 秒或全部输出 NAR 合计至少 128 MiB 筛选，向现有 `nur` 缓存上传
+以下 13 组产物的 17 个输出。表中耗时是实际执行的墙钟时间；依赖准备和安装包下载
+也计入各自的 derivation，不代表 CPU 编译耗时。体积为未压缩 NAR，内核和 Qt 均合计全部输出。
+
+| 构建项 | 耗时 | 未压缩体积 |
+| --- | ---: | ---: |
+| `linux-cachyos-bore-7.3.1` | 852.1 秒 | 952.2 MiB |
+| `qtdeclarative-6.12.0` | 539.9 秒 | 1240.9 MiB |
+| `QQ_3.2.34_260924_amd64_01.deb` | 91.9 秒 | 178.5 MiB |
+| `windows-fonts-26200.6584.250915-1905` | 50.7 秒 | 462.9 MiB |
+| `wechat-4.1.13.26` | 19.8 秒 | 756.3 MiB |
+| `qq-3.2.34-2026-09-24` | 12.0 秒 | 613.1 MiB |
+| `linux-src-patched` | 10.4 秒 | 1585.9 MiB |
+| `microsoft-edge-157.0.4341.46` | 9.8 秒 | 677.5 MiB |
+| `google-chrome-157.0.8103.50` | 7.3 秒 | 451.3 MiB |
+| `cloudflare-cli-1.0.0-beta.21` | 5.9 秒 | 209.0 MiB |
+| `claude-code-2.1.322` | 1.4 秒 | 326.1 MiB |
+| `codex-0.167.2` | 1.4 秒 | 515.9 MiB |
+| `cloudflare-cli-1.0.0-beta.21-npm-deps` | 1.0 秒 | 300.7 MiB |
+
+上传直接经东京与新加坡之间的临时 OCI 私网完成，使用短期、仅限 `nur` pull/push 的 token。
+构建完成后，按使用需求从 Home Manager 配置删除 OpenCode，同时删除它的程序包及
+`node_modules` 缓存对象；其他软件仍引用的共享依赖保留。移除后的 laptop、home、class
+包列表均经求值确认不再包含 OpenCode；这次配置调整没有重新完整构建或激活。
+清理后从空 store 下载 17 个保留输出，以及正在使用的 CachyOS 7.2.8 三个输出和
+Codex Desktop，共 991 条闭包路径，全部通过签名和内容检查。新产物的 605 条闭包路径
+与构建机逐项比对，旧缓存的 22 条额外路径与清理前记录比对，NarHash、NarSize 和
+References 均一致；其余 364 条额外依赖通过 Nix 官方缓存签名校验。
+验证临时使用 `narinfo-cache-negative-ttl = 0`，避免构建前缓存的
+未命中记录遮住刚上传的输出；日常缓存设置保持原值。
+移除 OpenCode 前的本机系统构建预演中，筛选产物均不再需要编译，仍有 38 项配置组装及未筛选组件待构建。
+
+清理前保留了 laptop、home、class 当前配置的完整构建依赖图、活动系统与用户 profile、
+正在运行的 CachyOS 7.2.8 全部输出，以及各软件最新的缓存构建；同时保护所有保留对象的引用闭包。
+候选须创建和最后访问均超过 7 天，并有已保留的替代版本或构建。
+在 VPS 上建立数据库快照和存储块的临时硬链接副本后，删除 81 条旧对象映射，主要为旧 Codex
+Desktop 构建及启动包装、旧 VS Code、DBX、Cloudflare CLI 和不再被引用的依赖。
+连同额外移除的两个 OpenCode 对象，共删除 83 条对象映射，使用 Attic 原生 GC
+回收 20,331 个孤立块。
+
+缓存存储目录的实际占用减少 2,445,926,400 字节，约 2.28 GiB。
+剩余 1,558 条原有对象的 NarHash、NarSize 和 References
+全部保持一致，数据库完整性和外键检查通过。默认 90 天保留策略保持不变。
+校验后删除 VPS 上的临时数据库与存储块备份；Attic 和 Nginx 保持正常运行。
+临时构建实例及 500 GB 引导卷已终止，实例占用约 67 分钟，按创建时单价估算
+计算费用约 1.36 美元，不含磁盘和网络费用。
+两端临时 DRG/RPC、东京专用网络均已删除，新加坡原有路由已恢复。
+临时 Grafana 随构建机回收关闭；本地短期凭据、隧道和预算保护进程一并清理。
+
+### 2026-11-13：本地复验与遗漏补齐
+
+移除 OpenCode 后，在 laptop 本机完整构建当前配置，未激活系统。限制最多三个任务并行、
+每项六个编译线程，37 项实际构建共耗时约 5 分 9 秒。内核和补丁版 Qt Declarative
+命中私有缓存；仍需编译的两个较重组件如下，体积包含全部输出的未压缩 NAR。
+
+| 构建项 | 本机耗时 | 全部输出体积 | 输出数 |
+| --- | ---: | ---: | ---: |
+| `quickshell-0.3.2`（语音编辑补丁依赖变体） | 168.2 秒 | 100.1 MiB | 2 |
+| `qtwayland-6.12.0`（补丁版 Qt 包集） | 103.7 秒 | 51.6 MiB | 3 |
+
+这五个输出均已补传 Attic，包含 `debug`、`dev` 输出。从另一个空 store 实际下载
+418 条闭包路径，签名和内容检查通过，NarHash、NarSize、References 与本机构建逐项一致。
+其余 35 项本机构建均不到 4 秒。以后除按耗时和体积筛选外，还应复查客户端的待编译依赖，
+避免高配云机上的短耗时掩盖客户端仍需进行的原生编译。
+laptop 与 home 使用同一个补丁版 Quickshell；class 使用的另一变体已有 Nix 官方缓存签名。
+
+同时迁移 `services.displayManager.dms-greeter` → `services.displayManager.dux-greeter`、
+`programs.dsearch` → `programs.dux-search`、`pkgs.dms-shell` → `pkgs.dux-shell`。
+Avahi 发布设置改为 `services.avahi.settings.publish` 的三个明确开关：
+`disable-publishing = false`、`disable-user-service-publishing = false`、`publish-addresses = true`。
+`boot.initrd.verbose` 此前已删除，当前锁定版本确实已移除该选项。
+laptop、home、class 的系统及 Home Manager 警告和断言失败均为空。
+
+迁移后再次完整构建成功，系统输出路径与迁移前一致：
+`/nix/store/bqzgil275sw960alw9g3176iwa1nbjaw-nixos-system-laptop-26.11.20261111.d4f25a3`。
+应用仍由用户执行 `sudo nixos-rebuild boot --flake .#laptop`，成功后重启。
 
 ## CI
 
