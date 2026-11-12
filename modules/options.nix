@@ -65,7 +65,7 @@ in
       default = "private";
       description = "Cache policy; private enables the configured public project caches and Attic by default; public uses only cache.nixos.org and requires no private cache credentials.";
     };
-    ai.enable = mkEnableOption "Claude Code, Codex and OpenCode CLI tools";
+    ai.enable = mkEnableOption "Claude Code and Codex CLI tools";
 
     desktop = {
       enable = mkEnableOption "Niri with DankMaterialShell and Dank Greeter, Chinese input, audio and desktop utilities";

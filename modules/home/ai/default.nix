@@ -53,7 +53,6 @@ lib.mkIf osConfig.my.ai.enable {
   home.packages = with pkgs; [
     claude-code
     codex
-    opencode
 
     (claude_alt_models_modified {
       name = "dscc";

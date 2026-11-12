@@ -53,7 +53,7 @@ nixos-rebuild build --flake .#base
 | 开关 | 管理的内容 | workstation | personal |
 | --- | --- | --- | --- |
 | `cli.extra` | lazygit、zellij、tealdeer、fastfetch、btop、ouch、iperf、jjui、nh、try | ✓ | ✓ |
-| `ai` | Claude Code、Codex、OpenCode 与加密凭据/包装命令 | ✓ | ✓ |
+| `ai` | Claude Code、Codex 与加密凭据/包装命令 | ✓ | ✓ |
 | `desktop` | Niri + DMS、Dank Greeter、中文输入法、PipeWire、基础字体、Kitty、文件管理 | ✓ | ✓ |
 | `desktop.utilities` | ghostty、neovide、pavucontrol、GNOME 磁盘、baobab、Filelight | ✓ | ✓ |
 | `apps.edge` / `apps.mpv` | Microsoft Edge；mpv | ✓ | ✓ |
