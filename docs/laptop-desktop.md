@@ -63,7 +63,7 @@ reboot
 - Plymouth 画面中按 **Esc** 可切换到文字启动日志。
 - 隐藏画面上的日志不影响日志记录：`journalctl -b`、`journalctl -b -1`（上一次启动）、`systemd-analyze blame`。
 - 文字控制台：**Ctrl+Alt+F2** 等切换到 TTY；greetd 在 tty1 上。
-- 排查 greeter 问题时，可临时设置 `services.displayManager.dms-greeter.logs.save = true`，日志写入 `/tmp/dms-greeter.log`。
+- 排查 greeter 问题时，可临时设置 `services.displayManager.dux-greeter.logs.save = true`，日志写入 `/tmp/dms-greeter.log`。
 
 ## 登录（Dank Greeter）
 

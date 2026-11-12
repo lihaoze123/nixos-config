@@ -32,7 +32,7 @@ in
 
     # Dank Greeter on greetd. Switching display managers stops the running
     # session: apply with `nixos-rebuild boot` and reboot.
-    services.displayManager.dms-greeter = {
+    services.displayManager.dux-greeter = {
       enable = true;
       compositor = {
         name = "niri";
@@ -78,7 +78,7 @@ in
     programs.dconf.enable = true;
 
     # Use the pinned nixpkgs module and its user service for DMS file search.
-    programs.dsearch = {
+    programs.dux-search = {
       enable = true;
       systemd.target = "graphical-session.target";
     };

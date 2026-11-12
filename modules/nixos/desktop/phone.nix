@@ -9,9 +9,10 @@ lib.mkIf config.my.desktop.phone.enable {
   services.avahi = {
     enable = true;
     # Valent advertises its KDE Connect endpoint through DNS-SD.
-    publish = {
-      enable = true;
-      userServices = true;
+    settings.publish = {
+      disable-publishing = false;
+      disable-user-service-publishing = false;
+      publish-addresses = true;
     };
     nssmdns4 = true;
     openFirewall = true;

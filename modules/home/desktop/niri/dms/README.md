@@ -4,9 +4,10 @@ DMS 是唯一的桌面外壳，所有开启 `my.desktop.enable` 的主机都使�
 （`modules/home/default.nix` 据此设置 `programs.dank-material-shell.enable`）。
 
 Home Manager 通过官方 DMS v1.6.2 模块管理 `dms.service`，运行包使用
-仓库锁定的 `pkgs.dms-shell` 和 `pkgs.quickshell`。DMS 随 Niri 图形会话启动，
+仓库锁定的 `pkgs.dux-shell` 和 `pkgs.quickshell`。DMS 随 Niri 图形会话启动，
 负责状态栏、通知、壁纸、启动器、剪贴板和锁屏。
-`modules/nixos/desktop/default.nix` 提供 Dank Greeter、UPower、电源模式、AccountsService 和 dsearch；
+`modules/nixos/desktop/default.nix` 通过 `services.displayManager.dux-greeter` 与
+`programs.dux-search` 提供 greeter、文件搜索，并启用 UPower、电源模式与 AccountsService；
 laptop 的指纹驱动及 PAM 开关在 `hosts/laptop/hardware.nix`，目前均已关闭。
 
 `niri/config.kdl` 来自本目录的 `niri.kdl`，它包含 `base.kdl`。所有主机共用
@@ -43,7 +44,7 @@ Theme & Colors 设置中启用主题模板及 Apply GTK/Qt Themes；已保存的
 `Papirus-Dark`。
 
 日历事件支持已启用；显示个人日程前，需要配置 `khal` 的日历来源。
-`hosts/laptop/default.nix` 通过 nixpkgs 原生模块安装 DankSearch，并让
+共享桌面模块通过 nixpkgs 原生 `programs.dux-search` 安装文件搜索，并让
 `dsearch.service` 随图形会话启动。可用 `systemctl --user status dsearch`
 检查服务，在 DMS 启动器中使用文件搜索。
 

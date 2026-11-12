@@ -98,7 +98,6 @@ in
 
     # Hide routine boot text; Esc in Plymouth and journalctl -b still show it.
     boot.consoleLogLevel = 3;
-    boot.initrd.verbose = false;
     boot.kernelParams = [
       "quiet"
       "udev.log_level=3"

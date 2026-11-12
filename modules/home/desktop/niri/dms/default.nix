@@ -110,7 +110,7 @@ in
 
     programs.dank-material-shell = {
       # Use nixpkgs for the runtime and the upstream flake for its module.
-      package = pkgs.dms-shell;
+      package = pkgs.dux-shell;
       quickshell.package =
         if osConfig.my.input.speech.enable then
           pkgs.quickshell.override { qt6 = voiceEditQt; }
