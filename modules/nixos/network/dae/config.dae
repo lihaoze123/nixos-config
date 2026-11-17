@@ -40,12 +40,12 @@ routing {
     dip(224.0.0.0/3, 'ff00::/8') -> direct
     dip(geoip:private) -> direct
     l4proto(udp) && dport(443) -> block
-    domain(geosite:category-ai-!cn) -> proxy
-    domain(gstatic.com) -> proxy
-    domain(geosite:google) -> proxy
-    domain(geosite:google@cn) -> proxy
-    domain(geosite:github) -> proxy
+    domain(geosite:category-ai-!cn) -> proxy-v6
+    domain(gstatic.com) -> proxy-v6
+    domain(geosite:google) -> proxy-v6
+    domain(geosite:google@cn) -> proxy-v6
+    domain(geosite:github) -> proxy-v6
     dip(geoip:cn) -> direct
     domain(geosite:cn) -> direct
-    fallback: proxy
+    fallback: proxy-v6
 }
