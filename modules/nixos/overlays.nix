@@ -8,5 +8,6 @@
   ] ++ lib.optionals config.my.ai.enable [
     inputs.claude-code.overlays.default
     inputs.codex-code.overlays.default
+    inputs.llm-agents.overlays.shared-nixpkgs
   ];
 }

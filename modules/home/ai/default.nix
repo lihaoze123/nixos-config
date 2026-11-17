@@ -53,6 +53,7 @@ lib.mkIf osConfig.my.ai.enable {
   home.packages = with pkgs; [
     claude-code
     codex
+    llm-agents.antigravity-cli
 
     (claude_alt_models_modified {
       name = "dscc";
