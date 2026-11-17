@@ -37,54 +37,51 @@ in
     "d ${mediaDir}/incomplete 0750 media media - -"
   ];
 
-  virtualisation.oci-containers = {
-    backend = "docker";
-    containers = {
-      qbittorrent = {
-        log-driver = "json-file";
-        image = "lscr.io/linuxserver/qbittorrent@sha256:97333cc1ccf903e0bbcd8eb67e3332e4970e9c1ecabe145e499e9c0847ebcaed";
-        ports = [ "127.0.0.1:8080:8080" "51413:51413/tcp" "51413:51413/udp" ];
-        environment = {
-          PUID = toString uid;
-          PGID = toString gid;
-          TZ = "Asia/Shanghai";
-          UMASK = "027";
-          WEBUI_PORT = "8080";
-          TORRENTING_PORT = "51413";
-        };
-        volumes = [ "${stateDir}/qbittorrent:/config" "${mediaDir}:/downloads" ];
-        extraOptions = containerOptions;
+  virtualisation.oci-containers.containers = {
+    qbittorrent = {
+      log-driver = "json-file";
+      image = "lscr.io/linuxserver/qbittorrent@sha256:97333cc1ccf903e0bbcd8eb67e3332e4970e9c1ecabe145e499e9c0847ebcaed";
+      ports = [ "127.0.0.1:8080:8080" "51413:51413/tcp" "51413:51413/udp" ];
+      environment = {
+        PUID = toString uid;
+        PGID = toString gid;
+        TZ = "Asia/Shanghai";
+        UMASK = "027";
+        WEBUI_PORT = "8080";
+        TORRENTING_PORT = "51413";
       };
-      autobangumi = {
-        log-driver = "json-file";
-        image = "ghcr.io/estrellaxd/auto_bangumi:3.3.6@sha256:3d8b9e5ebf344a8ca96d0f158f6ad95da430ad27b7c85badb791d3c9fa86a9d0";
-        dependsOn = [ "qbittorrent" ];
-        ports = [ "127.0.0.1:7892:7892" ];
-        environment = {
-          PUID = toString uid;
-          PGID = toString gid;
-          TZ = "Asia/Shanghai";
-          UMASK = "027";
-        };
-        volumes = [
-          "${stateDir}/autobangumi/config:/app/config"
-          "${stateDir}/autobangumi/data:/app/data"
-        ];
-        extraOptions = containerOptions;
+      volumes = [ "${stateDir}/qbittorrent:/config" "${mediaDir}:/downloads" ];
+      extraOptions = containerOptions;
+    };
+    autobangumi = {
+      log-driver = "json-file";
+      image = "ghcr.io/estrellaxd/auto_bangumi:3.3.6@sha256:3d8b9e5ebf344a8ca96d0f158f6ad95da430ad27b7c85badb791d3c9fa86a9d0";
+      dependsOn = [ "qbittorrent" ];
+      ports = [ "127.0.0.1:7892:7892" ];
+      environment = {
+        PUID = toString uid;
+        PGID = toString gid;
+        TZ = "Asia/Shanghai";
+        UMASK = "027";
       };
-      emby = {
-        log-driver = "json-file";
-        image = "emby/embyserver:4.10.0.40@sha256:3aafff933d3f28d23ed0bc201022abe71c0aa80deb17177566c726b9bbc686c6";
-        ports = [ "127.0.0.1:8096:8096" ];
-        environment = {
-          UID = toString uid;
-          GID = toString gid;
-          GIDLIST = toString gid;
-          TZ = "Asia/Shanghai";
-        };
-        volumes = [ "${stateDir}/emby:/config" "${mediaDir}/Bangumi:/media/Bangumi:ro" ];
-        extraOptions = containerOptions;
+      volumes = [
+        "${stateDir}/autobangumi/config:/app/config"
+        "${stateDir}/autobangumi/data:/app/data"
+      ];
+      extraOptions = containerOptions;
+    };
+    emby = {
+      log-driver = "json-file";
+      image = "emby/embyserver:4.10.0.40@sha256:3aafff933d3f28d23ed0bc201022abe71c0aa80deb17177566c726b9bbc686c6";
+      ports = [ "127.0.0.1:8096:8096" ];
+      environment = {
+        UID = toString uid;
+        GID = toString gid;
+        GIDLIST = toString gid;
+        TZ = "Asia/Shanghai";
       };
+      volumes = [ "${stateDir}/emby:/config" "${mediaDir}/Bangumi:/media/Bangumi:ro" ];
+      extraOptions = containerOptions;
     };
   };
 

@@ -10,11 +10,11 @@
 在主机的 `default.nix` 中开启（需要 `my.desktop`，laptop、class 已开启）：
 
 ```nix
-my.input.vtype.enable = true;
+my.desktop.input.vtype.enable = true;
 ```
 
 Home Manager 把插件加入 Fcitx5 的 addons，并安装上述命令。`~/.config/fcitx5/profile`
-由仓库的 `modules/home/desktop/fcitx5/config/profile` 管理，已包含 `wetype-im`，默认中文输入法仍为 Rime。
+由仓库的 `modules/desktop/fcitx5/config/profile` 管理，已包含 `wetype-im`，默认中文输入法仍为 Rime。
 NUR 官方索引收录配方更新后，使用 `nix flake update nur` 更新客户端锁定版本。
 
 当前锁定上游 2026-10-16 的 `03b011c359a354bd8a790e24ae6e1552ae788359`，
@@ -135,5 +135,5 @@ systemctl --user restart fcitx5-daemon.service
 
 ## 停用
 
-先切回 Rime，再在主机配置中关闭 `my.input.vtype.enable` 并重建系统。
+先切回 Rime，再在主机配置中关闭 `my.desktop.input.vtype.enable` 并重建系统。
 引擎和用户词库保留在上述用户目录，停用不会删除它们。

@@ -2,14 +2,12 @@
 
 ## 项目结构与模块组织
 
-本仓库管理 NixOS 与 Home Manager 配置，支持 `laptop`、`home`、`class` 和最小安装配置 `base`。
+本仓库管理 NixOS 与 Home Manager 配置，支持桌面主机 `laptop`、`home`、`class`，ARM64 服务器 `vps`，以及最小安装配置 `base`。
 
-- `flake.nix`、`flake.lock`：输入、主机入口与项目模板；`lib/` 提供 `mkHost`，统一接入共享模块、Home Manager 与主机目录。
-- `modules/options.nix`：集中声明全部 `my.*` 开关（`my.desktop`、`my.network.proxy`、`my.apps` 等）及依赖断言。
-- `modules/nixos/`：系统层，`core.nix` 为所有主机共用的基础，其余按 desktop、hardware、network、services、virtualisation、programs 分组。
-- `modules/home/`：Home Manager 层，分为 shell、desktop（Niri、DMS、输入法）、ai 和 `apps.nix`（日常图形应用）；输入法测试位于 `modules/home/desktop/fcitx5/tests/`。
+- `flake.nix`、`flake.lock`：输入、主机入口与项目模板；`lib/` 提供 `mkHost` 与 `myLib`（`secret`、`repoRelative`、`mkRepoSymlink`），统一接入共享模块、Home Manager 与主机目录。
+- `modules/`：按特性纵向内聚（`core`、`hardware`、`shell`、`network`、`virtualisation`、`services`、`desktop`、`apps`）。每个特性模块在同一目录内声明自身的 `my.<domain>.<feature>` 开关、依赖断言、NixOS 配置、overlays 及 `my.home`（`deferredModule`）用户态配置；输入法与窗口管理测试分别位于 `modules/desktop/fcitx5/tests/` 与 `modules/desktop/niri/tests/`。
 - `profiles/`：角色组合，以 `mkDefault` 打开一组开关；`workstation` 为所有桌面主机共用，`personal` 在其上增加 laptop、home 的个人功能。
-- `hosts/<主机>/`：`default.nix` 选择 profile 并覆盖开关，硬件与单主机配置（指纹、打印、NVIDIA 等）直接写在此目录，不设共享开关；`home.nix` 放该主机的 Home Manager 覆盖。
+- `hosts/<主机>/`：`default.nix` 选择 profile 并覆盖开关，硬件与单主机配置（指纹、打印、NVIDIA、VPS 业务服务等）直接写在此目录，不设共享开关；需要单机 Home Manager 覆盖时通过 `my.home` 接入。
 - 自定义软件包维护于独立 `nur-packages` 仓库，本仓库仅引用；`templates/project/`：项目开发环境模板。
 - `docs/`：安装与桌面说明；`secrets/`：加密凭据及规则。
 
@@ -20,18 +18,18 @@
 在仓库根目录执行：
 
 ```bash
-nix fmt                                # 使用 nixpkgs-fmt 格式化 Nix
+nix fmt modules lib profiles           # 使用 nixpkgs-fmt 格式化指定 Nix 路径（勿传 . 以免改动自动生成的硬件配置）
 nix flake check --no-build              # 检查 Flake 与配置求值
 nix flake check                        # 仅用户明确要求时执行含构建的 Flake 检查
 nixos-rebuild build --flake .#laptop    # 仅用户明确要求时构建目标主机，不激活系统
-nix shell nixpkgs#hello                # 临时试用软件；确定长期使用后写入 modules/home/apps.nix
+nix shell nixpkgs#hello                # 临时试用软件；确定长期使用后写入 modules/apps/
 ```
 
 将 `laptop` 替换为目标主机。编程环境使用项目自己的 devShell；在项目目录通过 `nix flake init -t /path/to/nixos-config#project` 初始化模板。仅在需要更新依赖时运行 `nix flake update`。
 
 ## 编码风格与命名约定
 
-Nix 使用两空格缩进，以 `nix fmt` 输出为准。模块入口命名为 `default.nix`。功能开关集中声明、按主机启用；共享逻辑放入模块，设备差异保留在 `hosts/<主机>/`。日常应用一律声明在配置中（`modules/home/apps.nix` 或相应模块），`nix profile` 和 `nix shell` 只用于试用。新增脚本使用 `/usr/bin/env` shebang；Python 使用四空格缩进，并遵循相邻文件风格。
+Nix 使用两空格缩进，以 `nix fmt` 输出为准（执行时显式传入修改的文件或目录路径，避免无参阻塞标准输入或误格式化 `hardware-configuration.nix`）。模块入口命名为 `default.nix`，较长用户态逻辑拆分为同目录 `home.nix` 挂载到 `my.home`。功能开关按 `my.<domain>.<feature>` 与 `modules/<domain>/<feature>` 对齐声明、按主机启用；共享逻辑放入模块，设备差异保留在 `hosts/<主机>/`。日常应用一律声明在配置中（`modules/apps/` 或相应特性模块），`nix profile` 和 `nix shell` 只用于试用。新增脚本使用 `/usr/bin/env` shebang；Python 使用四空格缩进，并遵循相邻文件风格。
 
 临时诊断、验证实验、一次性迁移或清理脚本，以及仅用于这些操作的测试、导出入口和中间产物，一律在 `/tmp` 下创建和运行，不得保留在代码库中，也不要为单台机器的遗留状态添加共享激活钩子或兼容逻辑。代码库只保留长期需要的配置、功能实现及其回归测试；临时操作完成后清理对应的 `/tmp` 文件。
 
@@ -40,7 +38,7 @@ Nix 使用两空格缩进，以 `nix fmt` 输出为准。模块入口命名为 `
 修改配置后优先使用针对改动的轻量检查和局部求值；修改共享模块时检查各相关主机的受影响选项。未经用户明确要求，不构建受影响主机。`nix flake check --no-build` 仍会求值多个完整配置，不能视为轻量检查；避免并行运行完整配置求值或构建，以免耗尽内存。Python 回归测试主要使用 `unittest`，文件命名为 `test-*.py`，方法使用 `test_*`。直接运行脚本，避免默认 discovery 漏掉含连字符的文件名：
 
 ```bash
-python3 modules/home/desktop/fcitx5/tests/test-xhup-lookup.py
+python3 modules/desktop/fcitx5/tests/test-xhup-lookup.py
 ```
 
 该测试需要 Python 与 PyYAML；其他依赖和真实 Fcitx/Rime 集成测试步骤见输入法文档。仓库未设定覆盖率门槛。桌面、硬件与服务变更还需在目标机器验证。

@@ -6,10 +6,9 @@ This directory contains NixOS configurations for different devices (hosts).
 
 Each host has its own directory containing:
 
-- `default.nix` - Imports a profile from `../profiles`, overrides `my.*` switches (declared in `../modules/options.nix`, all off by default) and holds host-only settings
+- `default.nix` - Imports a profile from `../profiles`, overrides `my.*` switches (declared by feature modules under `../modules/`, off by default unless specified) and holds host-only settings
 - `hardware-configuration.nix` - Hardware-specific configuration (auto-generated)
-- `home.nix` - Optional Home Manager overrides for this host
-- `optional files` - Additional host-specific configuration (hardware quirks, single-host services)
+- `optional files` - Additional host-specific configuration (hardware quirks, single-host services, or optional `home.nix` attached via `my.home`)
 
 Shared modules, Home Manager and the host name are wired in by `mkHost` in `../lib/default.nix`.
 

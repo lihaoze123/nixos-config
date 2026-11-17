@@ -9,6 +9,7 @@
   ];
 
   my = {
+    user.ageIdentity = "${config.my.user.home}/.ssh/id_ed25519";
     desktop = {
       graphicalBoot.enable = true;
       codexComputerUse.enable = true;
@@ -18,10 +19,10 @@
         scale = 1;
         position = { x = 0; y = 0; };
       };
+      fonts.windows.enable = true;
+      input.vtype.enable = true;
     };
-    input.vtype.enable = true;
-    fonts.windows.enable = true;
-    kernel.cachyos.enable = true;
+    hardware.cachyos.enable = true;
     network.proxy.backend = "dae";
     virtualisation = {
       docker.enable = true;
@@ -31,7 +32,6 @@
 
   # Use the writable checkout so LazyExtras can save plugin selections.
   my.configPath = "/home/chumeng/nixos-config";
-  my.home.imports = [ ./home.nix ];
 
   networking.firewall = {
     allowedTCPPorts = [ 9100 ];

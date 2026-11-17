@@ -107,8 +107,8 @@ nixos-rebuild switch --flake .#class --target-host root@<IP>
 ## 加密凭据
 
 `secrets/keys.nix` 已登记 `class`（SSH 主机公钥）和 `class-user`（chumeng 的 SSH 公钥）。
-系统 agenix 使用 `/etc/ssh/ssh_host_ed25519_key`；Home Manager 使用
-`/home/chumeng/.ssh/id_ed25519`，均覆盖 base 的旧 id_rsa 路径。
+系统 agenix 使用 `/etc/ssh/ssh_host_ed25519_key`；Home Manager 通过 `my.user.ageIdentity` 使用
+`/home/chumeng/.ssh/id_ed25519`，均覆盖 base 的默认 id_rsa 路径。
 两把私钥只保存在目标机；重装前须单独备份，或在重装后生成新密钥并重新加密。
 
 系统 secrets 的收件人包含 class；用户 AI CLI secrets 的收件人包含 class-user；
@@ -167,7 +167,7 @@ DMS 布局文件采用可选 include，以支持首次启动。
 小鹤个人词库已从本机复制到目标机的 `~/src/xhup-dicts`（仅词库文件快照，未复制 Git 私钥）。
 以后可以自行连接词库仓库或同步这些文件。
 
-`graphicalBoot` 与 laptop 共用 `modules/nixos/desktop/graphical-boot.nix`：隐藏 GRUB 菜单并等待
+`graphicalBoot` 与 laptop 共用 `modules/desktop/graphical-boot.nix`：隐藏 GRUB 菜单并等待
 1 秒，显示深色背景、紫色 NixOS 标志与转圈，隐藏常规启动文字，并在 Dank Greeter
 接管屏幕后保留 Plymouth 最后一帧退出。class 提前在 initrd 加载 i915，主题使用
 1 倍素材；laptop 使用 2 倍素材。开机时按 Esc 可显示 GRUB 菜单并选择 Windows

@@ -1,10 +1,11 @@
 # Oracle Cloud ARM VPS. Installation procedure: docs/vps-installation.md.
-{ config, lib, pkgs, inputs, ... }:
+{ config, pkgs, inputs, ... }:
 {
   imports = [
     inputs.disko.nixosModules.disko
     ./hardware.nix
     ./disk-config.nix
+    ./web.nix
     ./cloudreve.nix
     ./wastebin.nix
     ./media.nix
@@ -17,50 +18,40 @@
     ./network-tuning.nix
   ];
 
-  services.nginx.virtualHosts."cms.chumeng.xyz" = {
-    enableACME = true;
-    forceSSL = true;
-    locations."/".return = "302 https://app.pagescms.org/";
-  };
+  age.identityPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+  virtualisation.oci-containers.backend = "docker";
 
   my = {
     configPath = null;
     nix.cacheProfile = "public";
     virtualisation.docker.enable = true;
-    programs.nixLd.enable = true;
-    shell.profile = "minimal";
-    editor.neovim.profile = "minimal";
-    cli.packages = with pkgs; [
-      fd
-      fzf
-      ripgrep
-      eza
-      bat
-      jq
-      tmux
-      btop
-      tealdeer
-      ouch
-      iperf
-      nh
-    ];
+    apps.nixLd.enable = true;
+    shell = {
+      fish.profile = "minimal";
+      neovim.profile = "minimal";
+      cli.packages = with pkgs; [
+        fd
+        fzf
+        ripgrep
+        eza
+        bat
+        jq
+        tmux
+        btop
+        tealdeer
+        ouch
+        iperf
+        nh
+      ];
+    };
   };
 
   # Match OCI's existing NIC; the public IPv4 is mapped by OCI, not assigned here.
   networking = {
-    networkmanager.enable = lib.mkForce false;
+    networkmanager.enable = false;
     useNetworkd = true;
     useDHCP = false;
     timeServers = [ "169.254.169.254" ];
-    # OCI's NSG allows all IPv4/IPv6 ingress; filter service ports in NixOS.
-    firewall = {
-      # Limit the shared module's wider range to Mosh's default server ports.
-      allowedUDPPortRanges = lib.mkForce [
-        { from = 60000; to = 61000; }
-      ];
-      # Keep NixOS's loopback allowance for the local DNS stub and other IPC.
-      trustedInterfaces = lib.mkForce [ "lo" ];
-    };
   };
   systemd.network.networks."10-wan" = {
     matchConfig.MACAddress = "02:00:17:03:51:20";
@@ -75,7 +66,7 @@
 
   users.users.${config.my.user.name} = {
     linger = true;
-    extraGroups = lib.mkForce [ "wheel" "docker" ];
+    extraGroups = [ "docker" ];
     openssh.authorizedKeys.keyFiles = [ ./authorized_keys ];
   };
   security.sudo.wheelNeedsPassword = false;
