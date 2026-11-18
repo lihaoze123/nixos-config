@@ -27,53 +27,50 @@ in
     "d ${stateDir}/meilisearch 0700 root root - -"
   ];
 
-  virtualisation.oci-containers = {
-    backend = "docker";
-    containers = {
-      karakeep = {
-        image = "ghcr.io/karakeep-app/karakeep:0.34.1@sha256:69ae5315c618b7c14c1af3e34c6e211acdb231793af424ecd1cab0b70691d987";
-        dependsOn = [ "karakeep-chrome" "karakeep-meilisearch" ];
-        ports = [ "127.0.0.1:3080:3000" ];
-        environment = {
-          TZ = "Asia/Shanghai";
-          DATA_DIR = "/data";
-          NEXTAUTH_URL = "https://keep.chumeng.xyz";
-          DISABLE_SIGNUPS = "true";
-          DISABLE_NEW_RELEASE_CHECK = "true";
-          MEILI_ADDR = "http://karakeep-meilisearch:7700";
-          BROWSER_WEB_URL = "http://karakeep-chrome:9222";
-          CRAWLER_FULL_PAGE_ARCHIVE = "true";
-          CRAWLER_FULL_PAGE_ARCHIVE_MAX_SIZE_MB = "25";
-        };
-        environmentFiles = [ config.age.secrets.karakeep-env.path ];
-        volumes = [ "${stateDir}/data:/data" ];
-        log-driver = "json-file";
-        extraOptions = containerOptions;
+  virtualisation.oci-containers.containers = {
+    karakeep = {
+      image = "ghcr.io/karakeep-app/karakeep:0.34.1@sha256:69ae5315c618b7c14c1af3e34c6e211acdb231793af424ecd1cab0b70691d987";
+      dependsOn = [ "karakeep-chrome" "karakeep-meilisearch" ];
+      ports = [ "127.0.0.1:3080:3000" ];
+      environment = {
+        TZ = "Asia/Shanghai";
+        DATA_DIR = "/data";
+        NEXTAUTH_URL = "https://keep.chumeng.xyz";
+        DISABLE_SIGNUPS = "true";
+        DISABLE_NEW_RELEASE_CHECK = "true";
+        MEILI_ADDR = "http://karakeep-meilisearch:7700";
+        BROWSER_WEB_URL = "http://karakeep-chrome:9222";
+        CRAWLER_FULL_PAGE_ARCHIVE = "true";
+        CRAWLER_FULL_PAGE_ARCHIVE_MAX_SIZE_MB = "25";
       };
-      karakeep-chrome = {
-        # Upstream's browser image includes Debian Chromium for ARM64.
-        image = "ghcr.io/karakeep-app/karakeep-chrome:release@sha256:4ad61127638dd27bfe685222787c5780dd1d083d23a7658c39af657775814c44";
-        cmd = [
-          "--disable-gpu"
-          "--disable-dev-shm-usage"
-          "--hide-scrollbars"
-          "--disable-blink-features=AutomationControlled"
-          "--window-size=1440,900"
-        ];
-        log-driver = "json-file";
-        extraOptions = containerOptions ++ [ "--init" "--cap-drop=ALL" ];
+      environmentFiles = [ config.age.secrets.karakeep-env.path ];
+      volumes = [ "${stateDir}/data:/data" ];
+      log-driver = "json-file";
+      extraOptions = containerOptions;
+    };
+    karakeep-chrome = {
+      # Upstream's browser image includes Debian Chromium for ARM64.
+      image = "ghcr.io/karakeep-app/karakeep-chrome:release@sha256:4ad61127638dd27bfe685222787c5780dd1d083d23a7658c39af657775814c44";
+      cmd = [
+        "--disable-gpu"
+        "--disable-dev-shm-usage"
+        "--hide-scrollbars"
+        "--disable-blink-features=AutomationControlled"
+        "--window-size=1440,900"
+      ];
+      log-driver = "json-file";
+      extraOptions = containerOptions ++ [ "--init" "--cap-drop=ALL" ];
+    };
+    karakeep-meilisearch = {
+      image = "getmeili/meilisearch:v1.41.0@sha256:860fa4baed04ae1c235de870edab0c8006227546dea1bbb6411fbfc5e27cf1db";
+      environment = {
+        MEILI_ENV = "production";
+        MEILI_NO_ANALYTICS = "true";
       };
-      karakeep-meilisearch = {
-        image = "getmeili/meilisearch:v1.41.0@sha256:860fa4baed04ae1c235de870edab0c8006227546dea1bbb6411fbfc5e27cf1db";
-        environment = {
-          MEILI_ENV = "production";
-          MEILI_NO_ANALYTICS = "true";
-        };
-        environmentFiles = [ config.age.secrets.karakeep-env.path ];
-        volumes = [ "${stateDir}/meilisearch:/meili_data" ];
-        log-driver = "json-file";
-        extraOptions = containerOptions ++ [ "--cap-drop=ALL" ];
-      };
+      environmentFiles = [ config.age.secrets.karakeep-env.path ];
+      volumes = [ "${stateDir}/meilisearch:/meili_data" ];
+      log-driver = "json-file";
+      extraOptions = containerOptions ++ [ "--cap-drop=ALL" ];
     };
   };
 

@@ -7,15 +7,17 @@ in
   imports = [ ./workstation.nix ];
 
   my = {
-    desktop.easyeffects.enable = on;
-    input.speech = {
-      enable = on;
-      doubao.enable = on;
+    desktop = {
+      easyeffects.enable = on;
+      input.speech = {
+        enable = on;
+        doubao.enable = on;
+      };
     };
     network.tailscale.enable = on;
     services.aria2.enable = on;
     virtualisation.docker.enable = on;
-    programs = {
+    apps = {
       wireshark.enable = on;
       appimage.enable = on;
     };

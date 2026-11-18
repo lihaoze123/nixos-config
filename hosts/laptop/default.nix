@@ -18,10 +18,10 @@
       obs.enable = true;
       ytDlp.enable = true;
       ffmpeg.enable = true;
+      steam.enable = true;
     };
-    input.vtype.enable = true;
-    input.speech.backend = "vinput";
     desktop = {
+      xftDpi = 172;
       graphicalBoot = {
         enable = true;
         # Native 2x theme assets for the 3120x2080 panel.
@@ -31,20 +31,23 @@
       phone.enable = true;
       screenCast.enable = true;
       # wallpaperEngine.enable = true;
+      fonts.windows.enable = true;
+      input = {
+        vtype.enable = true;
+        speech.backend = "vinput";
+      };
       outputs."eDP-1" = {
         mode = "3120x2080@120";
         scale = 2;
         position = { x = 1280; y = 0; };
       };
     };
-    fonts.windows.enable = true;
-    kernel.cachyos.enable = true;
+    hardware.cachyos.enable = true;
     network.proxy.backend = "dae";
     virtualisation = {
       libvirt.enable = true;
       waydroid.enable = true;
     };
-    programs.steam.enable = true;
   };
 
   # System secrets must be available before /home is mounted.

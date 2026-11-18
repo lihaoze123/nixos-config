@@ -22,7 +22,7 @@ Nginx 与 ACME 管理，上传和响应均不缓冲到 Nginx 临时文件。
 更换服务端 JWT 密钥会使全部旧 token 失效；更换缓存签名密钥则需要同步更新客户端公钥。
 凭据加密收件人规则见 [secrets/secrets.nix](../secrets/secrets.nix)，私钥不进入仓库或 Nix store。
 
-客户端缓存地址与公钥在 `modules/nixos/nix-cache.nix` 中显式维护，不从 NUR 自动导入缓存信任：
+客户端缓存地址与公钥在 `modules/core/nix-cache.nix` 中显式维护，不从 NUR 自动导入缓存信任：
 
 ```text
 nur:dJh05Op2+iv3GCHoaF2+1FfQtqcUZzf/4v/ZTaLHomY=

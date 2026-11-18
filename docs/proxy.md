@@ -1,6 +1,6 @@
 # dae、honk 与 doona
 
-dae 和 honk 共用 `modules/nixos/network/dae/config.dae` 的公开规则与 `secrets/dae-nodes.age` 的加密节点。公开配置保留 DMIT/HK 分组、国内直连、AI/GitHub 经 DMIT、Google 经 HK、UDP 443 阻断，以及 HK 默认出站。`dae-config.age` 已不再被配置或加密规则引用；旧加密文件保留供迁移核对。
+dae 和 honk 共用 `modules/network/proxy/dae/config.dae` 的公开规则与 `secrets/dae-nodes.age` 的加密节点。公开配置保留 DMIT/HK 分组、国内直连、AI/GitHub 经 DMIT、Google 经 HK、UDP 443 阻断，以及 HK 默认出站。`dae-config.age` 已不再被配置或加密规则引用；旧加密文件保留供迁移核对。
 
 ## 节点凭据
 
@@ -30,7 +30,7 @@ ragenix -e dae-nodes.age -i ~/.ssh/id_ed25519
 my.network.proxy.backend = "honk";
 ```
 
-两个引擎共用 `modules/nixos/network/dae/render-config.nix` 生成配置，保留 `wan_interface: auto`。`my.network.proxy.lanInterfaces` 默认为空列表，仅代理本机流量。启用 `my.virtualisation.libvirt.enable` 时，共享虚拟化模块会自动加入 `virbr0`，并保证 libvirt 默认网络先于代理启动。Docker 等其他网桥仍需显式配置。
+两个引擎共用 `modules/network/proxy/dae/render-config.nix` 生成配置，保留 `wan_interface: auto`。`my.network.proxy.lanInterfaces` 默认为空列表，仅代理本机流量。启用 `my.virtualisation.libvirt.enable` 时，共享虚拟化模块会自动加入 `virbr0`，并通过内部 `my.network.proxy.afterServices` 保证 libvirt 默认网络先于代理启动。Docker 等其他网桥仍需显式配置。
 
 需要代理其他网桥或局域网转发流量时，在主机配置中显式指定接口，例如：
 
@@ -42,7 +42,7 @@ my.network.proxy.lanInterfaces = [ "br0" ];
 
 ### libvirt 的虚拟机代理
 
-`modules/nixos/virtualisation.nix` 在启用 libvirt 时将 `virbr0` 加入代理接口，对 `laptop` 和 `class` 均生效。`libvirt-default-network.service` 为 libvirt 的 `default` 网络设置自动启动，按需启动网络并确认 `virbr0` 已存在；dae 或 honk 都必须等待这个服务完成后才能启动。网桥上的 DNS TCP/UDP 53 与 DHCP UDP 67 已放行。
+`modules/virtualisation/libvirt.nix` 在启用 libvirt 时将 `virbr0` 加入代理接口，并注册 `libvirt-default-network` 为代理前置服务，对 `laptop` 和 `class` 均生效。`libvirt-default-network.service` 为 libvirt 的 `default` 网络设置自动启动，按需启动网络并确认 `virbr0` 已存在；dae 或 honk 都必须等待这个服务完成后才能启动。网桥上的 DNS TCP/UDP 53 与 DHCP UDP 67 已放行。
 
 在 virt-manager 中使用 `QEMU/KVM` 系统连接（`qemu:///system`），将虚拟机网卡的网络源选为 `Virtual network 'default': NAT`，网卡型号建议为 `virtio`。虚拟机通过 DHCP 获取 `192.168.122.0/24` 内的地址、网关和 DNS，即可沿用宿主机的代理分流规则，无需在虚拟机内另设 HTTP/SOCKS 代理。其他虚拟网络不包含在这项配置中。
 

@@ -1,7 +1,7 @@
 # Windows 字体
 
-`my.fonts.windows.enable` 通过 `chinese-fonts-overlay` 的上游
-`pkgs.windows-fonts` 安装 Windows 字体，需要同时启用 `my.desktop` 和 `my.fonts.extra`。
+`my.desktop.fonts.windows.enable` 通过 `chinese-fonts-overlay` 的上游
+`pkgs.windows-fonts` 安装 Windows 字体，需要同时启用 `my.desktop` 和 `my.desktop.fonts.extra`。
 当前 laptop、class 已开启，默认字体保持原设置。配置没有本地字体路径或来源覆盖。
 
 各设备共用私有 Attic 下载缓存。字体首次构建后可按 [缓存配置与维护](nix-cache.md)

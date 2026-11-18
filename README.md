@@ -54,12 +54,18 @@ ssh root@<IP>
 ## 配置结构
 
 - `flake.nix` / `flake.lock`：锁定输入、主机入口、安装镜像和项目模板。
-- `lib/default.nix`：`mkHost`，为每台主机接入 `modules/nixos`、Home Manager 和 `hosts/<主机>`，并设置主机名。
-- `modules/options.nix`：全部 `my.*` 开关的集中声明与依赖断言。
-- `modules/nixos/`：系统层。`core.nix`（启动、网络、用户、SSH、防火墙、Nix、direnv）、`nix-cache.nix`、`overlays.nix`，以及 `desktop/`、`hardware/`、`network/`、`services/`、`virtualisation.nix`、`programs.nix`。
-- `modules/home/`：Home Manager 层。`shell/`、`desktop/`（Niri、DMS、输入法、文件管理等）、`ai/` 与 `apps.nix`。
+- `lib/default.nix`：`mkHost` 与 `myLib`（`secret`、`repoRelative`、`mkRepoSymlink`），为每台主机统一接入 `modules/`、Home Manager 和 `hosts/<主机>`。
+- `modules/`：按特性纵向切片组织，每个特性模块就近声明自身的 `my.*` 开关、依赖断言、NixOS 配置、overlays 及 `my.home` 用户态配置：
+  - `core/`：系统底座（启动、网络、用户、SSH/Mosh、防火墙、Nix、direnv、Home Manager 桥接）与 `nix-cache.nix`；
+  - `hardware/`：蓝牙与 CachyOS 内核；
+  - `shell/`：CLI 工具集、Fish、Neovim 与 AI CLI（Claude Code、Codex 等）；
+  - `network/`：Tailscale、校园网认证与透明代理（`dae` / `honk`）；
+  - `virtualisation/`：Docker、Podman 与 libvirt/QEMU；
+  - `services/`：aria2 下载服务；
+  - `desktop/`：Niri、DMS（含插件注册接口）、Dank Greeter、Fcitx5 输入法、字体、手机互联、动态壁纸、投屏与桌面工具；
+  - `apps/`：日常图形与命令行应用及兼容运行环境（`nixLd`、AppImage、Wireshark、Steam 等）。
 - `profiles/`：`workstation.nix`（所有桌面主机共用）与 `personal.nix`（laptop、home 的个人功能），均以 `mkDefault` 设置，主机可直接覆盖。
-- `hosts/<主机>/`：选择 profile、覆盖开关，并放置硬件与单主机配置；`home.nix` 为该主机的 Home Manager 覆盖。`hosts/base/` 是功能全关的最小配置，`hosts/installer/` 为独立安装镜像。
+- `hosts/<主机>/`：选择 profile、覆盖 `my.*` 开关，并放置硬件与单主机配置（如 `vps/web.nix` 公共网关）。`hosts/base/` 是功能全关的最小配置，`hosts/installer/` 为独立安装镜像。
 - 自定义软件包在独立 [nur-packages](https://github.com/lihaoze123/nur-packages) 仓库维护。普通包通过官方 [NUR](https://github.com/nix-community/NUR) 输入与 `pkgs.nur.repos.lihaoze123` 引用，更新索引运行 `nix flake update nur`；Niri、Codex Desktop 及 Computer Use 模块使用单独固定的 `nur-desktop`，保留与缓存 CI 相同的包集，更新流程见[缓存说明](docs/nix-cache.md)。
 - `templates/project/`：通用 devShell 模板（`#project`）和 Java 8 Servlet/JSP 可执行 JAR 模板（`#java-webapp`）。
 - `secrets/`：凭据统一由 ragenix 管理，收件人见 `secrets/secrets.nix`。
@@ -70,7 +76,7 @@ ssh root@<IP>
 # 试用软件：nix shell 不留痕迹，nix profile 可保留一段时间
 nix shell nixpkgs#obsidian
 nix profile install nixpkgs#obsidian
-# 决定长期使用后，写入 modules/home/apps.nix 并从 profile 移除
+# 决定长期使用后，写入 modules/apps/ 并从 profile 移除
 nix profile remove obsidian
 
 # 版本管理使用 Jujutsu
