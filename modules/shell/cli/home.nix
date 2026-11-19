@@ -25,11 +25,16 @@ in
       ui = {
         default-command = "log";
       };
+      aliases = lib.mkIf osConfig.my.shell.cli.extra.enable {
+        review = [ "util" "exec" "--" "tuicr" ];
+      };
       merge-tools.difft = lib.mkIf (builtins.elem pkgs.difftastic osConfig.my.shell.cli.packages) {
         diff-invocation-mode = "file-by-file";
       };
     };
   };
+
+  programs.tuicr.enable = osConfig.my.shell.cli.extra.enable;
 
   home.packages = osConfig.my.shell.cli.packages ++ lib.optionals osConfig.my.shell.cli.extra.enable (with pkgs; [
     lazygit
