@@ -11,6 +11,7 @@ in
     };
     apps = {
       edge.enable = on;
+      antigravity.enable = on;
       mpv.enable = on;
       nixLd.enable = on;
     };

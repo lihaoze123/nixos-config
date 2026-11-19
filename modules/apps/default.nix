@@ -9,6 +9,7 @@ in
   options.my.apps = {
     edge.enable = mkEnableOption "Microsoft Edge";
     chrome.enable = mkEnableOption "Google Chrome";
+    antigravity.enable = mkEnableOption "Antigravity desktop app";
     wechat.enable = mkEnableOption "WeChat";
     qq.enable = mkEnableOption "QQ";
     telegram.enable = mkEnableOption "Telegram Desktop";
@@ -33,7 +34,7 @@ in
         assertion = !apps.${name}.enable || config.my.desktop.enable;
         message = "my.apps.${name} requires my.desktop";
       })
-      [ "edge" "chrome" "wechat" "qq" "telegram" "mpv" "vlc" "obs" "vscode" "anki" "obsidian" ];
+      [ "edge" "chrome" "antigravity" "wechat" "qq" "telegram" "mpv" "vlc" "obs" "vscode" "anki" "obsidian" ];
 
     programs.nix-ld.enable = apps.nixLd.enable;
     programs.appimage = { enable = apps.appimage.enable; binfmt = apps.appimage.enable; };

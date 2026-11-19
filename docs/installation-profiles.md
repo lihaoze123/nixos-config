@@ -55,7 +55,7 @@ nixos-rebuild build --flake .#base
 | `shell.ai` | Claude Code、Codex、antigravity-cli 与加密凭据/包装命令 | ✓ | ✓ |
 | `desktop` | Niri + DMS、Dank Greeter、中文输入法、PipeWire、基础字体、Kitty、截图与文件管理 | ✓ | ✓ |
 | `desktop.utilities` | ghostty、neovide、pavucontrol、GNOME 磁盘、baobab、Filelight | ✓ | ✓ |
-| `apps.edge` / `apps.mpv` / `apps.nixLd` | Microsoft Edge；mpv；外部程序兼容加载器 | ✓ | ✓ |
+| `apps.edge` / `apps.antigravity` / `apps.mpv` / `apps.nixLd` | Microsoft Edge；Antigravity 桌面客户端（`llm-agents`）；mpv；外部程序兼容加载器 | ✓ | ✓ |
 | `apps.appimage` / `apps.wireshark` / `apps.steam` | AppImage 运行支持；Wireshark 抓包；Steam | | 前两项 |
 | 其他 `apps.*` | `chrome`、`wechat`、`qq`、`telegram`、`vlc`、`obs`、`ytDlp`、`ffmpeg`、`vscode`（含原来的六个扩展）、`anki`、`obsidian`、`typesetting`（Typst、Pandoc、Tectonic），每个应用一个开关 | | |
 | `desktop.input.vtype` | 微信拼音 Fcitx5 插件，来自 NUR 的 vtype-linux 包，见 [VType Linux](vtype-linux.md) | | |

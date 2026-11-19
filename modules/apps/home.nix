@@ -1,10 +1,11 @@
-{ lib, pkgs, osConfig, ... }:
+{ lib, pkgs, osConfig, inputs, ... }:
 let
   cfg = osConfig.my.apps;
   # Application switch -> packages it installs.
   packages = with pkgs; {
     edge = [ microsoft-edge ];
     chrome = [ google-chrome ];
+    antigravity = [ inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.antigravity-hub ];
     wechat = [ wechat ];
     qq = [ qq ];
     telegram = [ telegram-desktop ];
